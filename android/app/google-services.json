@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "160225678375",
+    "project_id": "flawless-helper-317308",
+    "storage_bucket": "flawless-helper-317308.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:160225678375:android:2802a3731c9b84784e2a02",
+        "android_client_info": {
+          "package_name": "com.arkdeglory.arkflow"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAv9e5UBcmaTk-Sv0KJ6T5r9ItWtJYRftc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
