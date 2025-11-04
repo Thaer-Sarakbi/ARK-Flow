@@ -28,7 +28,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>arkflow</string>
-				<string>com.thaer-sarakbi.arkflow</string>
+				<string>com.arkdeglory.arkflow</string>
 			</array>
 		</dict>
 	</array>

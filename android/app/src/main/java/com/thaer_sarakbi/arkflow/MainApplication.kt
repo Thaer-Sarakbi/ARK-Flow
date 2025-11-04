@@ -1,4 +1,4 @@
-package com.thaer_sarakbi.arkflow
+package com.arkdeglory.arkflow
 
 import android.app.Application
 import android.content.res.Configuration

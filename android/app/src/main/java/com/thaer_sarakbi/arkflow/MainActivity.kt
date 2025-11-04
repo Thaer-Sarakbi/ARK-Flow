@@ -1,4 +1,4 @@
-package com.thaer_sarakbi.arkflow
+package com.arkdeglory.arkflow
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

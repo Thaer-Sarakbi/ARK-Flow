@@ -10,7 +10,7 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.thaer-sarakbi.arkflow"
+      "bundleIdentifier": "com.arkdeglory.arkflow"
     },
     "android": {
       "adaptiveIcon": {
@@ -21,7 +21,7 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.thaer_sarakbi.arkflow"
+      "package": "com.arkdeglory.arkflow"
     },
     "web": {
       "output": "static",
