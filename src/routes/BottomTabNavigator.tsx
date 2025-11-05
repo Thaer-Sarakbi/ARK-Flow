@@ -8,7 +8,7 @@ import ProfileScreen from '../screens/bottomNav/ProfileScreen';
 const Tab = createBottomTabNavigator<BottomNavigatorParamsList>();
 
 export type BottomNavigatorParamsList = {
-    Home: undefined,
+  Home: undefined,
   Attendance: undefined,
   Calendar: undefined,
   Profile: undefined
