@@ -1,7 +1,9 @@
+import { COLORS } from "@/src/colors";
 import Spacer from "@/src/components/atoms/Spacer";
 import Container from "@/src/components/Container";
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from "react";
-import { StyleSheet, Text } from "react-native";
+import { StyleSheet } from "react-native";
 import CalendarPicker from "react-native-calendar-picker";
 import { Dropdown } from 'react-native-element-dropdown';
 
@@ -17,26 +19,13 @@ const data = [
 ];
 
 export default function CalendarScreen() {
-  const [value, setValue] = useState(null);
+  const [value, setValue] = useState('1');
   const [isFocus, setIsFocus] = useState(false);
-
-  const renderLabel = () => {
-    if (value || isFocus) {
-      return (
-        <Text style={[styles.label, isFocus && { color: 'blue' }]}>
-          Dropdown label
-        </Text>
-      );
-    }
-    return null;
-  };
 
   return (
     <Container>
-      {renderLabel()}
         <Dropdown
-          style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
-          placeholderStyle={styles.placeholderStyle}
+          style={[styles.dropdown, isFocus && { borderColor: COLORS.info }]}
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}
           iconStyle={styles.iconStyle}
@@ -45,7 +34,6 @@ export default function CalendarScreen() {
           maxHeight={300}
           labelField="label"
           valueField="value"
-          placeholder={!isFocus ? 'Select item' : '...'}
           searchPlaceholder="Search..."
           value={value}
           onFocus={() => setIsFocus(true)}
@@ -54,16 +42,14 @@ export default function CalendarScreen() {
             setValue(item.value);
             setIsFocus(false);
           }}
-          // renderLeftIcon={() => (
-          //   <AntDesign
-          //     style={styles.icon}
-          //     color={isFocus ? 'blue' : 'black'}
-          //     name="Safety"
-          //     size={20}
-          //   />
-          // )}
+          renderLeftIcon={() => (
+            <Ionicons
+              style={styles.icon}
+              name="person-outline"
+              size={16}
+            />
+          )}
         />
-
         <Spacer height={20} />
         <CalendarPicker />
     </Container>
@@ -71,31 +57,15 @@ export default function CalendarScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: {
-    backgroundColor: 'white',
-    padding: 16,
-  },
   dropdown: {
-    height: 50,
-    borderColor: 'gray',
+    borderColor: COLORS.neutral._500,
     borderWidth: 0.5,
     borderRadius: 8,
     paddingHorizontal: 8,
+    paddingVertical: 12
   },
   icon: {
     marginRight: 5,
-  },
-  label: {
-    position: 'absolute',
-    backgroundColor: 'white',
-    left: 22,
-    top: 8,
-    zIndex: 999,
-    paddingHorizontal: 8,
-    fontSize: 14,
-  },
-  placeholderStyle: {
-    fontSize: 16,
   },
   selectedTextStyle: {
     fontSize: 16,
@@ -107,5 +77,5 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
-  },
+  }
 });

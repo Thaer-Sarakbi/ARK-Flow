@@ -17,7 +17,6 @@ export default function AttendanceScreen() {
         } catch(err){
           console.log(err)
         }
-        
       }
     })
   }
