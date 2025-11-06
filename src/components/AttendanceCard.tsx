@@ -8,10 +8,12 @@ interface AttendanceCard {
   title: string, 
   caption: string, 
   buttonText: string,
-  label: string
+  label: string,
+  onPress:() => void
 }
 
-export default function AttendanceCard({ title, caption, buttonText, label }: AttendanceCard) {
+export default function AttendanceCard({ title, caption, buttonText, label, onPress }: AttendanceCard) {
+
   return (
    <View style={styles.container}>
      <Text style={styles.title}>{title}</Text>
@@ -19,7 +21,7 @@ export default function AttendanceCard({ title, caption, buttonText, label }: At
      <Spacer height={4}/>
      <Input label={label} backgroundColor={COLORS.neutral._400} multiline numberOfLines={5} heightContainer={60} iIHeight={70}/>
      <Spacer height={5}/>
-     <SubmitButton text={buttonText}/>
+     <SubmitButton text={buttonText} onPress={onPress}/>
    </View>
   );
 }

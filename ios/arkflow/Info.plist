@@ -22,6 +22,12 @@
 	<string>1.0.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>ARK-Flow requires access to your location.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>ARK-Flow requires access to your location.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>ARK-Flow requires access to your location.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>

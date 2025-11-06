@@ -3,11 +3,12 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 interface SubmitButton {
   text: string, 
+  onPress:() => void
 }
 
-export default function SubmitButton({ text }: SubmitButton) {
+export default function SubmitButton({ text, onPress }: SubmitButton) {
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onPress}>
       <Text style={styles.text}>{text}</Text>
     </TouchableOpacity>
   );
