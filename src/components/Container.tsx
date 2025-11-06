@@ -1,6 +1,7 @@
 import React from 'react';
 import { ColorValue, Dimensions, KeyboardAvoidingView, Platform, ScrollView, StatusBar, StatusBarStyle, StyleSheet, View } from 'react-native';
 import { Edges, SafeAreaView, SafeAreaViewProps } from 'react-native-safe-area-context';
+import { COLORS } from '../colors';
 // import Header from './atom/headers/Header';
 
 const { height } = Dimensions.get("window");
@@ -40,7 +41,7 @@ interface ContainerProps extends SafeAreaViewProps {
  * @param {ColorValue} [param0.barBackgroundColor="transparent"]
  * @returns {*}
  */
-const Container = ({ children, style, headerMiddle, barStyle = "dark-content", barBackgroundColor = "transparent", allowBack = false, hasInput = false, backgroundColor = '#FFFFFF', edges, usingPaddingBottom = true, usingPaddingTop = true, headerBottomLine = false, barHidden = false, noPadding = false, FooterComponent, EnableRight}: ContainerProps) => {
+const Container = ({ children, style, headerMiddle, barStyle = "dark-content", barBackgroundColor = "transparent", allowBack = false, hasInput = false, backgroundColor = COLORS.white, edges, usingPaddingBottom = true, usingPaddingTop = true, headerBottomLine = false, barHidden = false, noPadding = false, FooterComponent, EnableRight}: ContainerProps) => {
     return (
         <SafeAreaView style={[style, styles.container, { backgroundColor }]} edges={edges}>
             <StatusBar translucent backgroundColor={barBackgroundColor} barStyle={barStyle} hidden={barHidden} />

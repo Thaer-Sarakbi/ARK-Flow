@@ -1,4 +1,5 @@
   interface Color {
+    primary: string,
     title: string,
     white: string,
     positive: string,
@@ -7,6 +8,7 @@
     negativeSecondary: string,
     caption: string,
     divider: string,
+    info: string,
     neutral: {
         _50: string,
         _100: string,
@@ -20,14 +22,16 @@
   }
 
   export const COLORS: Color = {
+    primary: 'rgba(245, 124, 0, 1)',
     title: "#000000",
+    caption: '#8E8E8E',
     white: "#FFFFFF",
-    positive: '#4FAC33',
+    positive: '#1DC973',
     positiveSecondary: '#E1FCED',
     danger: '#F64C4C',
     negativeSecondary: '#FFEBEE',
-    caption: '#8E8E8E',
     divider: '#EBEBEB',
+    info: '#4F8EF7',
     neutral: {
         _50: '#FAFAFA',
         _100: "#F5F5F5",
