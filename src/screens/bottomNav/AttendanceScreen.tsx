@@ -2,22 +2,21 @@ import Spacer from "@/src/components/atoms/Spacer";
 import AttendanceCard from "@/src/components/AttendanceCard";
 import Container from "@/src/components/Container";
 import Geolocation from "@react-native-community/geolocation";
-import { Platform } from "react-native";
-import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
+// import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
 
 export default function AttendanceScreen() {
   const getCurrentLocation = () => {
     Geolocation.getCurrentPosition((info: {coords:{latitude: number, longitude: number}}) => {
       console.log(info)
     }, async(err) => {
-      if (Platform.OS === 'android') {
-        try{
-          const enableResult = await promptForEnableLocationIfNeeded();
-          console.log('enableResult', enableResult);
-        } catch(err){
-          console.log(err)
-        }
-      }
+      // if (Platform.OS === 'android') {
+      //   try{
+      //     const enableResult = await promptForEnableLocationIfNeeded();
+      //     console.log('enableResult', enableResult);
+      //   } catch(err){
+      //     console.log(err)
+      //   }
+      // }
     })
   }
 

@@ -3,28 +3,29 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 interface SubmitButton {
   text: string, 
+  mode?: 'normal' | 'outlined', 
   onPress:() => void
 }
 
-export default function SubmitButton({ text, onPress }: SubmitButton) {
+export default function SubmitButton({ text, mode = 'normal', onPress }: SubmitButton) {
   return (
-    <TouchableOpacity style={styles.container} onPress={onPress}>
-      <Text style={styles.text}>{text}</Text>
+    <TouchableOpacity style={[styles.container, { backgroundColor: mode === 'normal' ? COLORS.primary : COLORS.white }]} onPress={onPress}>
+      <Text style={[styles.text, { color: mode === 'normal' ? COLORS.white : COLORS.primary }]}>{text}</Text>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
     container: {
-      backgroundColor: COLORS.primary,
       alignItems: 'center',
       justifyContent: 'center',
       borderRadius: 8,
-      padding: 12
+      padding: 12,
+      borderWidth: 1,
+      borderColor: COLORS.primary
     },
     text: {
       fontWeight: 'bold',
-      color: COLORS.white,
       fontSize: 18
     }
 });

@@ -169,7 +169,7 @@ const Input = ({
                             <Icon
                                 name={isPasswordVisible ? "eye-off-outline" : "eye-outline"}
                                 size={20}
-                                color={COLORS.white}
+                                color={COLORS.neutral._500}
                             />
                         </TouchableOpacity>
                     )}
