@@ -21,7 +21,7 @@ export default function AttendanceScreen() {
   }
 
   return (
-    <Container>
+    <Container headerMiddle="Attendance">
       <AttendanceCard label='Your Note' title="Check In" caption="Notes" buttonText="Register" onPress={getCurrentLocation} />
       <Spacer height={18}/>
       <AttendanceCard label="Your Note" title="Check Out" caption="Notes" buttonText="Register" onPress={getCurrentLocation} />

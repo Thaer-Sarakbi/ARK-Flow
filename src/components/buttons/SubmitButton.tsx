@@ -4,7 +4,8 @@ import { StyleSheet, Text, TouchableOpacity } from "react-native";
 interface SubmitButton {
   text: string, 
   mode?: 'normal' | 'outlined', 
-  onPress:() => void
+  disabled?: boolean,
+  onPress?:() => void
 }
 
 export default function SubmitButton({ text, mode = 'normal', onPress }: SubmitButton) {

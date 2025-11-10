@@ -23,7 +23,7 @@ export default function CalendarScreen() {
   const [isFocus, setIsFocus] = useState(false);
 
   return (
-    <Container>
+    <Container headerMiddle="Calendar">
         <Dropdown
           style={[styles.dropdown, isFocus && { borderColor: COLORS.info }]}
           selectedTextStyle={styles.selectedTextStyle}

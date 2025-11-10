@@ -1,7 +1,7 @@
-import React from 'react';
 import { ColorValue, Dimensions, KeyboardAvoidingView, Platform, ScrollView, StatusBar, StatusBarStyle, StyleSheet, View } from 'react-native';
 import { Edges, SafeAreaView, SafeAreaViewProps } from 'react-native-safe-area-context';
 import { COLORS } from '../colors';
+import Header from './Header';
 // import Header from './atom/headers/Header';
 
 const { height } = Dimensions.get("window");
@@ -18,7 +18,7 @@ interface ContainerProps extends SafeAreaViewProps {
     barBackgroundColor?: ColorValue;
     allowBack?: boolean;
     backgroundColor?: ColorValue;
-    headerMiddle?: React.ReactNode;
+    headerMiddle?: string;
     FooterComponent?: React.FC;
     edges?: Edges;
     hasInput?: boolean;
@@ -28,6 +28,7 @@ interface ContainerProps extends SafeAreaViewProps {
     barHidden?: boolean;
     noPadding?: boolean
     EnableRight?: React.ReactNode;
+    noHeader?: boolean
 }
 
 
@@ -41,11 +42,11 @@ interface ContainerProps extends SafeAreaViewProps {
  * @param {ColorValue} [param0.barBackgroundColor="transparent"]
  * @returns {*}
  */
-const Container = ({ children, style, headerMiddle, barStyle = "dark-content", barBackgroundColor = "transparent", allowBack = false, hasInput = false, backgroundColor = COLORS.white, edges, usingPaddingBottom = true, usingPaddingTop = true, headerBottomLine = false, barHidden = false, noPadding = false, FooterComponent, EnableRight}: ContainerProps) => {
+const Container = ({ children, style, headerMiddle, barStyle = "dark-content", barBackgroundColor = "transparent", allowBack = false, hasInput = false, backgroundColor = COLORS.white, edges, usingPaddingBottom = true, usingPaddingTop = true, headerBottomLine = false, barHidden = false, noPadding = false, noHeader = false , FooterComponent, EnableRight}: ContainerProps) => {
     return (
         <SafeAreaView style={[style, styles.container, { backgroundColor }]} edges={edges}>
             <StatusBar translucent backgroundColor={barBackgroundColor} barStyle={barStyle} hidden={barHidden} />
-            {/* <Header allowBack={allowBack} headerMiddle={headerMiddle} underline={headerBottomLine} EnableRight={EnableRight}/> */}
+            {!noHeader && <Header allowBack={allowBack} headerMiddle={headerMiddle} />}
             {hasInput ? (
                 <KeyboardAvoidingView style={[styles.wrapper,  (!usingPaddingBottom || FooterComponent) && {paddingBottom:0}, !usingPaddingTop && {paddingTop: 0}, { padding: noPadding ? 0 : 16 }]} enabled={hasInput} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? statusBarHeight + 12 : 0} >
                     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollView}>

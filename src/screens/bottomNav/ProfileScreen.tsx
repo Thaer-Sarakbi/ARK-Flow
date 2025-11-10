@@ -1,10 +1,11 @@
 import { COLORS } from '@/src/colors';
 import Spacer from '@/src/components/atoms/Spacer';
+import SubmitButton from '@/src/components/buttons/SubmitButton';
 import Container from '@/src/components/Container';
 import useShowPassword from '@/src/hooks/useShowPassword';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { ImageBackground, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { ImageBackground, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import packageJson from '../../../package.json';
 import Separator from '../../components/atoms/Separator';
 
@@ -29,7 +30,7 @@ export default function ProfileScreen() {
   ]
 
   return (
-    <Container edges={{ bottom: 'additive' }} noPadding={true}>
+    <Container edges={{ bottom: 'additive' }} noPadding={true} noHeader>
       <View>
         <ImageBackground style={[styles.background, { height: height / 3 }]} source={require('@/assets/profile.jpg')} >
           <MaterialCommunityIcons name="account-outline" color={COLORS.neutral._400} size={60} />
@@ -76,9 +77,8 @@ export default function ProfileScreen() {
           </View>
  
           <Spacer height={15} />
-          <TouchableOpacity style = {styles.logOutButton}>
-            <Text style = {styles.logOutText}>Log Out</Text>
-          </TouchableOpacity>
+
+          <SubmitButton text='Log Out' mode='outlined' />
 
           <Text style={styles.version}>version: {packageJson.version}</Text>
         </View>
