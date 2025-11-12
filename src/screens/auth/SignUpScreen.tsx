@@ -13,10 +13,7 @@ export default function SignUpScreen() {
 
   const schema = z
   .object({
-    firstName: z.string({
-      required_error: 'This field is required'
-    }).min(1, { message: 'This field is required' }),
-    lastName: z.string({
+    fullName: z.string({
       required_error: 'This field is required'
     }).min(1, { message: 'This field is required' }),
     email: z.string({
@@ -40,6 +37,7 @@ export default function SignUpScreen() {
       watch
     } = useForm({
       defaultValues: {
+        fullName: "",
         email: "",
         phoneNumber: "",
         password: "",
@@ -49,8 +47,8 @@ export default function SignUpScreen() {
       mode: 'onTouched',
     })
 
-    const handleSubmitLogin = () => {
-
+    const handleSubmitLogin = async () => {
+      const { fullName, email, password, phoneNumber } = watch()
     }
 
   return (
@@ -59,6 +57,26 @@ export default function SignUpScreen() {
         <Text style={styles.textHeader}>Welcome!</Text>
       </View>
       <View style={styles.footer}>
+          <Text style={styles.textFooter}>Full Name</Text>
+          <Spacer height={6} />
+         <Controller
+            name="fullName"
+            control={control}
+            render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
+              <Input 
+                autoCapitalize="none"
+                label="Your full name" 
+                borderColor={COLORS.neutral._300} 
+                inputColor={COLORS.title} 
+                labelColor={COLORS.neutral._400} 
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value}
+                errorText={error?.message}
+              />
+            )}
+          />
+        <Spacer height={20} />
         <Text style={styles.textFooter}>Email</Text>
         <Spacer height={6} />
         <Controller
