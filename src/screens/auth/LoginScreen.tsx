@@ -2,11 +2,13 @@ import { COLORS } from "@/src/colors";
 import Spacer from "@/src/components/atoms/Spacer";
 import SubmitButton from "@/src/components/buttons/SubmitButton";
 import Input from "@/src/components/Input";
+import ErrorPopup from "@/src/Modals/ErrorPopup";
 import { AuthStackParamsList } from "@/src/routes/AuthStack";
 import { zodResolver } from "@hookform/resolvers/zod";
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as Animatable from 'react-native-animatable';
@@ -17,7 +19,9 @@ type LoginScreenNavigationProp = StackNavigationProp<AuthStackParamsList, 'Login
 
 export default function LoginScreen() {
   const navigation = useNavigation<LoginScreenNavigationProp>()
-  
+  const [backendError, setBackendError] = useState('')
+  const [showAlert, setShowAlert] = useState(false)
+
   const schema = z
   .object({
     email: z.string({
@@ -49,7 +53,7 @@ export default function LoginScreen() {
       // findDocumentByEmail(email, password)
       console.log(res)
     }).catch((e) => {
-      // setBackendError(e.code)
+      setBackendError(e.code)
       console.log(e)
     })
   }
@@ -113,6 +117,13 @@ export default function LoginScreen() {
         <SubmitButton text="Sign Up" mode='outlined' onPress={() =>  navigation.navigate('Signup')} />
         <Text style={{ alignSelf: 'center', fontSize: 15, marginVertical: 10, color: COLORS.neutral._500 }}>version: {packageJson.version}</Text>
       </Animatable.View>
+      <ErrorPopup 
+        isVisible={showAlert} 
+        title="Error"
+        description={backendError}
+        onPress={() => setShowAlert(false)}
+        onPressClose={() => setShowAlert(false)}
+      />
    </View>
   );
 }

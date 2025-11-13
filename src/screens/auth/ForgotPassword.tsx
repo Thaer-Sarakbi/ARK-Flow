@@ -3,11 +3,17 @@ import Spacer from "@/src/components/atoms/Spacer";
 import SubmitButton from "@/src/components/buttons/SubmitButton";
 import Container from "@/src/components/Container";
 import Input from "@/src/components/Input";
+import ConfirmationPopup from "@/src/Modals/ConfirmationPopup";
 import { zodResolver } from "@hookform/resolvers/zod";
+import auth from '@react-native-firebase/auth';
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from 'zod';
 
 export default function ForgotPassword() {
+  const [message, setMessage] = useState('')
+  const [showAlert, setShowAlert] = useState(false)
+
   const schema = z
   .object({
       email: z.string({
@@ -19,7 +25,8 @@ export default function ForgotPassword() {
     control,
     handleSubmit,
     formState: { errors, isValid },
-    watch
+    watch,
+    resetField
   } = useForm({
     defaultValues: {
       email: ""
@@ -28,8 +35,20 @@ export default function ForgotPassword() {
     mode: 'onTouched',
   })
 
-  const handleSubmitLogin = () => {
-
+  const handleSubmitLogin = async () => {
+    const { email } = watch()
+  
+    await auth().sendPasswordResetEmail(email)
+    .then((res) => {
+        setShowAlert(true)
+        setMessage('Check Your Email')
+        resetField('email')
+    })
+    .catch(error => {
+      setShowAlert(true)
+      setMessage(error.code);
+      resetField('email')
+    });
   }
 
   return (
@@ -53,6 +72,15 @@ export default function ForgotPassword() {
       />
      <Spacer height={10} />
      <SubmitButton text="Reset" onPress={handleSubmit(handleSubmitLogin)} />
+     <ConfirmationPopup 
+        isVisible={showAlert} 
+        title={message} 
+        buttonTitle="Ok" 
+        paragraph1="We sent link to your email" 
+        paragraph2="Check spam if not founded" 
+        onPress={() => setShowAlert(false)}
+        onPressClose={() => setShowAlert(false)}
+      />
    </Container>
   );
 }

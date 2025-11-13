@@ -6,6 +6,12 @@ interface UserListItem {
   name: string
 }
 
+interface AddUser {
+    fullName: string
+    email: string
+    phoneNumber: string
+  }
+
 export const usersApi = createApi({
   reducerPath: 'usersApi',
   baseQuery: fakeBaseQuery(),
@@ -29,7 +35,31 @@ export const usersApi = createApi({
       },
       providesTags: ['Users'],
     }),
+
+    addUser: builder.mutation<any, AddUser>({
+        async queryFn({ fullName, email, phoneNumber }) {
+          try {
+            const res = await usersRef.add({
+              fullName,
+              email,
+              phoneNumber,
+              admin: false,
+              creationDate: new Date(),
+            }).then((res) => {
+               console.log(res)
+            }).catch((e) => {
+                console.log(e)
+            })
+            console.log('✅ User Added')
+            return { data: { res } }
+          } catch (error: any) {
+            console.log('Error adding user:', error)
+            return { error: { status: 'CUSTOM_ERROR', data: error.message || 'Unknown error' } }
+          }
+        },
+        invalidatesTags: ['Users'], // so cached user lists auto-refresh
+      }),
   }),
 })
 
-export const { useGetUsersQuery } = usersApi
+export const { useGetUsersQuery, useAddUserMutation } = usersApi

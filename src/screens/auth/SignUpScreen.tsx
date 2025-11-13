@@ -2,10 +2,12 @@ import { COLORS } from "@/src/colors";
 import Spacer from "@/src/components/atoms/Spacer";
 import SubmitButton from "@/src/components/buttons/SubmitButton";
 import Input from "@/src/components/Input";
+import ErrorPopup from "@/src/Modals/ErrorPopup";
+import { useAddUserMutation } from "@/src/redux/user";
 import { zodResolver } from "@hookform/resolvers/zod";
 import auth from '@react-native-firebase/auth';
 import { useNavigation } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import * as Animatable from 'react-native-animatable';
@@ -15,30 +17,35 @@ export default function SignUpScreen() {
   const navigation = useNavigation()
   const [message, setMessage] = useState('')
   const [showAlert, setShowAlert] = useState(false)
+  const [addUser, { isLoading, isSuccess, isError }] = useAddUserMutation()
   
-  useEffect(() => {
-    if(message !== ''){
-      setShowAlert(true)
-    }
-  },[message])
+  // useEffect(() => {
+  //   if(message !== ''){
+  //     setShowAlert(true)
+  //   }
+  // },[message])
 
   const schema = z
   .object({
-    fullName: z.string({
-      required_error: 'This field is required'
-    }).min(1, { message: 'This field is required' }),
-    email: z.string({
-      required_error: 'This field is required'
-    }).email({ message: 'Invalid email' }),
-    phoneNumber: z .string()
-    .min(1, { message: 'This field is required' })
-    .max(11, { message: 'Invalid phone number' }),
-    password: z.string({
-      required_error: 'This field is required'
-    }).refine((val) => val.length > 0, { message: 'This field is required' }),
-    confirmPassword: z.string({
-      required_error: 'This field is required'
-    }).refine((val) => val.length > 0, { message: 'This field is required' })
+      fullName: z.string({
+        required_error: 'This field is required'
+      }).min(1, { message: 'This field is required' }),
+      email: z.string({
+        required_error: 'This field is required'
+      }).email({ message: 'Invalid email' }),
+      phoneNumber: z .string()
+      .min(1, { message: 'This field is required' })
+      .max(11, { message: 'Invalid phone number' }),
+      password: z.string({
+        required_error: 'This field is required'
+      }).refine((val) => val.length > 0, { message: 'This field is required' }),
+      confirmPassword: z.string({
+        required_error: 'This field is required'
+      }).refine((val) => val.length > 0, { message: 'This field is required' })
+    })    
+    .refine((data) => data.password === data.confirmPassword, {
+    message: "Your password doesn't match",
+    path: ['confirmPassword'],
   })
 
     const {
@@ -63,26 +70,18 @@ export default function SignUpScreen() {
  
       await auth().createUserWithEmailAndPassword(email, password).then((res) => {
         setMessage('User account created!');
-        // firestore().collection('users').add({
-        //   fullName, 
-        //   email, 
-        //   password, 
-        //   phoneNumber,
-        //   admin: false,
-        //   creationDate: new Date()
-        // }).then(() => {
-        //   console.log('User Added')
-        // }).catch((e) => {
-        //   console.log(e)
-        // })
+        addUser({ fullName, email, phoneNumber })
       })
       .catch(error => {
+        console.log(error)
         if (error.code === 'auth/email-already-in-use') {
           setMessage('That email address is already in use!');
+          setShowAlert(true)
         }
     
         if (error.code === 'auth/invalid-email') {
           setMessage('That email address is invalid!');
+          setShowAlert(true)
         }
       });
     }
@@ -200,7 +199,14 @@ export default function SignUpScreen() {
           <Spacer height={15} />
           <SubmitButton text="Sign In" mode='outlined'  onPress={() => navigation.goBack()} />
         </ScrollView>
-      </Animatable.View>     
+      </Animatable.View>   
+      <ErrorPopup 
+        isVisible={showAlert} 
+        title="Error"
+        description={message}
+        onPress={() => setShowAlert(false)}
+        onPressClose={() => setShowAlert(false)}
+      />  
    </View>
   );
 }
