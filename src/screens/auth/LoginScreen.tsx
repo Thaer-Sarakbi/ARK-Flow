@@ -4,6 +4,7 @@ import SubmitButton from "@/src/components/buttons/SubmitButton";
 import Input from "@/src/components/Input";
 import { AuthStackParamsList } from "@/src/routes/AuthStack";
 import { zodResolver } from "@hookform/resolvers/zod";
+import auth from '@react-native-firebase/auth';
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Controller, useForm } from "react-hook-form";
@@ -40,8 +41,16 @@ export default function LoginScreen() {
     mode: 'onTouched',
   })
 
-  const handleSubmitLogin = () => {
-    console.log('sss')
+  const handleSubmitLogin = async () => {
+    const { email, password } = watch()
+
+    await auth().signInWithEmailAndPassword(email, password).then((res) => {
+      // findDocumentByEmail(email, password)
+      console.log(res)
+    }).catch((e) => {
+      // setBackendError(e.code)
+      console.log(e)
+    })
   }
 
   return (

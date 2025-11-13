@@ -5,6 +5,7 @@ import Container from '@/src/components/Container';
 import useShowPassword from '@/src/hooks/useShowPassword';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import auth from '@react-native-firebase/auth';
 import { ImageBackground, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import packageJson from '../../../package.json';
 import Separator from '../../components/atoms/Separator';
@@ -28,6 +29,14 @@ export default function ProfileScreen() {
     {id: 2, title: 'Mobile Number', value: '01160640434'},
     {id: 3, title: 'Password', value: showPassword ? 'thaer@12.34' : '*******'}
   ]
+
+  const onLogOut = async () => {
+      await auth().signOut().then(function() {
+        console.log('Signed Out');
+      }, function(error) {
+        console.error('Sign Out Error', error);
+      });
+  }
 
   return (
     <Container edges={{ bottom: 'additive' }} noPadding={true} noHeader>
@@ -78,7 +87,7 @@ export default function ProfileScreen() {
  
           <Spacer height={15} />
 
-          <SubmitButton text='Log Out' mode='outlined' />
+          <SubmitButton text='Log Out' mode='outlined' onPress={onLogOut}/>
 
           <Text style={styles.version}>version: {packageJson.version}</Text>
         </View>

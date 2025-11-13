@@ -3,13 +3,23 @@ import Spacer from "@/src/components/atoms/Spacer";
 import SubmitButton from "@/src/components/buttons/SubmitButton";
 import Input from "@/src/components/Input";
 import { zodResolver } from "@hookform/resolvers/zod";
+import auth from '@react-native-firebase/auth';
 import { useNavigation } from "@react-navigation/native";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, Text, View } from "react-native";
 import { z } from 'zod';
 
 export default function SignUpScreen() {
   const navigation = useNavigation()
+  const [message, setMessage] = useState('')
+  const [showAlert, setShowAlert] = useState(false)
+  
+  useEffect(() => {
+    if(message !== ''){
+      setShowAlert(true)
+    }
+  },[message])
 
   const schema = z
   .object({
@@ -49,6 +59,31 @@ export default function SignUpScreen() {
 
     const handleSubmitLogin = async () => {
       const { fullName, email, password, phoneNumber } = watch()
+ 
+      await auth().createUserWithEmailAndPassword(email, password).then((res) => {
+        setMessage('User account created!');
+        // firestore().collection('users').add({
+        //   fullName, 
+        //   email, 
+        //   password, 
+        //   phoneNumber,
+        //   admin: false,
+        //   creationDate: new Date()
+        // }).then(() => {
+        //   console.log('User Added')
+        // }).catch((e) => {
+        //   console.log(e)
+        // })
+      })
+      .catch(error => {
+        if (error.code === 'auth/email-already-in-use') {
+          setMessage('That email address is already in use!');
+        }
+    
+        if (error.code === 'auth/invalid-email') {
+          setMessage('That email address is invalid!');
+        }
+      });
     }
 
   return (
