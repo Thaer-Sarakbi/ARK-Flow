@@ -2,6 +2,8 @@ import auth from '@react-native-firebase/auth';
 import { NavigationContainer } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { Provider } from 'react-redux';
+import { store } from './redux/store';
 import AuthStack from './routes/AuthStack';
 import BottomNavigator from './routes/BottomTabNavigator';
 
@@ -20,7 +22,9 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <NavigationContainer>
-        {currentUser ? <BottomNavigator /> : <AuthStack />}
+        <Provider store={store}>
+          {currentUser ? <BottomNavigator /> : <AuthStack />}
+        </Provider>
       </NavigationContainer>
     </SafeAreaProvider>
   );

@@ -9,6 +9,7 @@ import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { Controller, useForm } from "react-hook-form";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import * as Animatable from 'react-native-animatable';
 import { z } from 'zod';
 import packageJson from '../../../package.json';
 
@@ -58,9 +59,7 @@ export default function LoginScreen() {
      <View style={styles.header}>
         <Text style={styles.textHeader}>Welcome!</Text>
       </View>
-      <View style={styles.footer} 
-        //animation='fadeInUpBig'
-      >
+      <Animatable.View style={styles.footer} animation='fadeInUpBig'>
         <Text style={styles.textFooter}>Email</Text>
         <Spacer height={6} />
        
@@ -113,7 +112,7 @@ export default function LoginScreen() {
         <Spacer height={15} />
         <SubmitButton text="Sign Up" mode='outlined' onPress={() =>  navigation.navigate('Signup')} />
         <Text style={{ alignSelf: 'center', fontSize: 15, marginVertical: 10, color: COLORS.neutral._500 }}>version: {packageJson.version}</Text>
-      </View>
+      </Animatable.View>
    </View>
   );
 }

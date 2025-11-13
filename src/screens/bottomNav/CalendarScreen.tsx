@@ -1,6 +1,7 @@
 import { COLORS } from "@/src/colors";
 import Spacer from "@/src/components/atoms/Spacer";
 import Container from "@/src/components/Container";
+import { useGetUsersQuery } from "@/src/redux/user";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useState } from "react";
 import { StyleSheet } from "react-native";
@@ -21,6 +22,8 @@ const data = [
 export default function CalendarScreen() {
   const [value, setValue] = useState('1');
   const [isFocus, setIsFocus] = useState(false);
+  const { data: listOfUsers, isLoading, isError } = useGetUsersQuery()
+  console.log(listOfUsers)
 
   return (
     <Container headerMiddle="Calendar">

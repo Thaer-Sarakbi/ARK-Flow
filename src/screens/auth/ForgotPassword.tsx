@@ -33,7 +33,7 @@ export default function ForgotPassword() {
   }
 
   return (
-   <Container>
+   <Container headerMiddle="Forgot Password" allowBack>
      <Controller
        name="email"
        control={control}

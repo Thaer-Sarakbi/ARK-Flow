@@ -7,7 +7,8 @@ import auth from '@react-native-firebase/auth';
 import { useNavigation } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
+import * as Animatable from 'react-native-animatable';
 import { z } from 'zod';
 
 export default function SignUpScreen() {
@@ -91,10 +92,11 @@ export default function SignUpScreen() {
       <View style={styles.header}>
         <Text style={styles.textHeader}>Welcome!</Text>
       </View>
-      <View style={styles.footer}>
+      <Animatable.View style={styles.footer} animation='fadeInUpBig'>
+        <ScrollView>
           <Text style={styles.textFooter}>Full Name</Text>
           <Spacer height={6} />
-         <Controller
+           <Controller
             name="fullName"
             control={control}
             render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
@@ -110,7 +112,7 @@ export default function SignUpScreen() {
                 errorText={error?.message}
               />
             )}
-          />
+           />
         <Spacer height={20} />
         <Text style={styles.textFooter}>Email</Text>
         <Spacer height={6} />
@@ -172,10 +174,10 @@ export default function SignUpScreen() {
               />
             )}
           />
-        <Spacer height={20} />
-        <Text style={styles.textFooter}>Confirm Password</Text>
-        <Spacer height={6} />
-        <Controller
+          <Spacer height={20} />
+          <Text style={styles.textFooter}>Confirm Password</Text>
+          <Spacer height={6} />
+          <Controller
             name="confirmPassword"
             control={control}
             render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
@@ -193,11 +195,12 @@ export default function SignUpScreen() {
               />
             )}
           />
-        <Spacer height={50} />
-        <SubmitButton text="Sign Up"  onPress={handleSubmit(handleSubmitLogin)}/>
-        <Spacer height={15} />
-        <SubmitButton text="Sign In" mode='outlined'  onPress={() => navigation.goBack()} />
-      </View>     
+          <Spacer height={50} />
+          <SubmitButton text="Sign Up"  onPress={handleSubmit(handleSubmitLogin)}/>
+          <Spacer height={15} />
+          <SubmitButton text="Sign In" mode='outlined'  onPress={() => navigation.goBack()} />
+        </ScrollView>
+      </Animatable.View>     
    </View>
   );
 }
