@@ -19,7 +19,7 @@ type LoginScreenNavigationProp = StackNavigationProp<AuthStackParamsList, 'Login
 
 export default function LoginScreen() {
   const navigation = useNavigation<LoginScreenNavigationProp>()
-  const [backendError, setBackendError] = useState('')
+  const [message, setMessage] = useState('')
   const [showAlert, setShowAlert] = useState(false)
 
   const schema = z
@@ -53,8 +53,13 @@ export default function LoginScreen() {
       // findDocumentByEmail(email, password)
       console.log(res)
     }).catch((e) => {
-      setBackendError(e.code)
-      console.log(e)
+      if(e.code === 'auth/invalid-credential'){
+        setMessage('Invalid credential');
+        setShowAlert(true)
+      } else {
+        setMessage(e.code);
+        setShowAlert(true)
+      }
     })
   }
 
@@ -120,7 +125,7 @@ export default function LoginScreen() {
       <ErrorPopup 
         isVisible={showAlert} 
         title="Error"
-        description={backendError}
+        description={message}
         onPress={() => setShowAlert(false)}
         onPressClose={() => setShowAlert(false)}
       />
