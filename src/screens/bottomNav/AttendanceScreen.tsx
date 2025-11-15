@@ -1,24 +1,12 @@
 import Spacer from "@/src/components/atoms/Spacer";
 import AttendanceCard from "@/src/components/AttendanceCard";
 import Container from "@/src/components/Container";
-import Geolocation from "@react-native-community/geolocation";
-// import { promptForEnableLocationIfNeeded } from 'react-native-android-location-enabler';
+import useCurrentLocation from "@/src/hooks/useCurrentLocation";
+import ConfirmationPopup from "@/src/Modals/ConfirmationPopup";
 
 export default function AttendanceScreen() {
-  const getCurrentLocation = () => {
-    Geolocation.getCurrentPosition((info: {coords:{latitude: number, longitude: number}}) => {
-      console.log(info)
-    }, async(err) => {
-      // if (Platform.OS === 'android') {
-      //   try{
-      //     const enableResult = await promptForEnableLocationIfNeeded();
-      //     console.log('enableResult', enableResult);
-      //   } catch(err){
-      //     console.log(err)
-      //   }
-      // }
-    })
-  }
+  const { latitude, longitude, showAlert, showAlertAndroid, getCurrentLocation, openSettings, setShowAlert, setShowAlertAndroid} = useCurrentLocation()
+  console.log(latitude, longitude)
 
   return (
     <Container headerMiddle="Attendance">
@@ -29,6 +17,14 @@ export default function AttendanceScreen() {
       <AttendanceCard label='Report' title="Today Report" caption="Tell us what did you do today" buttonText="Submit" onPress={getCurrentLocation} />
       <Spacer height={18}/>
       <AttendanceCard label="Reason" title="Leave" caption="Tell us what's the reason" buttonText="Submit" onPress={getCurrentLocation} />
+      <ConfirmationPopup isVisible={showAlert} title="Permission Needed" paragraph1="Please enable location access" onPress={() => {
+        setShowAlert(false)
+        openSettings()
+      }} onPressClose={() => setShowAlert(false)} buttonTitle="Enable"/>
+      <ConfirmationPopup isVisible={showAlertAndroid} title="Location is not enabled" paragraph1="Please enable location service" onPress={() => {
+        setShowAlertAndroid(false)
+        openSettings()
+      }} onPressClose={() => setShowAlertAndroid(false)} buttonTitle="Enable"/>
     </Container>
   );
 }
