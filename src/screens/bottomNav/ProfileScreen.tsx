@@ -3,9 +3,11 @@ import Spacer from '@/src/components/atoms/Spacer';
 import SubmitButton from '@/src/components/buttons/SubmitButton';
 import Container from '@/src/components/Container';
 import useShowPassword from '@/src/hooks/useShowPassword';
+import { useUserData } from '@/src/hooks/useUserData';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import auth from '@react-native-firebase/auth';
+import moment from 'moment';
 import { ImageBackground, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import packageJson from '../../../package.json';
 import Separator from '../../components/atoms/Separator';
@@ -23,10 +25,11 @@ const UploadFile = ({ text }: { text: string }) => (
 export default function ProfileScreen() {
   const { height } = useWindowDimensions();
   const { showPassword, toggleShowPassword } = useShowPassword() 
+  const { data, loading } = useUserData();
 
   const  fields = [
-    {id: 1, title: 'Email', value: 'thaer92.41@gmail.com'},
-    {id: 2, title: 'Mobile Number', value: '01160640434'},
+    {id: 1, title: 'Email', value: data?.email},
+    {id: 2, title: 'Mobile Number', value: data?.profile.phoneNumber},
     {id: 3, title: 'Password', value: showPassword ? 'thaer@12.34' : '*******'}
   ]
 
@@ -43,9 +46,9 @@ export default function ProfileScreen() {
       <View>
         <ImageBackground style={[styles.background, { height: height / 3 }]} source={require('@/assets/profile.jpg')} >
           <MaterialCommunityIcons name="account-outline" color={COLORS.neutral._400} size={60} />
-          <Text style = {styles.name}>Thaer</Text>
+          <Text style = {styles.name}>{data?.profile.fullName}</Text>
           {/* <Text style = {styles.joined}>Joined in {moment(user?.creationDate).format('MMMM YYYY')}</Text> */}
-          <Text style={styles.joined}>Joined in 12 Nov 2025</Text>
+          <Text style={styles.joined}>Joined in {moment(data?.accountCreated).format('MMMM YYYY')}</Text>
         </ImageBackground>
       
         <View style = {styles.body}>

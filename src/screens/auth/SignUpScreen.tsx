@@ -18,12 +18,6 @@ export default function SignUpScreen() {
   const [message, setMessage] = useState('')
   const [showAlert, setShowAlert] = useState(false)
   const [addUser, { isLoading, isSuccess, isError }] = useAddUserMutation()
-  
-  // useEffect(() => {
-  //   if(message !== ''){
-  //     setShowAlert(true)
-  //   }
-  // },[message])
 
   const schema = z
   .object({
@@ -73,14 +67,14 @@ export default function SignUpScreen() {
         addUser({ fullName, email, phoneNumber })
       })
       .catch(error => {
-        console.log(error)
         if (error.code === 'auth/email-already-in-use') {
           setMessage('That email address is already in use!');
           setShowAlert(true)
-        }
-    
-        if (error.code === 'auth/invalid-email') {
+        } else if (error.code === 'auth/invalid-email') {
           setMessage('That email address is invalid!');
+          setShowAlert(true)
+        } else {
+          setMessage(error.code);
           setShowAlert(true)
         }
       });
