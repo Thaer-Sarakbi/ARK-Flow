@@ -5,21 +5,23 @@ import SubmitButton from "./buttons/SubmitButton";
 import Input from "./Input";
 
 interface AttendanceCard {
+  value: string,
   title: string, 
   caption: string, 
   buttonText: string,
   label: string,
-  onPress:() => void
+  onPress:() => void,
+  onChangeText:(text: string) => void
 }
 
-export default function AttendanceCard({ title, caption, buttonText, label, onPress }: AttendanceCard) {
+export default function AttendanceCard({ value, title, caption, buttonText, label, onPress, onChangeText }: AttendanceCard) {
 
   return (
    <View style={styles.container}>
      <Text style={styles.title}>{title}</Text>
      <Text style={styles.caption}>{caption}</Text>
      <Spacer height={4}/>
-     <Input label={label} backgroundColor={COLORS.neutral._400} multiline numberOfLines={5} heightContainer={60} iIHeight={70}/>
+     <Input value={value} label={label} backgroundColor={COLORS.neutral._400} multiline numberOfLines={5} heightContainer={60} iIHeight={70} onChangeText={onChangeText}/>
      <Spacer height={5}/>
      <SubmitButton text={buttonText} onPress={onPress}/>
    </View>
