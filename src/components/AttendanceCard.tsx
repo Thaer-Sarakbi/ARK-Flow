@@ -1,28 +1,53 @@
-import { Platform, StyleSheet, Text, View } from "react-native";
+import Feather from '@expo/vector-icons/Feather';
+import { DocumentPickerResponse } from '@react-native-documents/picker';
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { COLORS } from "../colors";
+import { shadow } from '../utils/shadows';
 import Spacer from "./atoms/Spacer";
 import SubmitButton from "./buttons/SubmitButton";
 import Input from "./Input";
-
 interface AttendanceCard {
   value: string,
   title: string, 
   caption: string, 
   buttonText: string,
   label: string,
+  docsList?: DocumentPickerResponse[],
+  uploadButton?: boolean,
   onPress:() => void,
+  onPressUploadButton?:() => void,
+  removeDoc?:(uri: string) => void,
   onChangeText:(text: string) => void
 }
 
-export default function AttendanceCard({ value, title, caption, buttonText, label, onPress, onChangeText }: AttendanceCard) {
+export default function AttendanceCard({ value, title, caption, buttonText, label, docsList, uploadButton = false, onPress, onPressUploadButton, onChangeText, removeDoc }: AttendanceCard) {
 
   return (
-   <View style={styles.container}>
+   <View style={[styles.container, shadow.cards]}>
      <Text style={styles.title}>{title}</Text>
      <Text style={styles.caption}>{caption}</Text>
      <Spacer height={4}/>
      <Input value={value} label={label} backgroundColor={COLORS.neutral._400} multiline numberOfLines={5} heightContainer={60} iIHeight={70} onChangeText={onChangeText}/>
      <Spacer height={5}/>
+     <View>
+     {
+      docsList?.map((doc, i: number) => (
+        <View key={i} style={styles.uploadButton}>
+          <Text>{doc.name}</Text>
+          {removeDoc && <TouchableOpacity onPress={() => removeDoc(doc.uri)}>
+            <Feather name="x" size={20} color={'black'} />
+          </TouchableOpacity>}
+        </View>
+      ))
+     }
+     </View>
+     {uploadButton && (
+        <>
+          <Spacer height={4}/>
+          <SubmitButton text='Upload' mode='outlined' onPress={onPressUploadButton}/>
+          <Spacer height={6} />
+        </>
+      )}
      <SubmitButton text={buttonText} onPress={onPress}/>
    </View>
   );
@@ -32,18 +57,7 @@ const styles = StyleSheet.create({
    container: {
     padding: 8,
     borderRadius: 8,
-    backgroundColor: COLORS.white,
-    ...Platform.select({
-      ios: {
-          shadowColor: COLORS.title,
-          shadowOffset: { width: 0, height: 0 },
-          shadowOpacity: 0.1,
-          shadowRadius: 5, 
-        },
-        android: {
-          elevation: 4,
-        },
-    }),
+    backgroundColor: COLORS.white
    },
    title: {
      fontWeight: 'bold',
@@ -52,5 +66,10 @@ const styles = StyleSheet.create({
    caption: {
      color: COLORS.caption,
      fontSize: 15
+   },
+   uploadButton: { 
+     flexDirection: 'row', 
+     justifyContent: 'space-between', 
+     alignItems: 'center' 
    }
 });

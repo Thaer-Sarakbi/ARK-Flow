@@ -3,6 +3,7 @@ import Spacer from "@/src/components/atoms/Spacer";
 import AttendanceCard from "@/src/components/AttendanceCard";
 import Container from "@/src/components/Container";
 import useCurrentLocation from "@/src/hooks/useCurrentLocation";
+import useDocumentPicker from "@/src/hooks/useDocumentPicker";
 import { useUserData } from "@/src/hooks/useUserData";
 import BottomSheet from "@/src/Modals/BottomSheet";
 import ConfirmationPopup from "@/src/Modals/ConfirmationPopup";
@@ -10,7 +11,6 @@ import { useAddCheckInMutation, useAddCheckOutMutation, useAddLeaveMutation, use
 import moment from "moment";
 import { useEffect, useState } from "react";
 import { Image, ImageProps, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-
 interface BoxUploadProps extends ImageProps {
   title: string;
   onPress?: () => void;
@@ -28,6 +28,7 @@ const BoxUpload = ({ title, source, onPress }: BoxUploadProps) => {
 
 export default function AttendanceScreen() {
   const [showAlert, setShowAlert] = useState(false)
+  const [uploadPopupVisible, setUploadPopupVisible] = useState(false)
   const [checkInNote, setCheckInNote] = useState("")
   const [checkOutNote, setCheckOutNote] = useState("")
   const [report, setReport] = useState("")
@@ -38,6 +39,7 @@ export default function AttendanceScreen() {
   const { data, loading: userDataLoading } = useUserData();
   const [addReport] = useAddReportMutation()
   const [addLeave] =   useAddLeaveMutation()
+  const { documents, handleDocumentSelection, removeDocument, uploadAll } = useDocumentPicker()
 
   const date = moment().format("DD-MM-YYYY");
 
@@ -93,6 +95,7 @@ export default function AttendanceScreen() {
   const submitReport = async () => {
     if (!data?.id) return;
   
+    uploadAll(`users/${data.id}/attendance/${date}/report/today/files`)
     const result = await addReport({ userId: data.id, date, note: report });
   
     if ('error' in result) {
@@ -120,6 +123,11 @@ export default function AttendanceScreen() {
     console.log("Leave success");
   };
   
+  const handleDocument = async () => {
+   await handleDocumentSelection().then((result) => {
+    setUploadPopupVisible(false)
+   }).catch((e) => console.log(e))
+  };
 
   return (
     <>
@@ -128,9 +136,9 @@ export default function AttendanceScreen() {
       <Spacer height={18}/>
       <AttendanceCard value={checkOutNote} onChangeText={setCheckOutNote} label="Your Note" title="Check Out" caption="Notes" buttonText="Register" onPress={submitCheckOut} />
       <Spacer height={18}/>
-      <AttendanceCard value={report} onChangeText={setReport} label='Report' title="Today Report" caption="Tell us what did you do today" buttonText="Submit" onPress={submitReport} />
+      <AttendanceCard value={report} onChangeText={setReport} label='Report' title="Today Report" caption="Tell us what did you do today" buttonText="Submit" docsList={documents} onPress={submitReport} uploadButton onPressUploadButton={() => setUploadPopupVisible(true)} removeDoc={removeDocument}/>
       <Spacer height={18}/>
-      <AttendanceCard value={leaveText} onChangeText={setLeaveText} label="Reason" title="Leave" caption="Tell us what's the reason" buttonText="Submit" onPress={submitLeave} />
+      <AttendanceCard value={leaveText} onChangeText={setLeaveText} label="Reason" title="Leave" caption="Tell us what's the reason" buttonText="Submit" onPress={submitLeave} uploadButton/>
       <ConfirmationPopup isVisible={showAlert} title="Permission Needed" paragraph1="Please enable location access" onPress={() => {
         setShowAlert(false)
       }} onPressClose={() => setShowAlert(false)} buttonTitle="Enable"/>
@@ -139,13 +147,13 @@ export default function AttendanceScreen() {
         openSettings()
       }} onPressClose={() => setShowAlertAndroid(false)} buttonTitle="Enable"/> */}
     </Container>
-    <BottomSheet visible={false}>
+    <BottomSheet visible={uploadPopupVisible} onPress={() => setUploadPopupVisible(false)}>
       <View style={{ flexDirection: 'row' }}>
         <BoxUpload title='Camera' source={require("../../../assets/camera.png")} onPress={() => {}}/>
         <Spacer width={10} />
         <BoxUpload title='Gallery' source={require("../../../assets/gallery.png")} />
         <Spacer width={10} />
-        <BoxUpload title='Document' source={require("../../../assets/document.png")} />
+        <BoxUpload title='Document' source={require("../../../assets/document.png")} onPress={handleDocument}/>
       </View>
     </BottomSheet>
     </>
