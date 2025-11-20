@@ -1,11 +1,13 @@
 import Feather from '@expo/vector-icons/Feather';
 import { DocumentPickerResponse } from '@react-native-documents/picker';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Asset } from 'react-native-image-picker';
 import { COLORS } from "../colors";
 import { shadow } from '../utils/shadows';
 import Spacer from "./atoms/Spacer";
 import SubmitButton from "./buttons/SubmitButton";
 import Input from "./Input";
+
 interface AttendanceCard {
   value: string,
   title: string, 
@@ -13,15 +15,17 @@ interface AttendanceCard {
   buttonText: string,
   label: string,
   docsList?: DocumentPickerResponse[],
+  imagesList?: Asset[],
   uploadButton?: boolean,
   onPress:() => void,
   onPressUploadButton?:() => void,
   removeDoc?:(uri: string) => void,
+  removeImage?:(uri: string) => void,
   onChangeText:(text: string) => void
 }
 
-export default function AttendanceCard({ value, title, caption, buttonText, label, docsList, uploadButton = false, onPress, onPressUploadButton, onChangeText, removeDoc }: AttendanceCard) {
-
+export default function AttendanceCard({ value, title, caption, buttonText, label, docsList, imagesList, uploadButton = false, onPress, onPressUploadButton, onChangeText, removeDoc, removeImage }: AttendanceCard) {
+  
   return (
    <View style={[styles.container, shadow.cards]}>
      <Text style={styles.title}>{title}</Text>
@@ -35,6 +39,16 @@ export default function AttendanceCard({ value, title, caption, buttonText, labe
         <View key={i} style={styles.uploadButton}>
           <Text>{doc.name}</Text>
           {removeDoc && <TouchableOpacity onPress={() => removeDoc(doc.uri)}>
+            <Feather name="x" size={20} color={'black'} />
+          </TouchableOpacity>}
+        </View>
+      ))
+     }
+     {
+      imagesList?.map((image: Asset, i: number) => (
+        <View key={i} style={styles.uploadButton}>
+          <Text>{image.fileName}</Text>
+          {removeImage && <TouchableOpacity onPress={() => removeImage(image.uri as string)}>
             <Feather name="x" size={20} color={'black'} />
           </TouchableOpacity>}
         </View>

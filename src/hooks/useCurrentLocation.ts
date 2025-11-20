@@ -1,24 +1,28 @@
-import Geolocation from "@react-native-community/geolocation";
-import { useCallback, useState } from "react";
-import { Linking, PermissionsAndroid, Platform } from "react-native";
+import Geolocation from '@react-native-community/geolocation';
+import React, { useCallback, useState } from "react";
+import { Platform } from "react-native";
+import MapView, { Region } from "react-native-maps";
+import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";
 
-export default function useCurrentLocation() {
-  const [coords, setCoords] = useState<{ latitude: number; longitude: number } | null>(null);
+export default function useCurrentLocation(mapRef: React.RefObject<MapView>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [location, setLocation] = useState<Region | any>(null);
+  const [currentLocation, setCurrentLocation] = useState<Region | any>(null);
 
-  // Ask for permission
   const requestPermission = async () => {
-    if (Platform.OS === "ios") return true;
+    const permission =
+      Platform.OS === "ios"
+        ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE
+        : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
 
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-    );
+    let result = await check(permission);
+    if (result === RESULTS.GRANTED) return true;
 
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
+    result = await request(permission);
+    return result === RESULTS.GRANTED;
   };
 
-  // Get latest location
   const getLocation = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -30,42 +34,55 @@ export default function useCurrentLocation() {
       return null;
     }
 
-    return new Promise((resolve) => {
-      Geolocation.getCurrentPosition(
-        (pos) => {
-          const { latitude, longitude } = pos.coords;
-          setCoords({ latitude, longitude });
-          setLoading(false);
-          resolve({ latitude, longitude });
-        },
-        (err) => {
-          setError(err.message);
-          setLoading(false);
-
-          // If user disabled location services
-          if (err.code === 2) {
-            if (Platform.OS === "ios") {
-              Linking.openURL("App-Prefs:root=Privacy&path=LOCATION");
-            } else {
-              Linking.openSettings();
-            }
-          }
-
-          resolve(null);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 0,
+    if (currentLocation) return;
+    Geolocation.getCurrentPosition(info => {
+      const { latitude, longitude } = info.coords;
+      const newRegion = {
+        latitude,
+        longitude,
+        latitudeDelta: 0.0922,
+        longitudeDelta: 0.0421,
+      };
+      if (!currentLocation?.latitude) {
+        setCurrentLocation(newRegion)
+        setLocation(newRegion)
+        if (mapRef.current) {
+          mapRef.current.animateToRegion(newRegion, 2000);
+          // setLocation(newRegion)
         }
-      );
+      }
     });
+    // return new Promise((resolve) => {
+ 
+
+      // Geolocation.getCurrentPosition(
+      //   (pos) => {
+      //     console.log('jj ' , pos)
+      //     const { latitude, longitude } = pos.coords;
+          
+      //     setCoords({ latitude, longitude });
+      //     setLoading(false);
+      //     resolve({ latitude, longitude });
+      //   },
+      //   (err) => {
+      //     setError(err.message || "Location error");
+      //     setLoading(false);
+
+      //     // Suggest user to enable location services
+      //     Linking.openSettings();
+
+      //     resolve(null);
+      //   },
+      //   {
+      //     enableHighAccuracy: true,
+      //     timeout: 15000,
+      //     maximumAge: 10000,
+      //   }
+      // );
+    // });
+
   }, []);
 
-  return {
-    coords,
-    loading,
-    error,
-    getLocation,
-  };
+  return { location,
+    currentLocation, loading, error, getLocation };
 }
