@@ -1,38 +1,48 @@
 import { COLORS } from "@/src/colors";
 import Spacer from "@/src/components/atoms/Spacer";
 import Container from "@/src/components/Container";
+import { useUserData } from "@/src/hooks/useUserData";
 import { useGetUsersQuery } from "@/src/redux/user";
+import { MainStackParamsList } from "@/src/routes/MainStack";
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { useState } from "react";
+import { useNavigation } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
 import CalendarPicker from "react-native-calendar-picker";
 import { Dropdown } from 'react-native-element-dropdown';
 
-const data = [
-  { label: 'Item 1', value: '1' },
-  { label: 'Item 2', value: '2' },
-  { label: 'Item 3', value: '3' },
-  { label: 'Item 4', value: '4' },
-  { label: 'Item 5', value: '5' },
-  { label: 'Item 6', value: '6' },
-  { label: 'Item 7', value: '7' },
-  { label: 'Item 8', value: '8' },
-];
+export type RootStackNavigationProp = StackNavigationProp<MainStackParamsList>;
 
 export default function CalendarScreen() {
-  const [value, setValue] = useState('1');
+  const navigation =  useNavigation<RootStackNavigationProp>()
   const [isFocus, setIsFocus] = useState(false);
+  const { data: user, loading } = useUserData();
   const { data: listOfUsers, isLoading, isError } = useGetUsersQuery()
-  console.log(listOfUsers)
+  
+  const [value, setValue] = useState<string | null>(null);
+
+  const dropdownData = listOfUsers?.map(item => ({
+    value: item.id,
+    label: item.name
+  }));
+
+  useEffect(() => {
+    if (user?.id) {
+      setValue(user.id);
+    }
+  }, [user]); 
 
   return (
     <Container headerMiddle="Calendar">
-        <Dropdown
+      {
+        dropdownData && (
+          <Dropdown
           style={[styles.dropdown, isFocus && { borderColor: COLORS.info }]}
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}
           iconStyle={styles.iconStyle}
-          data={data}
+          data={dropdownData}
           search
           maxHeight={300}
           labelField="label"
@@ -53,8 +63,14 @@ export default function CalendarScreen() {
             />
           )}
         />
+        )
+      }
+
         <Spacer height={20} />
-        <CalendarPicker />
+        <CalendarPicker 
+          onDateChange={(date) => navigation.navigate('DayDetails', { date } as any)}
+         // customDatesStyles={customDatesStyles}
+        />
     </Container>
   );
 }

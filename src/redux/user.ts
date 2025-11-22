@@ -25,7 +25,7 @@ export const usersApi = createApi({
             const data = doc.data()
             return{
               id: doc.id,
-              name: data.fullname
+              name: data.fullName
             }
           })
           return { data: usersList }

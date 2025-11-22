@@ -1,18 +1,12 @@
 // services/attendanceApi.ts
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 import { attendanceRef } from "../utils/firestoreRefs";
-
+import { Report } from "../utils/types";
 interface CheckInOut {
   userId: string;
   date: string;
   latitude: number;
   longitude: number;
-  note: string;
-}
-
-interface Report {
-  userId: string;
-  date: string;
   note: string;
 }
 
@@ -115,6 +109,54 @@ export const attendanceApi = createApi({
         }
       },
     }),
+
+    getReport: builder.query<any, { userId: string | undefined; date: string }>({
+      async queryFn({ userId, date }) {
+        try {
+          const snapshot = await attendanceRef(userId, date)
+            .collection("report")
+            .get();
+    
+          const reports = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+    
+          return { data: reports[0] };
+        } catch (err: any) {
+          return {
+            error: {
+              status: err.code || "UNKNOWN",
+              message: err.message || "Unexpected Firestore error",
+            },
+          };
+        }
+      },
+    }),
+
+    getLeave: builder.query<any, { userId: string | undefined; date: string }>({
+      async queryFn({ userId, date }) {
+        try {
+          const snapshot = await attendanceRef(userId, date)
+            .collection("leave")
+            .get();
+    
+          const leave = snapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+          }));
+    
+          return { data: leave };
+        } catch (err: any) {
+          return {
+            error: {
+              status: err.code || "UNKNOWN",
+              message: err.message || "Unexpected Firestore error",
+            },
+          };
+        }
+      },
+    })
   }),
 });
 
@@ -123,4 +165,6 @@ export const {
   useAddCheckOutMutation,
   useAddReportMutation,
   useAddLeaveMutation,
+  useGetReportQuery,
+  useGetLeaveQuery
 } = attendanceApi;

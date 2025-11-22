@@ -5,16 +5,13 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import { store } from './redux/store';
 import AuthStack from './routes/AuthStack';
-import BottomNavigator from './routes/BottomTabNavigator';
+import MainStack from './routes/MainStack';
 
 export default function App() {
   const [currentUser, setCurrentUser] = useState<any | null>(null)
-
-  // const dispatch = useDispatch<AppDispatch>()
  
   useEffect(() => {
       auth().onAuthStateChanged(u => {
-          // dispatch(setUser(u))
           setCurrentUser(u)
       })
   },[])
@@ -23,7 +20,7 @@ export default function App() {
     <SafeAreaProvider>
       <NavigationContainer>
         <Provider store={store}>
-          {currentUser ? <BottomNavigator /> : <AuthStack />}
+          {currentUser ? <MainStack /> : <AuthStack />}
         </Provider>
       </NavigationContainer>
     </SafeAreaProvider>
