@@ -1,6 +1,6 @@
 import Geolocation from '@react-native-community/geolocation';
-import React, { useCallback, useState } from "react";
-import { Platform } from "react-native";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { AppState, Linking, Platform } from "react-native";
 import MapView, { Region } from "react-native-maps";
 import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";
 
@@ -9,6 +9,7 @@ export default function useCurrentLocation(mapRef: React.RefObject<MapView>) {
   const [error, setError] = useState("");
   const [location, setLocation] = useState<Region | any>(null);
   const [currentLocation, setCurrentLocation] = useState<Region | any>(null);
+  const lastAppState = useRef(AppState.currentState);
 
   const requestPermission = async () => {
     const permission =
@@ -51,38 +52,37 @@ export default function useCurrentLocation(mapRef: React.RefObject<MapView>) {
           // setLocation(newRegion)
         }
       }
-    });
-    // return new Promise((resolve) => {
- 
-
-      // Geolocation.getCurrentPosition(
-      //   (pos) => {
-      //     console.log('jj ' , pos)
-      //     const { latitude, longitude } = pos.coords;
-          
-      //     setCoords({ latitude, longitude });
-      //     setLoading(false);
-      //     resolve({ latitude, longitude });
-      //   },
-      //   (err) => {
-      //     setError(err.message || "Location error");
-      //     setLoading(false);
-
-      //     // Suggest user to enable location services
-      //     Linking.openSettings();
-
-      //     resolve(null);
-      //   },
-      //   {
-      //     enableHighAccuracy: true,
-      //     timeout: 15000,
-      //     maximumAge: 10000,
-      //   }
-      // );
-    // });
-
+    }, (err) => {
+      if(err.code === 2){
+        setError("Please enable location in your phone")
+      }
+    })
   }, []);
 
+    // Listen for app returning from background (especially Settings)
+    useEffect(() => {
+      const subscription = AppState.addEventListener("change", (nextState) => {
+        if (
+          lastAppState.current.match(/inactive|background/) &&
+          nextState === "active"
+        ) {
+          getLocation();
+        }
+  
+        lastAppState.current = nextState;
+      });
+  
+      return () => subscription.remove();
+    }, []);
+
+  const openSettings = () => {
+    if (Platform.OS === 'ios') {
+      Linking.openURL('App-Prefs:Privacy&path=LOCATION')
+    } else {
+        Linking.openSettings();
+    }
+  };
+
   return { location,
-    currentLocation, loading, error, getLocation };
+    currentLocation, loading, error, openSettings, getLocation };
 }

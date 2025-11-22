@@ -12,7 +12,7 @@ import ConfirmationPopup from "@/src/Modals/ConfirmationPopup";
 import { useAddCheckInMutation, useAddCheckOutMutation, useAddLeaveMutation, useAddReportMutation } from "@/src/redux/attendance";
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
-import { Image, ImageProps, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, ImageProps, Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { launchCamera } from "react-native-image-picker";
 import MapView from 'react-native-maps';
 interface BoxUploadProps extends ImageProps {
@@ -34,6 +34,7 @@ export default function AttendanceScreen() {
   const mapRef = useRef<MapView | null>(null);
 
   const [showAlert, setShowAlert] = useState(false)
+  const [showLocationAndroid, setShowLocationAndroid] = useState(false)
   const [uploadPopupVisible, setUploadPopupVisible] = useState(false)
   const [uploadPopupLeaveVisible, setUploadPopupLeaveVisible] = useState(false)
   const [isVisibleReportSuccess, setIsVisibleReportSuccess] = useState(false)
@@ -52,7 +53,7 @@ export default function AttendanceScreen() {
   const [checkOutNote, setCheckOutNote] = useState("")
   const [report, setReport] = useState("")
   const [leaveText, setLeaveText] = useState("")
-  const { location, currentLocation, loading, error, getLocation } = useCurrentLocation(mapRef as any)
+  const { location, currentLocation, loading, error, openSettings, getLocation } = useCurrentLocation(mapRef as any)
   const [addCheckIn, { isLoading, error: checkInError }] = useAddCheckInMutation();
   const [addCheckOut] = useAddCheckOutMutation();
   const { data, loading: userDataLoading } = useUserData();
@@ -60,6 +61,7 @@ export default function AttendanceScreen() {
   const [addLeave] =   useAddLeaveMutation()
   const { documents, leaveDocuments, images, uploading, leaveImages, handleDocumentSelection, handleLeaveDocumentSelection, handleSelectImage, handleSelectLeaveImage, removeDocument, removeLeaveDocument, removeImage, removeLeaveImage, uploadAll, uploadLeaveAll } = useDocumentPicker()
   const date = moment().format("DD-MM-YYYY");
+
   useEffect(() => {
     getLocation(); // fetch when screen opens
   },[])
@@ -67,6 +69,17 @@ export default function AttendanceScreen() {
   const submitCheckIn = async () => {
     getLocation()
     setIsVisibleConfirmCheckIn(false)
+    if(error === 'Location permission denied.'){
+      setShowAlert(true)
+      return;
+    }
+
+    console.log(error)
+    if(error === 'Please enable location in your phone'){
+      setShowLocationAndroid(true)
+      return;
+    }
+
     if (!data?.id || !currentLocation?.latitude || !currentLocation?.longitude) {
       console.log("Missing location or userId");
       return setIsVisibleCheckInFailed(true);
@@ -92,7 +105,19 @@ export default function AttendanceScreen() {
   }
 
   const submitCheckOut = async () => {
+    getLocation()
     setIsVisibleConfirmCheckOut(false)
+
+    if(error === 'Location permission denied.'){
+      setShowAlert(true)
+      return;
+    }
+
+    if(error === 'Please enable location in your phone'){
+      setShowLocationAndroid(true)
+      return;
+    }
+
     if (!data?.id || !currentLocation?.latitude || !currentLocation?.longitude) {
       console.log("Missing location or userId");
       return setShowAlert(true);
@@ -232,8 +257,13 @@ export default function AttendanceScreen() {
       <Spacer height={18}/>
       <AttendanceCard value={leaveText} onChangeText={setLeaveText} label="Reason" title="Leave" caption="Tell us what's the reason" buttonText="Submit" onPress={submitLeave} imagesList={leaveImages} docsList={leaveDocuments} uploadButton onPressUploadButton={() => setUploadPopupLeaveVisible(true)} removeDoc={removeLeaveDocument} removeImage={removeLeaveImage}/>
       <ConfirmationPopup isVisible={showAlert} title="Permission Needed" paragraph1="Please enable location access" onPress={() => {
+        openSettings()
         setShowAlert(false)
       }} onPressClose={() => setShowAlert(false)} buttonTitle="Enable"/>
+      <ConfirmationPopup isVisible={showLocationAndroid} title="Location Needed" paragraph1="Please enable location in your phone" onPress={() => {
+        Linking.sendIntent('android.settings.LOCATION_SOURCE_SETTINGS');
+        setShowLocationAndroid(false)
+      }} onPressClose={() => setShowLocationAndroid(false)} buttonTitle="Ok"/>
       <Spacer height={90} />
     </Container>
     <BottomSheet visible={uploadPopupVisible} onPress={() => setUploadPopupVisible(false)}>
