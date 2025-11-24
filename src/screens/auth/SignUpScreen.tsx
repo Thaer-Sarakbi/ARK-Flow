@@ -2,6 +2,8 @@ import { COLORS } from "@/src/colors";
 import Spacer from "@/src/components/atoms/Spacer";
 import SubmitButton from "@/src/components/buttons/SubmitButton";
 import Input from "@/src/components/Input";
+import Loading from "@/src/components/Loading";
+import PasswordValidator from "@/src/components/molecule/PasswordValidator";
 import ErrorPopup from "@/src/Modals/ErrorPopup";
 import { useAddUserMutation } from "@/src/redux/user";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,6 +19,8 @@ export default function SignUpScreen() {
   const navigation = useNavigation()
   const [message, setMessage] = useState('')
   const [showAlert, setShowAlert] = useState(false)
+  const [isRegLoading, setIsRegLoading] = useState(false)
+  const [passwordStrength, setPasswordStrength] = useState<string>("Weak");
   const [addUser, { isLoading, isSuccess, isError }] = useAddUserMutation()
 
   const schema = z
@@ -59,14 +63,20 @@ export default function SignUpScreen() {
       mode: 'onTouched',
     })
 
+    const { fullName, email, password, phoneNumber } = watch()
+
     const handleSubmitLogin = async () => {
-      const { fullName, email, password, phoneNumber } = watch()
- 
+      if(passwordStrength !== 'Strong'){
+        return;
+      }
+
+      setIsRegLoading(true)
       await auth().createUserWithEmailAndPassword(email, password).then((res) => {
         setMessage('User account created!');
         addUser({ fullName, email, phoneNumber })
       })
       .catch(error => {
+        setIsRegLoading(false)
         if (error.code === 'auth/email-already-in-use') {
           setMessage('That email address is already in use!');
           setShowAlert(true)
@@ -82,6 +92,7 @@ export default function SignUpScreen() {
 
   return (
    <View style={styles.container}>
+      <Loading visible={isLoading || isRegLoading}/>
       <View style={styles.header}>
         <Text style={styles.textHeader}>Welcome!</Text>
       </View>
@@ -164,6 +175,7 @@ export default function SignUpScreen() {
                 onBlur={onBlur}
                 value={value}
                 errorText={error?.message}
+                helperText={password?.length > 0 ? 'Password Strength: ' + " " + passwordStrength : ""}
               />
             )}
           />
@@ -188,6 +200,8 @@ export default function SignUpScreen() {
               />
             )}
           />
+           {/* <Spacer height={16}></Spacer> */}
+           <PasswordValidator password={password} onChangeStrength={(strength) => setPasswordStrength(strength)} isWhiteMode />
           <Spacer height={50} />
           <SubmitButton text="Sign Up"  onPress={handleSubmit(handleSubmitLogin)}/>
           <Spacer height={15} />

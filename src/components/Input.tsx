@@ -190,7 +190,7 @@ const Input = ({
                     </View>
                     <View style={styles.helperMessage}>
                         {/* <Caption weight='regular' text={errorText ? errorText : helperText ?? ''} fontSize={12} color={errorText ? COLORS.danger : COLORS.white} /> */}
-                        <Text style={{ fontWeight: 'regular', fontSize: 12, color: errorText ? COLORS.danger : COLORS.white }}>{errorText ? errorText : helperText ?? ''}</Text>
+                        <Text style={{ fontWeight: 'regular', fontSize: 12, color: errorText ? COLORS.danger : COLORS.info }}>{errorText ? errorText : helperText ?? ''}</Text>
                     </View>
                 </View>
             ) : null}

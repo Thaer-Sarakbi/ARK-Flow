@@ -2,6 +2,7 @@ import { COLORS } from "@/src/colors";
 import Spacer from "@/src/components/atoms/Spacer";
 import SubmitButton from "@/src/components/buttons/SubmitButton";
 import Input from "@/src/components/Input";
+import Loading from "@/src/components/Loading";
 import ErrorPopup from "@/src/Modals/ErrorPopup";
 import { AuthStackParamsList } from "@/src/routes/AuthStack";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,6 +22,7 @@ export default function LoginScreen() {
   const navigation = useNavigation<LoginScreenNavigationProp>()
   const [message, setMessage] = useState('')
   const [showAlert, setShowAlert] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const schema = z
   .object({
@@ -49,10 +51,11 @@ export default function LoginScreen() {
   const handleSubmitLogin = async () => {
     const { email, password } = watch()
 
+    setIsLoading(true)
     await auth().signInWithEmailAndPassword(email, password).then((res) => {
-      // findDocumentByEmail(email, password)
       console.log(res)
     }).catch((e) => {
+      setIsLoading(false)
       if(e.code === 'auth/invalid-credential'){
         setMessage('Invalid credential');
         setShowAlert(true)
@@ -65,6 +68,7 @@ export default function LoginScreen() {
 
   return (
    <View style={styles.container}>
+     <Loading visible={isLoading}/>
      <View style={styles.header}>
         <Text style={styles.textHeader}>Welcome!</Text>
       </View>
