@@ -10,6 +10,7 @@ interface AddUser {
     fullName: string
     email: string
     phoneNumber: string
+    userId: string
   }
 
 export const usersApi = createApi({
@@ -37,9 +38,9 @@ export const usersApi = createApi({
     }),
 
     addUser: builder.mutation<any, AddUser>({
-        async queryFn({ fullName, email, phoneNumber }) {
+        async queryFn({ fullName, email, phoneNumber, userId }) {
           try {
-            const res = await usersRef.add({
+            const res = await usersRef.doc(userId).set({
               fullName,
               email,
               phoneNumber,

@@ -73,7 +73,7 @@ export default function SignUpScreen() {
       setIsRegLoading(true)
       await auth().createUserWithEmailAndPassword(email, password).then((res) => {
         setMessage('User account created!');
-        addUser({ fullName, email, phoneNumber })
+        addUser({ fullName, email, phoneNumber, userId: res.user.uid })
       })
       .catch(error => {
         setIsRegLoading(false)
