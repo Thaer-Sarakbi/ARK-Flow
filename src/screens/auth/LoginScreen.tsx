@@ -6,7 +6,7 @@ import Loading from "@/src/components/Loading";
 import ErrorPopup from "@/src/Modals/ErrorPopup";
 import { AuthStackParamsList } from "@/src/routes/AuthStack";
 import { zodResolver } from "@hookform/resolvers/zod";
-import auth from '@react-native-firebase/auth';
+import { getAuth, signInWithEmailAndPassword } from '@react-native-firebase/auth';
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useState } from "react";
@@ -17,6 +17,8 @@ import { z } from 'zod';
 import packageJson from '../../../package.json';
 
 type LoginScreenNavigationProp = StackNavigationProp<AuthStackParamsList, 'Login'>;
+
+const auth = getAuth();
 
 export default function LoginScreen() {
   const navigation = useNavigation<LoginScreenNavigationProp>()
@@ -52,7 +54,7 @@ export default function LoginScreen() {
     const { email, password } = watch()
 
     setIsLoading(true)
-    await auth().signInWithEmailAndPassword(email, password).then((res) => {
+    await signInWithEmailAndPassword(auth, email, password).then((res) => {
       console.log(res)
     }).catch((e) => {
       setIsLoading(false)

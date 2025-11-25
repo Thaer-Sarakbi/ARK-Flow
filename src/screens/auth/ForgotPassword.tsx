@@ -5,10 +5,12 @@ import Container from "@/src/components/Container";
 import Input from "@/src/components/Input";
 import ConfirmationPopup from "@/src/Modals/ConfirmationPopup";
 import { zodResolver } from "@hookform/resolvers/zod";
-import auth from '@react-native-firebase/auth';
+import { getAuth, sendPasswordResetEmail } from '@react-native-firebase/auth';
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from 'zod';
+
+const auth = getAuth();
 
 export default function ForgotPassword() {
   const [message, setMessage] = useState('')
@@ -38,7 +40,7 @@ export default function ForgotPassword() {
   const handleSubmitLogin = async () => {
     const { email } = watch()
   
-    await auth().sendPasswordResetEmail(email)
+    await sendPasswordResetEmail(auth, email)
     .then((res) => {
         setShowAlert(true)
         setMessage('Check Your Email')

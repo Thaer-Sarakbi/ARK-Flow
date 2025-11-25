@@ -7,13 +7,15 @@ import PasswordValidator from "@/src/components/molecule/PasswordValidator";
 import ErrorPopup from "@/src/Modals/ErrorPopup";
 import { useAddUserMutation } from "@/src/redux/user";
 import { zodResolver } from "@hookform/resolvers/zod";
-import auth from '@react-native-firebase/auth';
+import { createUserWithEmailAndPassword, getAuth } from '@react-native-firebase/auth';
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import { z } from 'zod';
+
+const auth = getAuth();
 
 export default function SignUpScreen() {
   const navigation = useNavigation()
@@ -71,7 +73,7 @@ export default function SignUpScreen() {
       }
 
       setIsRegLoading(true)
-      await auth().createUserWithEmailAndPassword(email, password).then((res) => {
+      await createUserWithEmailAndPassword(auth, email, password).then((res) => {
         setMessage('User account created!');
         addUser({ fullName, email, phoneNumber, userId: res.user.uid })
       })

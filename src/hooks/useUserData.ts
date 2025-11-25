@@ -1,4 +1,4 @@
-import auth from '@react-native-firebase/auth';
+import { getAuth } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { useEffect, useState } from 'react';
 
@@ -14,13 +14,15 @@ interface User {
    }
 }
 
+const auth = getAuth();
+
 export const useUserData = () => {
   const [data, setData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetch = async () => {
-      const currentUser = auth().currentUser;
+      const currentUser = auth.currentUser;
 
       if (!currentUser) {
         setData(null);

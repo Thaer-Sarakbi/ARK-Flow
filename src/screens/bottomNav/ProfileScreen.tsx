@@ -6,11 +6,13 @@ import useShowPassword from '@/src/hooks/useShowPassword';
 import { useUserData } from '@/src/hooks/useUserData';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import auth from '@react-native-firebase/auth';
+import { getAuth, signOut } from '@react-native-firebase/auth';
 import moment from 'moment';
 import { ImageBackground, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import packageJson from '../../../package.json';
 import Separator from '../../components/atoms/Separator';
+
+const auth = getAuth();
 
 const UploadFile = ({ text }: { text: string }) => (
   <View style = {{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
@@ -34,7 +36,7 @@ export default function ProfileScreen() {
   ]
 
   const onLogOut = async () => {
-      await auth().signOut().then(function() {
+      await signOut(auth).then(function() {
         console.log('Signed Out');
       }, function(error) {
         console.error('Sign Out Error', error);

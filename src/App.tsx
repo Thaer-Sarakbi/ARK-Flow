@@ -1,4 +1,4 @@
-import auth from '@react-native-firebase/auth';
+import { getAuth, onAuthStateChanged } from '@react-native-firebase/auth';
 import { NavigationContainer } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -7,11 +7,13 @@ import { store } from './redux/store';
 import AuthStack from './routes/AuthStack';
 import MainStack from './routes/MainStack';
 
+const auth = getAuth();
+
 export default function App() {
   const [currentUser, setCurrentUser] = useState<any | null>(null)
  
   useEffect(() => {
-      auth().onAuthStateChanged(u => {
+      onAuthStateChanged(auth, u => {
           setCurrentUser(u)
       })
   },[])
