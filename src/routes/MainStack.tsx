@@ -1,4 +1,5 @@
 import { createStackNavigator } from "@react-navigation/stack"
+import CheckInOut from "../screens/calendar/CheckInOut"
 import DayDetails from "../screens/calendar/DayDetails"
 import ReportDetails from "../screens/calendar/ReportDetails"
 import { Report } from "../utils/types"
@@ -11,8 +12,16 @@ export type MainStackParamsList = {
   },
   ReportDetails: {
     date: string;
-    reportData: Report
-  }        
+    report: Report
+  },
+  CheckInOut: {
+    checkIn: {
+      time: Date
+    },
+    checkOut: {
+      time: Date
+    }
+  }      
 }
 
 const Stack = createStackNavigator<MainStackParamsList>()
@@ -33,6 +42,11 @@ const MainStack = () => {
         <Stack.Screen 
           name="ReportDetails"
           component={ReportDetails}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="CheckInOut"
+          component={CheckInOut}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

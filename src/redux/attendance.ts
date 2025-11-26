@@ -111,6 +111,64 @@ export const attendanceApi = createApi({
       },
     }),
 
+    getCheckIn: builder.query<any, { userId: string | undefined; date: string }>({
+      async queryFn({ userId, date }) {
+        try {
+          const docSnap = await attendanceRef(userId, date)
+            .collection("checkIn")
+            .doc("today")
+            .get();
+
+          if (!docSnap.exists) {
+            return { data: null };
+          }
+    
+          return {
+            data: {
+              id: docSnap.id,
+              ...docSnap.data(),
+            }
+          };
+        } catch (err: any) {
+          return {
+            error: {
+              status: err.code || "UNKNOWN",
+              message: err.message || "Unexpected Firestore error",
+            },
+          };
+        }
+      },
+    }),
+
+    getCheckOut: builder.query<any, { userId: string | undefined; date: string }>({
+      async queryFn({ userId, date }) {
+        try {
+          const docSnap = await attendanceRef(userId, date)
+            .collection("checkOut")
+            .doc("today")
+            .get();
+
+          if (!docSnap.exists) {
+            return { data: null };
+          }
+    
+          return {
+            data: {
+              id: docSnap.id,
+              ...docSnap.data(),
+            }
+          };
+        } catch (err: any) {
+          return {
+            error: {
+              status: err.code || "UNKNOWN",
+              message: err.message || "Unexpected Firestore error",
+            },
+          };
+        }
+      },
+    }),
+
     getReport: builder.query<any, { userId: string | undefined; date: string }>({
       async queryFn({ userId, date }) {
         try {
@@ -212,6 +270,8 @@ export const {
   useAddCheckOutMutation,
   useAddReportMutation,
   useAddLeaveMutation,
+  useGetCheckInQuery,
+  useGetCheckOutQuery,
   useGetReportQuery,
   useLazyGetDaysWorkingQuery,
   useGetLeaveQuery,
