@@ -9,7 +9,7 @@ import useDocumentPicker from "@/src/hooks/useDocumentPicker";
 import { useUserData } from "@/src/hooks/useUserData";
 import BottomSheet from "@/src/Modals/BottomSheet";
 import ConfirmationPopup from "@/src/Modals/ConfirmationPopup";
-import { useAddCheckInMutation, useAddCheckOutMutation, useAddLeaveMutation, useAddReportMutation } from "@/src/redux/attendance";
+import { useAddCheckInMutation, useAddCheckOutMutation, useAddLeaveMutation, useAddReportMutation, useLazyGetDaysWorkingQuery, useLazyGetLeaveDaysQuery } from "@/src/redux/attendance";
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import { Image, ImageProps, Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -57,6 +57,9 @@ export default function AttendanceScreen() {
   const [addCheckIn, { isLoading, error: checkInError }] = useAddCheckInMutation();
   const [addCheckOut] = useAddCheckOutMutation();
   const { data, loading: userDataLoading } = useUserData();
+  const [getDaysWorking, resGetDaysWorking] = useLazyGetDaysWorkingQuery()
+  const [getLeaveDays, resGetLeaveDays] = useLazyGetLeaveDaysQuery()
+  
   const [addReport] = useAddReportMutation()
   const [addLeave] =   useAddLeaveMutation()
   const { documents, leaveDocuments, images, uploading, leaveImages, handleDocumentSelection, handleLeaveDocumentSelection, handleSelectImage, handleSelectLeaveImage, removeDocument, removeLeaveDocument, removeImage, removeLeaveImage, uploadAll, uploadLeaveAll } = useDocumentPicker()
@@ -170,6 +173,7 @@ export default function AttendanceScreen() {
     setIsVisibleReportSuccess(true)
     setReport('')
     console.log("Report success");
+    getDaysWorking({ userId: data.id })
   };
 
   const submitLeave = async () => {
@@ -201,6 +205,7 @@ export default function AttendanceScreen() {
     setIsVisibleLeaveSuccess(true)
     setLeaveText('')
     console.log("Leave success");
+    getLeaveDays({ userId: data.id })
   };
 
   const handleDocument = async () => {

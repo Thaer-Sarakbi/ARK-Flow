@@ -1,4 +1,5 @@
 // services/attendanceApi.ts
+import firestore from '@react-native-firebase/firestore';
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 import { attendanceRef } from "../utils/firestoreRefs";
 import { Report } from "../utils/types";
@@ -122,7 +123,7 @@ export const attendanceApi = createApi({
             ...doc.data(),
           }));
     
-          return { data: reports[0] };
+          return { data: reports };
         } catch (err: any) {
           return {
             error: {
@@ -156,6 +157,52 @@ export const attendanceApi = createApi({
           };
         }
       },
+    }),
+
+    getDaysWorking: builder.query<any, { userId: string | undefined }>({
+      async queryFn({ userId }) {
+    try {
+      const snapshot = await firestore()
+      .collectionGroup("report")
+      .get();
+
+      const userReports = snapshot.docs.filter(doc => 
+        doc.ref.path.includes(`users/${userId}/`)
+      );
+
+      return { data: userReports };   // ✅ IMPORTANT!
+    } catch (err: any) {
+      return {
+        error: {
+          status: err.code || "UNKNOWN",
+          message: err.message || "Unexpected Firestore error",
+        },
+      };
+    }
+  },
+    }),
+
+    getLeaveDays: builder.query<any, { userId: string | undefined }>({
+      async queryFn({ userId }) {
+        try{
+          const snapshot = await firestore()
+          .collectionGroup("leave")
+          .get();
+    
+          const userLeaves = snapshot.docs.filter(doc => 
+            doc.ref.path.includes(`users/${userId}/`)
+          );
+
+          return { data: userLeaves };   // ✅ IMPORTANT!
+        } catch(err: any){
+          return {
+            error: {
+              status: err.code || "UNKNOWN",
+              message: err.message || "Unexpected Firestore error",
+            },
+          };
+        }
+      }
     })
   }),
 });
@@ -166,5 +213,9 @@ export const {
   useAddReportMutation,
   useAddLeaveMutation,
   useGetReportQuery,
-  useGetLeaveQuery
+  useLazyGetDaysWorkingQuery,
+  useGetLeaveQuery,
+  useGetDaysWorkingQuery,
+  useGetLeaveDaysQuery,
+  useLazyGetLeaveDaysQuery
 } = attendanceApi;

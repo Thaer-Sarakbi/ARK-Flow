@@ -96,6 +96,7 @@ export default function ProfileScreen() {
 
           <Text style={styles.version}>version: {packageJson.version}</Text>
         </View>
+        <Spacer height={40} />
       </View>
     </Container>
   );

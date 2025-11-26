@@ -22,16 +22,6 @@
 	<string>1.0.0</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
-	<key>NSCameraUsageDescription</key>
-    <string>ARK Flow requires access to your Camera.</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>ARK Flow requires access to your photo library to allow you to select and upload photos with your consent.</string>
-	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>ARK Flow requires access to your location.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>ARK Flow requires access to your location.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>ARK Flow requires access to your location.</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -55,6 +45,16 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSCameraUsageDescription</key>
+	<string>ARK Flow requires access to your Camera.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>ARK Flow requires access to your location.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>ARK Flow requires access to your location.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>ARK Flow requires access to your location.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>ARK Flow requires access to your photo library to allow you to select and upload photos with your consent.</string>
 	<key>NSUserActivityTypes</key>
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).expo.index_route</string>

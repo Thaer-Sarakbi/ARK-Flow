@@ -57,7 +57,7 @@ export default function useCurrentLocation(mapRef: React.RefObject<MapView>) {
         setError("Please enable location in your phone")
       }
     })
-  }, []);
+  }, [currentLocation, mapRef]);
 
     // Listen for app returning from background (especially Settings)
     useEffect(() => {
@@ -66,7 +66,7 @@ export default function useCurrentLocation(mapRef: React.RefObject<MapView>) {
           lastAppState.current.match(/inactive|background/) &&
           nextState === "active"
         ) {
-          getLocation();
+          //getLocation();
         }
   
         lastAppState.current = nextState;

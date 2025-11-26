@@ -19,6 +19,7 @@ const auth = getAuth();
 export const useUserData = () => {
   const [data, setData] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
 
   useEffect(() => {
     const fetch = async () => {
@@ -32,7 +33,8 @@ export const useUserData = () => {
 
       const uid = currentUser.uid;
 
-      const userDoc = await firestore()
+      try{
+        const userDoc = await firestore()
         .collection('users')
         .doc(uid)
         .get();
@@ -43,6 +45,10 @@ export const useUserData = () => {
         accountCreated: currentUser.metadata.creationTime,
         profile: userDoc.data() as any
       });
+      } catch (err){
+        console.log(err)
+        setIsError(true)
+      }
 
       setLoading(false);
     };
@@ -50,5 +56,5 @@ export const useUserData = () => {
     fetch();
   }, []);
 
-  return { data, loading };
+  return { data, loading, isError };
 };
