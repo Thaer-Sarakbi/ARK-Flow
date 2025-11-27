@@ -11,7 +11,7 @@ import { createUserWithEmailAndPassword, getAuth } from '@react-native-firebase/
 import { useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import { z } from 'zod';
 
@@ -75,7 +75,7 @@ export default function SignUpScreen() {
       setIsRegLoading(true)
       await createUserWithEmailAndPassword(auth, email, password).then((res) => {
         setMessage('User account created!');
-        addUser({ fullName, email, phoneNumber, userId: res.user.uid })
+        addUser({ fullName, email, phoneNumber, password, userId: res.user.uid })
       })
       .catch(error => {
         setIsRegLoading(false)
@@ -93,72 +93,76 @@ export default function SignUpScreen() {
     }
 
   return (
-   <View style={styles.container}>
-      <Loading visible={isLoading || isRegLoading}/>
-      <View style={styles.header}>
-        <Text style={styles.textHeader}>Welcome!</Text>
-      </View>
-      <Animatable.View style={styles.footer} animation='fadeInUpBig'>
-        <ScrollView>
-          <Text style={styles.textFooter}>Full Name</Text>
-          <Spacer height={6} />
-           <Controller
-            name="fullName"
-            control={control}
-            render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
-              <Input 
-                autoCapitalize="none"
-                label="Your full name" 
-                borderColor={COLORS.neutral._300} 
-                inputColor={COLORS.title} 
-                labelColor={COLORS.neutral._400} 
-                onChangeText={onChange}
-                onBlur={onBlur}
-                value={value}
-                errorText={error?.message}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <View style={styles.container}>
+          <Loading visible={isLoading || isRegLoading}/>
+          <View style={styles.header}>
+            <Text style={styles.textHeader}>Welcome!</Text>
+          </View>
+          <Animatable.View style={styles.footer} animation='fadeInUpBig'>
+            <ScrollView>
+              <Text style={styles.textFooter}>Full Name</Text>
+              <Spacer height={6} />
+              <Controller
+                name="fullName"
+                control={control}
+                render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
+                <Input 
+                  autoCapitalize="none"
+                  label="Your full name" 
+                  borderColor={COLORS.neutral._300} 
+                  inputColor={COLORS.title} 
+                  labelColor={COLORS.neutral._400} 
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  errorText={error?.message}
+                />
+               )}
               />
-            )}
-           />
-        <Spacer height={20} />
-        <Text style={styles.textFooter}>Email</Text>
-        <Spacer height={6} />
-        <Controller
-            name="email"
-            control={control}
-            render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
-              <Input 
-                autoCapitalize="none"
-                label="Your email" 
-                borderColor={COLORS.neutral._300} 
-                inputColor={COLORS.title} 
-                labelColor={COLORS.neutral._400} 
-                onChangeText={onChange}
-                onBlur={onBlur}
-                value={value}
-                errorText={error?.message}
-              />
-            )}
-          />
-        <Spacer height={20} />
-        <Text style={styles.textFooter}>Phone Number</Text>
-        <Spacer height={6} />
-        <Controller
-            name="phoneNumber"
-            control={control}
-            render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
-              <Input 
-                label="Your phone number"
-                keyboardType='numeric'
-                borderColor={COLORS.neutral._300} 
-                inputColor={COLORS.title} 
-                labelColor={COLORS.neutral._400} 
-                onChangeText={onChange}
-                onBlur={onBlur}
-                value={value}
-                errorText={error?.message}
-              />
-            )}
-          />
+             <Spacer height={20} />
+             <Text style={styles.textFooter}>Email</Text>
+             <Spacer height={6} />
+             <Controller
+               name="email"
+               control={control}
+               render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
+                 <Input 
+                   autoCapitalize="none"
+                   label="Your email" 
+                   borderColor={COLORS.neutral._300} 
+                   inputColor={COLORS.title} 
+                   labelColor={COLORS.neutral._400} 
+                   onChangeText={onChange}
+                   onBlur={onBlur}
+                   value={value}
+                   errorText={error?.message}
+                 />
+               )}
+             />
+            <Spacer height={20} />
+            <Text style={styles.textFooter}>Phone Number</Text>
+            <Spacer height={6} />
+            <Controller
+              name="phoneNumber"
+              control={control}
+              render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
+                <Input 
+                  label="Your phone number"
+                  keyboardType='numeric'
+                  borderColor={COLORS.neutral._300} 
+                  inputColor={COLORS.title} 
+                  labelColor={COLORS.neutral._400} 
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  value={value}
+                  errorText={error?.message}
+                />
+              )}
+            />
         <Spacer height={20} />
         <Text style={styles.textFooter}>Password</Text>
         <Spacer height={6} />
@@ -217,7 +221,8 @@ export default function SignUpScreen() {
         onPress={() => setShowAlert(false)}
         onPressClose={() => setShowAlert(false)}
       />  
-   </View>
+     </View>
+   </KeyboardAvoidingView>
   );
 }
 

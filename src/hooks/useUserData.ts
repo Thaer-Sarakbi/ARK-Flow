@@ -10,6 +10,7 @@ interface User {
     admin: boolean,
     email: string,
     fullName: string,
+    password: string,
     phoneNumber: string
    }
 }

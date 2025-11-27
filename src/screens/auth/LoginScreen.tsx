@@ -7,11 +7,12 @@ import ErrorPopup from "@/src/Modals/ErrorPopup";
 import { AuthStackParamsList } from "@/src/routes/AuthStack";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getAuth, signInWithEmailAndPassword } from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import * as Animatable from 'react-native-animatable';
 import { z } from 'zod';
 import packageJson from '../../../package.json';
@@ -55,7 +56,12 @@ export default function LoginScreen() {
 
     setIsLoading(true)
     await signInWithEmailAndPassword(auth, email, password).then((res) => {
-      console.log(res)
+      console.log('Logged in successfully')
+      //update password if it changed
+      firestore()
+      .collection('users')
+      .doc(res.user.uid)
+      .update({ password })
     }).catch((e) => {
       setIsLoading(false)
       if(e.code === 'auth/invalid-credential'){
@@ -69,12 +75,17 @@ export default function LoginScreen() {
   }
 
   return (
-   <View style={styles.container}>
+    <KeyboardAvoidingView
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    style={{ flex: 1 }}>
+    <View style={styles.container}>
      <Loading visible={isLoading}/>
      <View style={styles.header}>
         <Text style={styles.textHeader}>Welcome!</Text>
       </View>
+
       <Animatable.View style={styles.footer} animation='fadeInUpBig'>
+        <ScrollView>
         <Text style={styles.textFooter}>Email</Text>
         <Spacer height={6} />
        
@@ -127,7 +138,9 @@ export default function LoginScreen() {
         <Spacer height={15} />
         <SubmitButton text="Sign Up" mode='outlined' onPress={() =>  navigation.navigate('Signup')} />
         <Text style={{ alignSelf: 'center', fontSize: 15, marginVertical: 10, color: COLORS.neutral._500 }}>version: {packageJson.version}</Text>
+        </ScrollView>
       </Animatable.View>
+     
       <ErrorPopup 
         isVisible={showAlert} 
         title="Error"
@@ -135,7 +148,8 @@ export default function LoginScreen() {
         onPress={() => setShowAlert(false)}
         onPressClose={() => setShowAlert(false)}
       />
-   </View>
+    </View>
+   </KeyboardAvoidingView>
   );
 }
 

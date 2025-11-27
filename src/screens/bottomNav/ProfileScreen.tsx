@@ -32,7 +32,7 @@ export default function ProfileScreen() {
   const  fields = [
     {id: 1, title: 'Email', value: data?.email},
     {id: 2, title: 'Mobile Number', value: data?.profile.phoneNumber},
-    {id: 3, title: 'Password', value: showPassword ? 'thaer@12.34' : '*******'}
+    {id: 3, title: 'Password', value: showPassword ? data?.profile.password : '*******'}
   ]
 
   const onLogOut = async () => {

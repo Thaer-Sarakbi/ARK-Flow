@@ -8,7 +8,8 @@ interface UserListItem {
 
 interface AddUser {
     fullName: string
-    email: string
+    email: string,
+    password: string,
     phoneNumber: string
     userId: string
   }
@@ -38,11 +39,12 @@ export const usersApi = createApi({
     }),
 
     addUser: builder.mutation<any, AddUser>({
-        async queryFn({ fullName, email, phoneNumber, userId }) {
+        async queryFn({ fullName, email, phoneNumber, password, userId }) {
           try {
             const res = await usersRef.doc(userId).set({
               fullName,
               email,
+              password,
               phoneNumber,
               admin: false,
               creationDate: new Date(),
