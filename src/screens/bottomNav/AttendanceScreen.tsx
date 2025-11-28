@@ -252,11 +252,17 @@ export default function AttendanceScreen() {
 
   return (
     <>
-    <Container headerMiddle="Attendance">
+    <Container headerMiddle="Attendance" hasInput>
       <Loading visible={uploading ? true : false}/>
-      <AttendanceCard value={checkInNote} onChangeText={setCheckInNote} label='Your Note' title="Check In" caption="Notes" buttonText="Register" onPress={() => setIsVisibleConfirmCheckIn(true)} />
+      <AttendanceCard value={checkInNote} onChangeText={setCheckInNote} label='Your Note' title="Check In" caption="Notes" buttonText="Register" onPress={() => {
+        getLocation()
+        setIsVisibleConfirmCheckIn(true)
+      }} />
       <Spacer height={18}/>
-      <AttendanceCard value={checkOutNote} onChangeText={setCheckOutNote} label="Your Note" title="Check Out" caption="Notes" buttonText="Register" onPress={() => setIsVisibleConfirmCheckOut(true)} />
+      <AttendanceCard value={checkOutNote} onChangeText={setCheckOutNote} label="Your Note" title="Check Out" caption="Notes" buttonText="Register" onPress={() => {
+        getLocation()
+        setIsVisibleConfirmCheckOut(true)
+      }} />
       <Spacer height={18}/>
       <AttendanceCard value={report} onChangeText={setReport} label='Report' title="Today Report" caption="Tell us what did you do today" buttonText="Submit" imagesList={images} docsList={documents} onPress={submitReport} uploadButton onPressUploadButton={() => setUploadPopupVisible(true)} removeDoc={removeDocument} removeImage={removeImage} />
       <Spacer height={18}/>

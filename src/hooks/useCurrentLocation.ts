@@ -1,6 +1,6 @@
 import Geolocation from '@react-native-community/geolocation';
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { AppState, Linking, Platform } from "react-native";
+import React, { useCallback, useState } from "react";
+import { Linking, Platform } from "react-native";
 import MapView, { Region } from "react-native-maps";
 import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";
 
@@ -9,7 +9,6 @@ export default function useCurrentLocation(mapRef: React.RefObject<MapView>) {
   const [error, setError] = useState("");
   const [location, setLocation] = useState<Region | any>(null);
   const [currentLocation, setCurrentLocation] = useState<Region | any>(null);
-  const lastAppState = useRef(AppState.currentState);
 
   const requestPermission = async () => {
     const permission =
@@ -57,23 +56,7 @@ export default function useCurrentLocation(mapRef: React.RefObject<MapView>) {
         setError("Please enable location in your phone")
       }
     })
-  }, [currentLocation, mapRef]);
-
-    // Listen for app returning from background (especially Settings)
-    useEffect(() => {
-      const subscription = AppState.addEventListener("change", (nextState) => {
-        if (
-          lastAppState.current.match(/inactive|background/) &&
-          nextState === "active"
-        ) {
-          //getLocation();
-        }
-  
-        lastAppState.current = nextState;
-      });
-  
-      return () => subscription.remove();
-    }, []);
+  }, []);
 
   const openSettings = () => {
     if (Platform.OS === 'ios') {

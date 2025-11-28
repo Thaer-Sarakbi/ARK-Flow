@@ -3,9 +3,11 @@ import Spacer from "@/src/components/atoms/Spacer";
 import SubmitButton from "@/src/components/buttons/SubmitButton";
 import Input from "@/src/components/Input";
 import Loading from "@/src/components/Loading";
+import ErrorComponent from "@/src/components/molecule/ErrorComponent";
 import PasswordValidator from "@/src/components/molecule/PasswordValidator";
 import ErrorPopup from "@/src/Modals/ErrorPopup";
 import { useAddUserMutation } from "@/src/redux/user";
+import { sendSignInLink } from "@/src/utils/sendEmailLink";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createUserWithEmailAndPassword, getAuth } from '@react-native-firebase/auth';
 import { useNavigation } from "@react-navigation/native";
@@ -76,6 +78,7 @@ export default function SignUpScreen() {
       await createUserWithEmailAndPassword(auth, email, password).then((res) => {
         setMessage('User account created!');
         addUser({ fullName, email, phoneNumber, password, userId: res.user.uid })
+        sendSignInLink(email)
       })
       .catch(error => {
         setIsRegLoading(false)
@@ -92,6 +95,7 @@ export default function SignUpScreen() {
       });
     }
 
+  if(isError) return <ErrorComponent />
   return (
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}

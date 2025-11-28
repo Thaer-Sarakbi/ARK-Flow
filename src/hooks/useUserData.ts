@@ -11,7 +11,8 @@ interface User {
     email: string,
     fullName: string,
     password: string,
-    phoneNumber: string
+    phoneNumber: string,
+    verified: boolean
    }
 }
 
