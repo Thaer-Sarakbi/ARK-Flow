@@ -3,7 +3,7 @@ import storage from '@react-native-firebase/storage';
 import React from "react";
 import { Alert } from "react-native";
 import RNFS from 'react-native-fs';
-import { Asset, launchImageLibrary } from "react-native-image-picker";
+import { Asset, launchCamera, launchImageLibrary } from "react-native-image-picker";
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024;
 
@@ -92,6 +92,19 @@ const useDocumentPicker = () => {
         });
     }
 
+    const handleSelectCamera = async () => {
+
+      await launchCamera({
+        mediaType: 'photo',
+        presentationStyle: 'pageSheet'
+      }, async (res) => {
+        if (res.assets){
+          setDocuments([])
+          setImages(res.assets)
+        };
+      });
+  }
+
     const handleSelectLeaveImage = async () => {
 
       await launchImageLibrary({
@@ -104,6 +117,18 @@ const useDocumentPicker = () => {
           setLeaveImages(res.assets)
         };
       });
+  }
+
+  const handleSelectLeaveCamera = async () => {
+    await launchCamera({
+      mediaType: 'photo',
+      presentationStyle: 'pageSheet'
+    }, async (res) => {
+      if (res.assets){
+        setLeaveDocuments([])
+        setLeaveImages(res.assets)
+      };
+    });
   }
 
     const removeImage = (uri: string) => {
@@ -214,6 +239,8 @@ const useDocumentPicker = () => {
     handleDocumentSelection,
     handleLeaveDocumentSelection,
     handleSelectImage,
+    handleSelectCamera,
+    handleSelectLeaveCamera,
     handleSelectLeaveImage,
     removeDocument,
     removeLeaveDocument,

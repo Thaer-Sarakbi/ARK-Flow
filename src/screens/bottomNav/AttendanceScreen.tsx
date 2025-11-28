@@ -13,7 +13,6 @@ import { useAddCheckInMutation, useAddCheckOutMutation, useAddLeaveMutation, use
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import { Image, ImageProps, Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { launchCamera } from "react-native-image-picker";
 import MapView from 'react-native-maps';
 interface BoxUploadProps extends ImageProps {
   title: string;
@@ -62,7 +61,7 @@ export default function AttendanceScreen() {
   
   const [addReport] = useAddReportMutation()
   const [addLeave] =   useAddLeaveMutation()
-  const { documents, leaveDocuments, images, uploading, leaveImages, handleDocumentSelection, handleLeaveDocumentSelection, handleSelectImage, handleSelectLeaveImage, removeDocument, removeLeaveDocument, removeImage, removeLeaveImage, uploadAll, uploadLeaveAll } = useDocumentPicker()
+  const { documents, leaveDocuments, images, uploading, leaveImages, handleDocumentSelection, handleLeaveDocumentSelection, handleSelectImage, handleSelectCamera, handleSelectLeaveImage, handleSelectLeaveCamera, removeDocument, removeLeaveDocument, removeImage, removeLeaveImage, uploadAll, uploadLeaveAll } = useDocumentPicker()
   const date = moment().format("DD-MM-YYYY");
 
   useEffect(() => {
@@ -221,10 +220,7 @@ export default function AttendanceScreen() {
   };
 
   const handleCamera = async () => {
-    await launchCamera({
-      mediaType: 'photo',
-      presentationStyle: 'pageSheet',
-    }).then(() => {
+    await handleSelectCamera().then(() => {
       setUploadPopupVisible(false)
     }).catch((e) => console.log(e))
   };
@@ -242,10 +238,7 @@ export default function AttendanceScreen() {
   };
 
   const handleLeaveCamera = async () => {
-    await launchCamera({
-      mediaType: 'photo',
-      presentationStyle: 'pageSheet',
-    }).then(() => {
+    await handleSelectLeaveCamera().then(() => {
       setUploadPopupLeaveVisible(false)
     }).catch((e) => console.log(e))
   };
