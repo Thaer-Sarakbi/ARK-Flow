@@ -147,6 +147,18 @@ const useDocumentPicker = () => {
       return dest;
     };
 
+    const deleteAllFilesInFolder = async (path: string) => {
+      const folderRef = storage().ref(path);
+      const list = await folderRef.listAll(); // list all files and prefixes
+    
+      console.log(path)
+      console.log(list)
+      // delete all files
+      for (const fileRef of list.items) {
+        await fileRef.delete();
+      }
+    };
+
     // --------------------------------------------------
   // Upload ANY file (document OR image)
   // --------------------------------------------------
@@ -176,6 +188,7 @@ const useDocumentPicker = () => {
   };
 
   const uploadAll = async (path: string) => {
+    await deleteAllFilesInFolder(path);
     const urls: string[] = [];
 
     // Upload documents
@@ -204,6 +217,7 @@ const useDocumentPicker = () => {
   };
 
   const uploadLeaveAll = async (path: string) => {
+    await deleteAllFilesInFolder(path);
     const urls: string[] = [];
 
     // Upload documents
