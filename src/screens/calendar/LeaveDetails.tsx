@@ -12,27 +12,28 @@ import { ImageURISource, StyleSheet, Text, TouchableHighlight, TouchableOpacity,
 import FileViewer from "react-native-file-viewer";
 import RNFS from 'react-native-fs';
 import ImageView from "react-native-image-viewing";
-interface ReportDetails {
+
+interface LeaveDetails {
   route: {
     params: {
       date: string,
-      report: Report
+      leave: Report
     }
   }
 }
 
-export default function ReportDetails({ route }: ReportDetails) {
+export default function LeaveDetails({ route }: LeaveDetails) {
   const date = route.params.date
-  const reportData = route.params.report
+  const leaveData = route.params.leave
   const { data: user, loading } = useUserData();
   const [visible, setIsVisible] = useState<boolean>(false);
-  const [loadingVisible, setIsLoadingVisible] = useState<boolean>(false);
   const [sliderimages, setSliderImages] = useState<string[]>([]);
   const [images, setImages] = useState<ImageURISource[]>([]);
-  const [pdf, setPdf] = useState<{uri: string}[]>([]);
   const [index, setIndex] = useState(0);
+  const [pdf, setPdf] = useState<{uri: string}[]>([]);
+  const [loadingVisible, setIsLoadingVisible] = useState<boolean>(false);
 
-  const folderPath = `users/${user?.id}/attendance/${date}/report/today/files`;
+  const folderPath = `users/${user?.id}/attendance/${date}/leave/today/files`;
 
   async function getSliderFiles(userId: string, date: string) {
 
@@ -50,18 +51,18 @@ export default function ReportDetails({ route }: ReportDetails) {
   }
 
   async function getFiles(userId: string, date: string) {
+    const folderPath = `users/${userId}/attendance/${date}/leave/today/files`;
     const result = await storage().ref(folderPath).listAll();
       
     // result.items = list of files
     const files = await Promise.all(
-      result.items
-        .filter(item => !item.name.toLowerCase().endsWith(".pdf")) // exclude PDFs
-        .map(async (item) => {
-          const url = await item.getDownloadURL();
-          return { uri: url };
-        })
+      result.items.map(async (item) => {
+        const url = await item.getDownloadURL();
+        return (
+            {uri: url}
+        )
+      })
     );
-
     return files;
   }
 
@@ -80,7 +81,7 @@ export default function ReportDetails({ route }: ReportDetails) {
 
     return files;
   }
-
+  
   useEffect(() => {
     if (!user?.id) return;
   
@@ -105,29 +106,29 @@ export default function ReportDetails({ route }: ReportDetails) {
     loadFiles();
   }, [user?.id, date]);
 
-  const openPdf = async (filePath: string) => {
-    setIsLoadingVisible(true) 
-    try {
-      const localFile = `${RNFS.DocumentDirectoryPath}/temporaryfile.pdf`;
-
-      const options = {
-        fromUrl: filePath,
-        toFile: localFile,
-      };
-      await RNFS.downloadFile(options).promise.then(() => FileViewer.open(localFile))
-    } catch (error) {
-      console.error('Error sharing PDF:', error);
-    } finally {
-      setIsLoadingVisible(false) 
-    }
-  };
+    const openPdf = async (filePath: string, fileName: string) => {
+      setIsLoadingVisible(true) 
+      try {
+        const localFile = `${RNFS.DocumentDirectoryPath}/temporaryfile.pdf`;
+  
+        const options = {
+          fromUrl: filePath,
+          toFile: localFile,
+        };
+        await RNFS.downloadFile(options).promise.then(() => FileViewer.open(localFile))
+      } catch (error) {
+        console.error('Error sharing PDF:', error);
+      } finally {
+        setIsLoadingVisible(false) 
+      }
+    };
 
   return (
-    <Container allowBack headerMiddle='Report Details' backgroundColor={COLORS.neutral._100}>
+    <Container allowBack headerMiddle='Leave Details' backgroundColor={COLORS.neutral._100}>
       <Loading visible={loadingVisible} />
       <Text style={styles.title}>Description:</Text>
       <Spacer height={4} />
-      <Text style={styles.caption}>{reportData.note}</Text>
+      <Text style={styles.caption}>{leaveData.note}</Text>
       <Spacer height={16} />
       {sliderimages.length > 0 && (<>
         <Text style={styles.title}>Images:</Text>
@@ -154,7 +155,7 @@ export default function ReportDetails({ route }: ReportDetails) {
         pdf.map((pdfFile, i) => {
           return(
             <View key={i}>
-              <TouchableOpacity style={styles.pdfContainer} key={i} onPress={() => openPdf(pdfFile.uri)}>
+              <TouchableOpacity style={styles.pdfContainer} key={i} onPress={() => openPdf(pdfFile.uri, `File:_${i + 1}`)}>
                 <Text>File {i + 1}</Text>
                  <Entypo name="chevron-small-right" size={24} color="black" />
               </TouchableOpacity>
@@ -173,16 +174,16 @@ const styles = StyleSheet.create({
        color: COLORS.caption,
        fontSize: 15
      },
-  title: {
-    fontWeight: 'bold',
-    fontSize: 20,
-  },
-  pdfContainer: { 
-    backgroundColor: COLORS.neutral._400, 
-    padding: 10, 
-    borderRadius: 8, 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center' 
-  }
+     title: {
+      fontWeight: 'bold',
+      fontSize: 20,
+    },
+    pdfContainer: { 
+      backgroundColor: COLORS.neutral._400, 
+      padding: 10, 
+      borderRadius: 8, 
+      flexDirection: 'row', 
+      justifyContent: 'space-between', 
+      alignItems: 'center' 
+    }
 })

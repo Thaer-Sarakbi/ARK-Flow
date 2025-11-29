@@ -24,7 +24,7 @@ export type MainStackParamsList = {
   },
   LeaveDetails: {
     date: string;
-    report: Report
+    leave: Report
   },
   CheckInOut: {
     checkIn: {
