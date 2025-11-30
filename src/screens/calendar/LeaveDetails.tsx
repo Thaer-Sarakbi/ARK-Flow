@@ -6,7 +6,7 @@ import Loading from '@/src/components/Loading';
 import { useUserData } from '@/src/hooks/useUserData';
 import { Report } from '@/src/utils/types';
 import Entypo from '@expo/vector-icons/Entypo';
-import storage from '@react-native-firebase/storage';
+import { getStorage, ref } from '@react-native-firebase/storage';
 import { useEffect, useState } from 'react';
 import { ImageURISource, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
 import FileViewer from "react-native-file-viewer";
@@ -21,6 +21,8 @@ interface LeaveDetails {
     }
   }
 }
+
+const storage = getStorage();
 
 export default function LeaveDetails({ route }: LeaveDetails) {
   const date = route.params.date
@@ -37,7 +39,9 @@ export default function LeaveDetails({ route }: LeaveDetails) {
 
   async function getSliderFiles(userId: string, date: string) {
 
-    const result = await storage().ref(folderPath).listAll();
+    //const result = await storage().ref(folderPath).listAll();
+    const folderRef = ref(storage, folderPath);
+    const result = await folderRef.listAll();
 
     const files = await Promise.all(
       result.items
@@ -51,8 +55,10 @@ export default function LeaveDetails({ route }: LeaveDetails) {
   }
 
   async function getFiles(userId: string, date: string) {
-    const folderPath = `users/${userId}/attendance/${date}/leave/today/files`;
-    const result = await storage().ref(folderPath).listAll();
+    // const folderPath = `users/${userId}/attendance/${date}/leave/today/files`;
+    //const result = await storage().ref(folderPath).listAll();
+    const folderRef = ref(storage, folderPath);
+    const result = await folderRef.listAll();
       
     // result.items = list of files
     const files = await Promise.all(
@@ -67,8 +73,10 @@ export default function LeaveDetails({ route }: LeaveDetails) {
   }
 
   async function getPdf(userId: string, date: string) {
-    const result = await storage().ref(folderPath).listAll();
-      
+    //const result = await storage().ref(folderPath).listAll();
+    const folderRef = ref(storage, folderPath);
+    const result = await folderRef.listAll();
+    
     // result.items = list of files
     const files = await Promise.all(
       result.items

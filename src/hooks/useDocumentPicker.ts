@@ -1,11 +1,12 @@
 import { DocumentPickerResponse, pick, types } from "@react-native-documents/picker";
-import storage from '@react-native-firebase/storage';
+import { getStorage, ref } from '@react-native-firebase/storage';
 import React from "react";
 import { Alert } from "react-native";
 import RNFS from 'react-native-fs';
 import { Asset, launchCamera, launchImageLibrary } from "react-native-image-picker";
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024;
+const storage = getStorage();
 
 const useDocumentPicker = () => {
   const [documents, setDocuments] = React.useState<DocumentPickerResponse[] | any>([]);
@@ -13,7 +14,6 @@ const useDocumentPicker = () => {
   const [images, setImages] = React.useState<Asset[]>([]);
   const [leaveImages, setLeaveImages] = React.useState<Asset[]>([]);
   const [uploading, setUploading] = React.useState(false);
-  console.log(images)
 
   const handleDocumentSelection = async (allowMultiSelection?: boolean) => {
 
@@ -148,7 +148,8 @@ const useDocumentPicker = () => {
     };
 
     const deleteAllFilesInFolder = async (path: string) => {
-      const folderRef = storage().ref(path);
+      // const folderRef = storage().ref(path);
+      const folderRef = ref(storage, path);
       const list = await folderRef.listAll(); // list all files and prefixes
     
       console.log(path)
@@ -170,13 +171,14 @@ const useDocumentPicker = () => {
       setUploading(true);
 
       const realPath = await normalizePath(file.uri, file.name);
-      const ref = storage().ref(`${path}/${file.name}`);
+      // const ref = storage().ref(`${path}/${file.name}`);
+      const reference = ref(storage, `${path}/${file.name}`);
 
-      await ref.putFile(realPath, {
+      await reference.putFile(realPath, {
         contentType: file.type || undefined,
       });
 
-      return await ref.getDownloadURL();
+      return await reference.getDownloadURL();
 
     } catch (err) {
       console.log("Upload error:", err);
