@@ -4,7 +4,6 @@ import Spacer from "@/src/components/atoms/Spacer";
 import Container from "@/src/components/Container";
 import Loading from "@/src/components/Loading";
 import ErrorComponent from "@/src/components/molecule/ErrorComponent";
-import { useUserData } from "@/src/hooks/useUserData";
 import { useGetCheckInQuery, useGetCheckOutQuery, useGetLeaveQuery, useGetReportQuery } from "@/src/redux/attendance";
 import { MainStackParamsList } from "@/src/routes/MainStack";
 import Entypo from '@expo/vector-icons/Entypo';
@@ -15,7 +14,8 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 interface DayDetails {
     route: {
       params: {
-        date: number
+        date: number,
+        userId: string
       }
     }
 }
@@ -24,15 +24,15 @@ type HomeScreenNavigationProp = StackNavigationProp<MainStackParamsList, 'DayDet
 
 export default function DayDetails({ route }: DayDetails) {
   const date = moment(route.params.date).format("DD-MM-YYYY")
+  const userId = route.params.userId
   const navigation = useNavigation<HomeScreenNavigationProp>()
-  const { data: user, loading, isError } = useUserData();
-  const { data: checkIn, isLoading: isLoadingCheckIn, isError: isErrorCheckIn } = useGetCheckInQuery({ userId: user?.id, date }, { skip: !user?.id })
-  const { data: checkOut, isLoading: isLoadingCheckOut, isError: isErrorCheckOut } = useGetCheckOutQuery({ userId: user?.id, date }, { skip: !user?.id })
-  const { data: reportData, isLoading, isError: isErrorGetReport, } = useGetReportQuery({ userId: user?.id, date }, { skip: !user?.id });
-  const { data: leaveData, isLoading: leaveIsLoading, isError: LeaveIsError } = useGetLeaveQuery({ userId: user?.id, date }, { skip: !user?.id })
+  const { data: checkIn, isLoading: isLoadingCheckIn, isError: isErrorCheckIn } = useGetCheckInQuery({ userId, date })
+  const { data: checkOut, isLoading: isLoadingCheckOut, isError: isErrorCheckOut } = useGetCheckOutQuery({ userId, date })
+  const { data: reportData, isLoading, isError: isErrorGetReport, } = useGetReportQuery({ userId, date });
+  const { data: leaveData, isLoading: leaveIsLoading, isError: LeaveIsError } = useGetLeaveQuery({ userId, date })
 
-  if (loading || isLoading || isLoadingCheckIn || isLoadingCheckOut ||leaveIsLoading ) return <Loading visible />;
-  if (isError || isErrorCheckOut || isErrorCheckIn || isErrorGetReport || LeaveIsError) return <ErrorComponent />;
+  if (isLoading || isLoadingCheckIn || isLoadingCheckOut ||leaveIsLoading ) return <Loading visible />;
+  if (isErrorCheckOut || isErrorCheckIn || isErrorGetReport || LeaveIsError) return <ErrorComponent />;
 
   return (
     <Container allowBack={true} headerMiddle='Day Details' backgroundColor={COLORS.neutral._100}>

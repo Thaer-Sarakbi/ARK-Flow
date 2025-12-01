@@ -17,6 +17,7 @@ export type MainStackParamsList = {
   BottomNav: undefined,
   DayDetails: {
     date: number;
+    userId: string
   },
   ReportDetails: {
     date: string;

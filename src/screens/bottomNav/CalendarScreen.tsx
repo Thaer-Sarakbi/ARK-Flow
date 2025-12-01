@@ -131,7 +131,7 @@ export default function CalendarScreen() {
       }
         <Spacer height={20} />
         <CalendarPicker 
-          onDateChange={(date) => navigation.navigate('DayDetails', { date } as any)}
+          onDateChange={(date) => navigation.navigate('DayDetails', { userId: value, date } as any)}
           customDatesStyles={customDatesStyles}
           onMonthChange={(date) => setDate(date)}
           startFromMonday={true}
