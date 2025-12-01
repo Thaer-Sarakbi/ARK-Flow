@@ -21,11 +21,13 @@ export type MainStackParamsList = {
   },
   ReportDetails: {
     date: string;
-    report: Report
+    report: Report,
+    userId: string
   },
   LeaveDetails: {
     date: string;
     leave: Report
+    userId: string
   },
   CheckInOut: {
     checkIn: {
@@ -111,7 +113,7 @@ const MainStack = () => {
           options={{ headerShown: false }}
         />
       </Stack.Navigator>
-      <ConfirmationPopup isVisible={isVisible} buttonTitle='Resend' title="Verify your email" paragraph1={`Open the link your received in email: \n\n ${data?.email}`} paragraph2='Make sure the email is correct' onPress={() => sendSignInLink(data?.email)}/>
+      <ConfirmationPopup isVisible={isVisible} buttonTitle='Resend' title="Verify your email" paragraph1={`Open the link your received in email: \n\n ${data?.email}`} paragraph2='Make sure the email is correct' paragraph3='Check Spam if not founded' onPress={() => sendSignInLink(data?.email)}/>
       </>
     )
   }

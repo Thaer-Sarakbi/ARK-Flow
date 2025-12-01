@@ -3,7 +3,6 @@ import Spacer from '@/src/components/atoms/Spacer';
 import CarouselSlider from '@/src/components/CarouselSlider';
 import Container from '@/src/components/Container';
 import Loading from '@/src/components/Loading';
-import { useUserData } from '@/src/hooks/useUserData';
 import { Report } from '@/src/utils/types';
 import Entypo from '@expo/vector-icons/Entypo';
 import { getStorage, ref } from '@react-native-firebase/storage';
@@ -17,7 +16,8 @@ interface LeaveDetails {
   route: {
     params: {
       date: string,
-      leave: Report
+      leave: Report,
+      userId: string
     }
   }
 }
@@ -27,7 +27,7 @@ const storage = getStorage();
 export default function LeaveDetails({ route }: LeaveDetails) {
   const date = route.params.date
   const leaveData = route.params.leave
-  const { data: user, loading } = useUserData();
+  const userId = route.params.userId
   const [visible, setIsVisible] = useState<boolean>(false);
   const [sliderimages, setSliderImages] = useState<string[]>([]);
   const [images, setImages] = useState<ImageURISource[]>([]);
@@ -35,7 +35,7 @@ export default function LeaveDetails({ route }: LeaveDetails) {
   const [pdf, setPdf] = useState<{uri: string}[]>([]);
   const [loadingVisible, setIsLoadingVisible] = useState<boolean>(false);
 
-  const folderPath = `users/${user?.id}/attendance/${date}/leave/today/files`;
+  const folderPath = `users/${userId}/attendance/${date}/leave/today/files`;
 
   async function getSliderFiles(userId: string, date: string) {
 
@@ -91,18 +91,18 @@ export default function LeaveDetails({ route }: LeaveDetails) {
   }
   
   useEffect(() => {
-    if (!user?.id) return;
+    if (!userId) return;
   
     const loadFiles = async () => {
       setIsLoadingVisible(true)
       try {
-        const sliderResult = await getSliderFiles(user.id, date);
+        const sliderResult = await getSliderFiles(userId, date);
         setSliderImages(sliderResult);
   
-        const result = await getFiles(user.id, date);
+        const result = await getFiles(userId, date);
         setImages(result);
 
-        const pdfResult = await getPdf(user.id, date);
+        const pdfResult = await getPdf(userId, date);
         setPdf(pdfResult);
       } catch (e) {
         console.error("Failed to load files:", e);
@@ -112,7 +112,7 @@ export default function LeaveDetails({ route }: LeaveDetails) {
     };
   
     loadFiles();
-  }, [user?.id, date]);
+  }, [userId, date]);
 
     const openPdf = async (filePath: string, fileName: string) => {
       setIsLoadingVisible(true) 

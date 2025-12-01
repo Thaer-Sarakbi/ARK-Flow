@@ -59,7 +59,7 @@ export default function DayDetails({ route }: DayDetails) {
       <Text style={styles.title}>Report</Text>
       {
         (reportData?.length ?? 0) > 0 ? (
-          <TouchableOpacity onPress={() => navigation.navigate('ReportDetails', { date, report: reportData[0] })} style={styles.container}>
+          <TouchableOpacity onPress={() => navigation.navigate('ReportDetails', { date, report: reportData[0], userId })} style={styles.container}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.caption}>{moment(new Date(route.params.date)).format('MMMM Do')}  </Text>
               <Text>Report</Text>
@@ -77,7 +77,7 @@ export default function DayDetails({ route }: DayDetails) {
       <Text style={styles.title}>Leave Report</Text>
       {
         (leaveData?.length ?? 0) > 0 ? (
-          <TouchableOpacity onPress={() => navigation.navigate('LeaveDetails', { date, leave: leaveData[0] })} style={styles.container}>
+          <TouchableOpacity onPress={() => navigation.navigate('LeaveDetails', { date, leave: leaveData[0], userId })} style={styles.container}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.caption}>{moment(new Date(route.params.date)).format('MMMM Do')}  </Text>
               <Text>Leave Report</Text>
