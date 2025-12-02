@@ -1,7 +1,7 @@
 import firestore from '@react-native-firebase/firestore'
 import { createStackNavigator } from "@react-navigation/stack"
 import { useEffect, useState } from "react"
-import { Linking } from 'react-native'
+import { Linking, Platform } from 'react-native'
 import Loading from '../components/Loading'
 import { useUserData } from '../hooks/useUserData'
 import ConfirmationPopup from '../Modals/ConfirmationPopup'
@@ -46,7 +46,7 @@ const MainStack = () => {
     const [isVisible, setIsvisible] = useState(false)
  
     useEffect(() => {
-      if(data?.id && !data.profile?.verified){
+      if(data?.id && !data.profile?.verified && Platform.OS === 'android'){
         setIsvisible(true)
       }
     

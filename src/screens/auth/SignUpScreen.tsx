@@ -23,7 +23,6 @@ export default function SignUpScreen() {
   const navigation = useNavigation()
   const [message, setMessage] = useState('')
   const [showAlert, setShowAlert] = useState(false)
-  const [isRegLoading, setIsRegLoading] = useState(false)
   const [passwordStrength, setPasswordStrength] = useState<string>("Weak");
   const [addUser, { isLoading, isSuccess, isError }] = useAddUserMutation()
 
@@ -74,14 +73,14 @@ export default function SignUpScreen() {
         return;
       }
 
-      setIsRegLoading(true)
       await createUserWithEmailAndPassword(auth, email, password).then((res) => {
         setMessage('User account created!');
         addUser({ fullName, email, phoneNumber, password, userId: res.user.uid })
-        sendSignInLink(email)
+        if(Platform.OS === 'android'){
+          sendSignInLink(email)
+        }
       })
       .catch(error => {
-        setIsRegLoading(false)
         if (error.code === 'auth/email-already-in-use') {
           setMessage('That email address is already in use!');
           setShowAlert(true)
@@ -102,7 +101,7 @@ export default function SignUpScreen() {
           style={{ flex: 1 }}
         >
           <View style={styles.container}>
-          <Loading visible={isLoading || isRegLoading}/>
+          <Loading visible={isLoading}/>
           <View style={styles.header}>
             <Text style={styles.textHeader}>Welcome!</Text>
           </View>

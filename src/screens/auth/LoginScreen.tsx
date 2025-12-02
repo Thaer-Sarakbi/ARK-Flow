@@ -2,7 +2,6 @@ import { COLORS } from "@/src/colors";
 import Spacer from "@/src/components/atoms/Spacer";
 import SubmitButton from "@/src/components/buttons/SubmitButton";
 import Input from "@/src/components/Input";
-import Loading from "@/src/components/Loading";
 import ErrorPopup from "@/src/Modals/ErrorPopup";
 import { AuthStackParamsList } from "@/src/routes/AuthStack";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,7 +24,6 @@ export default function LoginScreen() {
   const navigation = useNavigation<LoginScreenNavigationProp>()
   const [message, setMessage] = useState('')
   const [showAlert, setShowAlert] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
 
   const schema = z
   .object({
@@ -54,7 +52,6 @@ export default function LoginScreen() {
   const handleSubmitLogin = async () => {
     const { email, password } = watch()
 
-    setIsLoading(true)
     await signInWithEmailAndPassword(auth, email, password).then((res) => {
       console.log('Logged in successfully')
       //update password if it changed
@@ -63,7 +60,6 @@ export default function LoginScreen() {
       .doc(res.user.uid)
       .update({ password })
     }).catch((e) => {
-      setIsLoading(false)
       if(e.code === 'auth/invalid-credential'){
         setMessage('Invalid credential');
         setShowAlert(true)
@@ -79,7 +75,6 @@ export default function LoginScreen() {
     behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     style={{ flex: 1 }}>
     <View style={styles.container}>
-     <Loading visible={isLoading}/>
      <View style={styles.header}>
         <Text style={styles.textHeader}>Welcome!</Text>
       </View>

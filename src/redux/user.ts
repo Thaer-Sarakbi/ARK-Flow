@@ -48,6 +48,7 @@ export const usersApi = createApi({
               phoneNumber,
               admin: false,
               creationDate: new Date(),
+              verified: false
             }).then((res) => {
                console.log(res)
             }).catch((e) => {
