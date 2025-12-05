@@ -3,14 +3,15 @@ import Spacer from '@/src/components/atoms/Spacer';
 import CarouselSlider from '@/src/components/CarouselSlider';
 import Container from '@/src/components/Container';
 import Loading from '@/src/components/Loading';
+import ImageViewModal from '@/src/Modals/ImageViewModal';
 import { Report } from '@/src/utils/types';
 import Entypo from '@expo/vector-icons/Entypo';
 import { getStorage, ref } from '@react-native-firebase/storage';
 import { useEffect, useState } from 'react';
-import { ImageURISource, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
 import FileViewer from "react-native-file-viewer";
 import RNFS from 'react-native-fs';
-import ImageView from "react-native-image-viewing";
+import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type';
 
 interface LeaveDetails {
   route: {
@@ -30,7 +31,7 @@ export default function LeaveDetails({ route }: LeaveDetails) {
   const userId = route.params.userId
   const [visible, setIsVisible] = useState<boolean>(false);
   const [sliderimages, setSliderImages] = useState<string[]>([]);
-  const [images, setImages] = useState<ImageURISource[]>([]);
+  const [images, setImages] = useState<IImageInfo[]>([]);
   const [index, setIndex] = useState(0);
   const [pdf, setPdf] = useState<{uri: string}[]>([]);
   const [loadingVisible, setIsLoadingVisible] = useState<boolean>(false);
@@ -65,7 +66,7 @@ export default function LeaveDetails({ route }: LeaveDetails) {
       result.items.map(async (item) => {
         const url = await item.getDownloadURL();
         return (
-            {uri: url}
+            {url}
         )
       })
     );
@@ -144,17 +145,6 @@ export default function LeaveDetails({ route }: LeaveDetails) {
         <TouchableHighlight onPress={() => setIsVisible(true)}>
           <CarouselSlider index={index} images={sliderimages} setIndex={setIndex}/>
         </TouchableHighlight>
-        <View style={{ paddingTop: 50 }}>
-          <ImageView
-            images={images}
-            imageIndex={index}
-            visible={visible}
-            onRequestClose={() => setIsVisible(false)}
-            onImageIndexChange={(i) => setIndex(i)}
-            swipeToCloseEnabled
-            presentationStyle= 'pageSheet'
-          />
-        </View>
         <Spacer height={10}/>
       </>)}
       {pdf.length > 0 && (<><Text style={styles.title}>Documents:</Text>
@@ -173,6 +163,7 @@ export default function LeaveDetails({ route }: LeaveDetails) {
         })
       }
       <Spacer height={30} /></>)}
+      <ImageViewModal index={index} visible={visible} images={images} setIsVisible={setIsVisible} />
     </Container>
   );
 }

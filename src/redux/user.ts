@@ -23,6 +23,7 @@ export const usersApi = createApi({
       async queryFn() {
         try {
           const snapshot = await usersRef.get()
+
           const usersList: UserListItem[] = snapshot.docs.map(doc => {
             const data = doc.data()
             return{
