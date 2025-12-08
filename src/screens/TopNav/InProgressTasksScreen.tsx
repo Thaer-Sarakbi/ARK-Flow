@@ -1,9 +1,57 @@
-import { Text, View } from "react-native";
+import Spacer from "@/src/components/atoms/Spacer";
+import Loading from "@/src/components/Loading";
+import ErrorComponent from "@/src/components/molecule/ErrorComponent";
+import TaskCard from "@/src/components/TaskCard";
+import { useUserData } from "@/src/hooks/useUserData";
+import { useGetTasksQuery } from "@/src/redux/tasks";
+import { Task } from "@/src/utils/types";
+import { useMemo } from "react";
+import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 
 export default function InProgressTasksScreen() {
+  const { data: user, loading, isError: isErrorUserData } = useUserData();
+  const { data: listOfTasks, isLoading: isLoadingTasks, isError } = useGetTasksQuery({ userId: user?.id }, { skip: !user?.id })
+
+  const inProgressTasks = useMemo(
+    () => listOfTasks?.filter((t: Task) => t.status === "In Progress") || [],
+    [listOfTasks]
+  );
+
+  if(loading || isLoadingTasks) return <Loading visible={true} />
+
+  if(isErrorUserData || isError) return <ErrorComponent />
   return (
-    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-      <Text>No Tasks Yet</Text>
-    </View>
+    <>
+      {
+        inProgressTasks.length > 0 ? (
+          <View style={styles.container}>
+            <FlatList 
+              data={inProgressTasks}
+              renderItem={({ item }) => <TaskCard title={item.title} status={item.status} />}
+            />
+          </View>      
+        ) : (
+          <View style={styles.blank}>
+            <Image style={{ width: 120 , height: 120 }} source={require('@/assets/icons/noTasks.png')} />
+            <Spacer height={8} />
+            <Text style={{ alignSelf: 'center' }}>No Tasks In Progress</Text>
+          </View>
+        )
+      }
+    </>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { 
+    flex: 1, 
+    backgroundColor: 'white', 
+    paddingHorizontal: 12
+  },
+  blank: { 
+    flex: 1, 
+    backgroundColor: 'white', 
+    justifyContent: 'center', 
+    alignItems: 'center'  
+  }
+})
