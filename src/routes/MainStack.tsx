@@ -1,8 +1,10 @@
 import firestore from '@react-native-firebase/firestore'
 import { createStackNavigator } from "@react-navigation/stack"
+import * as Notifications from 'expo-notifications'
 import { useEffect, useState } from "react"
 import { Linking, Platform } from 'react-native'
 import Loading from '../components/Loading'
+import usePushNotification from '../hooks/usePushNotification'
 import { useUserData } from '../hooks/useUserData'
 import ConfirmationPopup from '../Modals/ConfirmationPopup'
 import CheckInOut from "../screens/calendar/CheckInOut"
@@ -41,10 +43,48 @@ export type MainStackParamsList = {
 
 const Stack = createStackNavigator<MainStackParamsList>()
 
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldPlaySound: false,
+    shouldSetBadge: false,
+    shouldShowBanner: true,
+    shouldShowList: true,
+  }),
+});
+
 const MainStack = () => { 
     const { data, loading } = useUserData();
     const [isVisible, setIsvisible] = useState(false)
+    const { registerForExpoPushToken } = usePushNotification()
+    const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
+    const [notification, setNotification] = useState<Notifications.Notification | undefined>(
+      undefined
+    );
  
+    useEffect(() => {
+      if (Platform.OS === 'android') {
+        Notifications.getNotificationChannelsAsync().then(value => setChannels(value ?? []));
+      }
+      const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+        console.log(notification)
+        setNotification(notification);
+      });
+  
+      const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+        console.log(response);
+      });
+  
+      return () => {
+        notificationListener.remove();
+        responseListener.remove();
+      };
+    }, []);
+
+    useEffect(() => {
+      registerForExpoPushToken()
+      //schedulePushNotification()
+    },[])
+
     useEffect(() => {
       if(data?.id && !data.profile?.verified && Platform.OS === 'android'){
         setIsvisible(true)
