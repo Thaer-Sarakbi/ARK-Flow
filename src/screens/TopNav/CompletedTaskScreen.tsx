@@ -27,7 +27,7 @@ export default function CompletedTaskScreen() {
           <View style={styles.container}>
             <FlatList 
               data={completedTasks}
-              renderItem={({ item }) => <TaskCard title={item.title} status={item.status} />}
+              renderItem={({ item }) => <TaskCard title={item.title} status={item.status} taskId={item.id}/>}
             />
           </View>      
         ) : (

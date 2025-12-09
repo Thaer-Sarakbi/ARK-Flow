@@ -30,7 +30,7 @@ export default function NotStartedListScreen() {
           <View style={styles.container}>
             <FlatList 
               data={notStartedTasks}
-              renderItem={({ item }) => <TaskCard title={item.title} status={item.status} />}
+              renderItem={({ item }) => <TaskCard title={item.title} status={item.status} taskId={item.id} />}
             />
           </View>
         ) : (

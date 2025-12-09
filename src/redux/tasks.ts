@@ -1,4 +1,4 @@
-import { collection, getDocs, getFirestore } from '@react-native-firebase/firestore';
+import firestore, { collection, getDocs, getFirestore } from '@react-native-firebase/firestore';
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const db = getFirestore();
@@ -35,9 +35,73 @@ export const tasksApi = createApi({
       },
     }),
 
+    getTask: builder.query<any, { userId: string | undefined, taskId: string }>({
+      async queryFn({ userId, taskId }) {
+        try {
+          const docSnap = await firestore()
+            .collection("users")
+            .doc(userId)
+            .collection("tasks")
+            .doc(taskId)
+            .get();
+
+          if (!docSnap.exists) {
+            return { data: null };
+          }
+    
+          return {
+            data: {
+              id: docSnap.id,
+              ...docSnap.data(),
+            }
+          };
+        } catch (err: any) {
+          return {
+            error: {
+              status: err.code || "UNKNOWN",
+              message: err.message || "Unexpected Firestore error",
+            },
+          };
+        }
+      },
+    }),
+
+    getUpdates: builder.query<any, { userId: string | undefined, taskId: string }>({
+      async queryFn({ userId, taskId }) {
+        try {
+            if (!userId || !taskId) {
+              return { data: [] }; // prevents invalid Firestore paths
+            }
+
+            const docSnap = await firestore()
+              .collection("users")
+              .doc(userId)
+              .collection("tasks")
+              .doc(taskId)
+              .collection("updates")
+              .get()
+          
+            const updates = docSnap.docs.map((doc: any) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+
+           return { data: updates };   // ✅ IMPORTANT!
+        } catch (err: any) {
+          return {
+            error: {
+              status: err.code || "UNKNOWN",
+              message: err.message || "Unexpected Firestore error",
+            },
+          };
+        }
+      },
+    }),
   }),
 });
 
 export const {
-  useGetTasksQuery
+  useGetTasksQuery,
+  useGetTaskQuery,
+  useGetUpdatesQuery
 } = tasksApi;

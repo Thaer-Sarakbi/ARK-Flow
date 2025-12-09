@@ -1,6 +1,9 @@
 import Icon from '@expo/vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { COLORS } from "../colors";
+import { MainStackParamsList } from '../routes/MainStack';
 import { shadow } from "../utils/shadows";
 import Separator from './atoms/Separator';
 import Spacer from './atoms/Spacer';
@@ -8,11 +11,15 @@ import Spacer from './atoms/Spacer';
 interface TaskCard {
     title: string,
     status: string,
+    taskId: string
 }
+
+export type RootStackNavigationProp = StackNavigationProp<MainStackParamsList>;
 
 const data = [{icon: 'person-outline', text: 'Ali'},{ icon: 'hourglass-outline', text: '1 Day' },{ icon: 'location-outline', text: 'USJ 21' }]
 
-export default function TaskCard({ title, status }: TaskCard) {
+export default function TaskCard({ title, status, taskId }: TaskCard) {
+  const navigation = useNavigation<RootStackNavigationProp>()
 
   const getStyle = (status: string) => {
     if(status === 'In Progress'){
@@ -34,14 +41,14 @@ export default function TaskCard({ title, status }: TaskCard) {
   }
 
   return (
-    <TouchableOpacity style={[styles.container, shadow.cards]}>
+    <TouchableOpacity style={[styles.container, shadow.cards]} onPress={() => navigation.navigate('TaskDetails', { taskId })}>
       <Text style={styles.caption}>February 6th 2024, 11:35 am</Text>
       <Separator marginVertical={10} />
       <View style={styles.titleContainer}>
         <Text style={styles.title}>{title}</Text>
-        <TouchableOpacity style={[styles.statusContainer, getStyle(status)]}>
+        <View style={[styles.statusContainer, getStyle(status)]}>
           <Text style={[styles.statusText, getStyle(status)]}>{status}</Text>
-        </TouchableOpacity>
+        </View>
       </View>
       {
         data.map((item, index) => (

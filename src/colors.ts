@@ -10,6 +10,7 @@
     caption: string,
     divider: string,
     info: string,
+    infoSecondary: string,
     neutral: {
         _50: string,
         _100: string,
@@ -34,6 +35,7 @@
     negativeSecondary: '#FFEBEE',
     divider: '#EBEBEB',
     info: '#4F8EF7',
+    infoSecondary: '#3dbcf2',
     neutral: {
         _50: '#FAFAFA',
         _100: "#F5F5F5",

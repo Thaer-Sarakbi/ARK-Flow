@@ -11,6 +11,7 @@ import CheckInOut from "../screens/calendar/CheckInOut"
 import DayDetails from "../screens/calendar/DayDetails"
 import LeaveDetails from "../screens/calendar/LeaveDetails"
 import ReportDetails from "../screens/calendar/ReportDetails"
+import TaskDetails from '../screens/task/TaskDetails'
 import { sendSignInLink } from '../utils/sendEmailLink'
 import { Report } from "../utils/types"
 import BottomNavigator from "./BottomTabNavigator"
@@ -38,7 +39,10 @@ export type MainStackParamsList = {
     checkOut: {
       time: Date
     }
-  }      
+  },
+  TaskDetails: {
+    taskId: string
+  }
 }
 
 const Stack = createStackNavigator<MainStackParamsList>()
@@ -55,7 +59,7 @@ Notifications.setNotificationHandler({
 const MainStack = () => { 
     const { data, loading } = useUserData();
     const [isVisible, setIsvisible] = useState(false)
-    const { registerForExpoPushToken } = usePushNotification()
+    const { registerForExpoPushToken, schedulePushNotification } = usePushNotification()
     const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
     const [notification, setNotification] = useState<Notifications.Notification | undefined>(
       undefined
@@ -150,6 +154,11 @@ const MainStack = () => {
         <Stack.Screen 
           name="CheckInOut"
           component={CheckInOut}
+          options={{ headerShown: false }}
+        />
+         <Stack.Screen 
+          name="TaskDetails"
+          component={TaskDetails}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

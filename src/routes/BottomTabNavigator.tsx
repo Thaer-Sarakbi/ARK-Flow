@@ -1,3 +1,4 @@
+import AwesomeIcon from '@expo/vector-icons/FontAwesome5';
 import Icon from '@expo/vector-icons/Ionicons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { COLORS } from '../colors';
@@ -24,7 +25,7 @@ const BottomNavigator = () => {
             headerShown: false, 
             tabBarLabelStyle: { display: 'none'},
             tabBarIcon: ({ focused }) => (
-               <Icon name="home-outline" size={30} color={focused ? COLORS.info : COLORS.neutral._500} />
+               <AwesomeIcon name="tasks" size={28} color={focused ? COLORS.info : COLORS.neutral._500} />
             )
         }} 
         component={HomeScreen} 

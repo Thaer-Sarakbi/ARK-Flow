@@ -27,7 +27,7 @@ export default function InProgressTasksScreen() {
           <View style={styles.container}>
             <FlatList 
               data={inProgressTasks}
-              renderItem={({ item }) => <TaskCard title={item.title} status={item.status} />}
+              renderItem={({ item }) => <TaskCard title={item.title} status={item.status} taskId={item.id}/>}
             />
           </View>      
         ) : (
