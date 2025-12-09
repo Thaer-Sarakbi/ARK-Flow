@@ -1,6 +1,8 @@
 import Icon from '@expo/vector-icons/Ionicons';
+import { Timestamp } from '@react-native-firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
+import moment from 'moment';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { COLORS } from "../colors";
 import { MainStackParamsList } from '../routes/MainStack';
@@ -12,14 +14,38 @@ interface TaskCard {
     title: string,
     status: string,
     taskId: string
+    assignedTo: string
+    duration: string
+    location: string
+    creationDate: Timestamp
 }
 
 export type RootStackNavigationProp = StackNavigationProp<MainStackParamsList>;
 
-const data = [{icon: 'person-outline', text: 'Ali'},{ icon: 'hourglass-outline', text: '1 Day' },{ icon: 'location-outline', text: 'USJ 21' }]
+function addNewlinesToString(text: string, maxLength: number) {
+  let result = '';
+  let currentLineLength = 0;
+  for (let i = 0; i < text.length; i++) {
+    result += text[i];
+    currentLineLength++;
 
-export default function TaskCard({ title, status, taskId }: TaskCard) {
+    // If the current character is a newline, reset currentLineLength
+    if (text[i] === '\n') {
+      currentLineLength = 0;
+    } 
+    // If current line length exceeds maxLength and it's not the end of the string, add a newline
+    else if (currentLineLength >= maxLength && i < text.length - 1) {
+      result += '\n';
+      currentLineLength = 0;
+    }
+  }
+  return result;
+}
+
+export default function TaskCard({ title, status, taskId, assignedTo, duration, location, creationDate }: TaskCard) {
   const navigation = useNavigation<RootStackNavigationProp>()
+
+  const data = [{icon: 'person-outline', text: assignedTo},{ icon: 'hourglass-outline', text: `${duration} Day` },{ icon: 'location-outline', text: location }]
 
   const getStyle = (status: string) => {
     if(status === 'In Progress'){
@@ -42,10 +68,10 @@ export default function TaskCard({ title, status, taskId }: TaskCard) {
 
   return (
     <TouchableOpacity style={[styles.container, shadow.cards]} onPress={() => navigation.navigate('TaskDetails', { taskId })}>
-      <Text style={styles.caption}>February 6th 2024, 11:35 am</Text>
+      <Text style={styles.caption}>{moment(new Date(creationDate?.seconds * 1000)).format('MMMM Do YYYY, h:ss a')}</Text>
       <Separator marginVertical={10} />
       <View style={styles.titleContainer}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title}>{addNewlinesToString(title, 17)}</Text>
         <View style={[styles.statusContainer, getStyle(status)]}>
           <Text style={[styles.statusText, getStyle(status)]}>{status}</Text>
         </View>

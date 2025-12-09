@@ -15,6 +15,7 @@ export default function NotStartedListScreen() {
     { skip: !user?.id }  // prevent running before user is loaded
   )
   
+  console.log(listOfTasks)
   const notStartedTasks = useMemo(
     () => listOfTasks?.filter((t: Task) => t.status === "Not Started") || [],
     [listOfTasks]
@@ -30,7 +31,7 @@ export default function NotStartedListScreen() {
           <View style={styles.container}>
             <FlatList 
               data={notStartedTasks}
-              renderItem={({ item }) => <TaskCard title={item.title} status={item.status} taskId={item.id} />}
+              renderItem={({ item }) => <TaskCard title={item.title} status={item.status} taskId={item.id} assignedTo={item.assignedTo} duration={item.duration} location={item.location} creationDate={item.creationDate}/>}
             />
           </View>
         ) : (

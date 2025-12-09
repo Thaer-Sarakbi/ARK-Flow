@@ -1,3 +1,4 @@
+import { Timestamp } from "@react-native-firebase/firestore";
 export interface Report {
     userId: string;
     note: string;
@@ -22,7 +23,7 @@ export type Updates = {
     description: string, 
     images: string[], 
     taskId: string, 
-    time: any,
+    time: Timestamp,
     title: string,
     updatedBy: string,
     deviceToken: string,
