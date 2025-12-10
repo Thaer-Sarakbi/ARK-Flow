@@ -1,12 +1,11 @@
+import LottieView from 'lottie-react-native';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { COLORS } from '../colors';
-import CircularProgress from './atoms/CircularProgress';
 
 const LoadingComponent: React.FC = () => {
     return (
         <View style={styles.container}>
-          <CircularProgress color={COLORS.primary} size={44} />
+          <LottieView source={require("../../assets/loading.json")} style={styles.icon} autoPlay loop />
         </View>
     );
 };
@@ -17,6 +16,10 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
     },
+    icon: {
+      width: '100%', 
+      height: 100
+    }
 });
 
 export default React.memo(LoadingComponent);
