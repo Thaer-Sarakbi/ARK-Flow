@@ -15,7 +15,6 @@ export default function NotStartedListScreen() {
     { skip: !user?.id }  // prevent running before user is loaded
   )
   
-  console.log(listOfTasks)
   const notStartedTasks = useMemo(
     () => listOfTasks?.filter((t: Task) => t.status === "Not Started") || [],
     [listOfTasks]

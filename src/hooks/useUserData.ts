@@ -1,20 +1,7 @@
 import { getAuth } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import { useEffect, useState } from 'react';
-
-interface User {
-  accountCreated: string | undefined,
-  email: string | null,
-  id: string,
-  profile:{
-    admin: boolean,
-    email: string,
-    fullName: string,
-    password: string,
-    phoneNumber: string,
-    verified: boolean
-   }
-}
+import { User } from '../utils/types';
 
 const auth = getAuth();
 

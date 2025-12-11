@@ -1,8 +1,14 @@
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import React from 'react';
+import React, { useState } from 'react';
 import { COLORS } from '../colors';
+import AddTask from '../components/AddTask';
 import AddTaskButton from '../components/buttons/AddTaskButton';
+import LoadingComponent from '../components/LoadingComponent';
 import MainHeader from '../components/MainHeader';
+import ErrorComponent from '../components/molecule/ErrorComponent';
+import { useUserData } from '../hooks/useUserData';
+import BottomSheet from '../Modals/BottomSheet';
+import { useGetUsersQuery } from '../redux/user';
 import CompletedTaskScreen from '../screens/TopNav/CompletedTaskScreen';
 import InProgressTasksScreen from '../screens/TopNav/InProgressTasksScreen';
 import NotStartedListScreen from '../screens/TopNav/NotStartedListScreen';
@@ -10,7 +16,18 @@ import NotStartedListScreen from '../screens/TopNav/NotStartedListScreen';
 const Tab = createMaterialTopTabNavigator();
 
 export default function TopTab() {
+  const { data: user, loading, isError: isErrorUserData } = useUserData();
+  const { data: listOfUsers, isLoading: isLoadingUsers, isError } = useGetUsersQuery()
+  const [isVisible, setIsVisible] = useState(false)
   
+  const dropdownData = listOfUsers?.map(item => ({
+    value: item.id,
+    label: item.name
+  }));
+
+  if(loading || isLoadingUsers) return <LoadingComponent />
+  if(isErrorUserData || isError) return <ErrorComponent />
+
   return (
     <>
       <MainHeader />
@@ -34,7 +51,10 @@ export default function TopTab() {
           component={CompletedTaskScreen}
         />
       </Tab.Navigator>
-      <AddTaskButton />
+      <AddTaskButton onPress={() => setIsVisible(true)} />
+      <BottomSheet visible={isVisible} onPress={() => setIsVisible(false)}>
+        <AddTask listOfUsers={dropdownData!} setIsVisible={setIsVisible} user={user!}/>
+      </BottomSheet>
     </>
   );
 }

@@ -3,11 +3,12 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { StyleSheet, TouchableOpacity } from "react-native";
 
 interface AddTaskButton {
+  onPress:() => void
 }
 
-export default function AddTaskButton({ }: AddTaskButton) {
+export default function AddTaskButton({ onPress }: AddTaskButton) {
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity style={styles.container} onPress={onPress}>
       <Icon name="add-outline" size={40} color={'white'} />  
     </TouchableOpacity>
   );

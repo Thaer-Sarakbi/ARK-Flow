@@ -1,5 +1,6 @@
 import firestore, { collection, getDocs, getFirestore } from '@react-native-firebase/firestore';
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
+import { Task } from '../utils/types';
 
 const db = getFirestore();
 
@@ -97,11 +98,77 @@ export const tasksApi = createApi({
         }
       },
     }),
+
+    getComments: builder.query<any, { userId: string | undefined, taskId: string, updateId: string }>({
+      async queryFn({ userId, taskId, updateId }) {
+        try {
+            if (!userId || !taskId) {
+              return { data: [] }; // prevents invalid Firestore paths
+            }
+
+            const docSnap = await firestore()
+              .collection("users")
+              .doc(userId)
+              .collection("tasks")
+              .doc(taskId)
+              .collection("updates")
+              .doc(updateId)
+              .collection("comments")
+              .get()
+          
+            const comments = docSnap.docs.map((doc: any) => ({
+              id: doc.id,
+              ...doc.data(),
+            }));
+
+           return { data: comments };   // ✅ IMPORTANT!
+        } catch (err: any) {
+          return {
+            error: {
+              status: err.code || "UNKNOWN",
+              message: err.message || "Unexpected Firestore error",
+            },
+          };
+        }
+      },
+    }),
+
+    addTask: builder.mutation<any, Task>({
+      async queryFn({ assignedBy, assignedTo, assignedToId, duration, location, status = 'Not Started', title }) {
+        try {
+          await firestore()
+                .collection("users")
+                .doc(assignedToId)
+                .collection("tasks")
+                .add({
+                  assignedBy, 
+                  assignedTo, 
+                  assignedToId, 
+                  creationDate: new Date(), 
+                  duration, 
+                  location, 
+                  status, 
+                  title
+                })
+             return { data: true };
+        } catch (err: any) {
+          console.log(err)
+            return {
+              error: {
+                status: err.code || "UNKNOWN",
+                message: err.message || "Unexpected Firestore error",
+              },
+              };
+            }
+          },
+      }),
   }),
 });
 
 export const {
   useGetTasksQuery,
   useGetTaskQuery,
-  useGetUpdatesQuery
+  useGetUpdatesQuery,
+  useGetCommentsQuery,
+  useAddTaskMutation
 } = tasksApi;
