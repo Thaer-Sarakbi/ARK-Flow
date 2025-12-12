@@ -15,7 +15,7 @@ interface TaskCard {
     status: string,
     taskId: string
     assignedTo: string
-    duration: string
+    duration: number
     location: string
     creationDate: Timestamp
 }

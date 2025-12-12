@@ -15,17 +15,17 @@ export interface Task {
     location: string
     status: string
     title: string
-    creationDate: Date
+    creationDate: Timestamp
 }
 
 export type Update = {
     event: string,
     id: string,
-    assigenId: string, 
+    assignedToId: string, 
     description: string, 
     images: string[], 
     taskId: string, 
-    time: Timestamp,
+    creationDate: Timestamp,
     title: string,
     updatedBy: string,
     deviceToken: string,

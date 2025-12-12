@@ -11,9 +11,13 @@ import CheckInOut from "../screens/calendar/CheckInOut"
 import DayDetails from "../screens/calendar/DayDetails"
 import LeaveDetails from "../screens/calendar/LeaveDetails"
 import ReportDetails from "../screens/calendar/ReportDetails"
+import ChatScreen from '../screens/mainHeader/ChatScreen'
+import NotificationsScreen from '../screens/mainHeader/NotificationsScreen'
+import SearchScreen from '../screens/mainHeader/SearchScreen'
 import TaskDetails from '../screens/task/TaskDetails'
+import UpdateDetails from '../screens/task/UpdateDetails'
 import { sendSignInLink } from '../utils/sendEmailLink'
-import { Report } from "../utils/types"
+import { Report, Task, Update } from "../utils/types"
 import BottomNavigator from "./BottomTabNavigator"
 
 export type MainStackParamsList = {
@@ -42,7 +46,16 @@ export type MainStackParamsList = {
   },
   TaskDetails: {
     taskId: string
-  }
+  },
+  UpdateDetails: {
+    update: Update
+    task: Task
+    userId: string
+    taskId: string
+  },
+  SearchScreen: undefined,
+  NotificationsScreen: undefined,
+  ChatScreen: undefined
 }
 
 const Stack = createStackNavigator<MainStackParamsList>()
@@ -156,9 +169,29 @@ const MainStack = () => {
           component={CheckInOut}
           options={{ headerShown: false }}
         />
-         <Stack.Screen 
+        <Stack.Screen 
           name="TaskDetails"
           component={TaskDetails}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="UpdateDetails"
+          component={UpdateDetails}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="SearchScreen"
+          component={SearchScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="NotificationsScreen"
+          component={NotificationsScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="ChatScreen"
+          component={ChatScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

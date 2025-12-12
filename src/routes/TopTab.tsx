@@ -1,5 +1,5 @@
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { COLORS } from '../colors';
 import AddTask from '../components/AddTask';
 import AddTaskButton from '../components/buttons/AddTaskButton';
@@ -8,6 +8,7 @@ import MainHeader from '../components/MainHeader';
 import ErrorComponent from '../components/molecule/ErrorComponent';
 import { useUserData } from '../hooks/useUserData';
 import BottomSheet from '../Modals/BottomSheet';
+import { useLazyGetTasksQuery } from '../redux/tasks';
 import { useGetUsersQuery } from '../redux/user';
 import CompletedTaskScreen from '../screens/TopNav/CompletedTaskScreen';
 import InProgressTasksScreen from '../screens/TopNav/InProgressTasksScreen';
@@ -18,8 +19,13 @@ const Tab = createMaterialTopTabNavigator();
 export default function TopTab() {
   const { data: user, loading, isError: isErrorUserData } = useUserData();
   const { data: listOfUsers, isLoading: isLoadingUsers, isError } = useGetUsersQuery()
+  const [getTasks, ] = useLazyGetTasksQuery()
   const [isVisible, setIsVisible] = useState(false)
   
+  useEffect(() => {
+    getTasks({ userId: user?.id })
+  },[isVisible])
+
   const dropdownData = listOfUsers?.map(item => ({
     value: item.id,
     label: item.name
