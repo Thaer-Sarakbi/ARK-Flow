@@ -1,19 +1,21 @@
 import Feather from "@expo/vector-icons/Feather";
 import { DocumentPickerResponse } from "@react-native-documents/picker";
+import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { Image, KeyboardAvoidingView, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Asset } from "react-native-image-picker";
 import MapView from "react-native-maps";
+import uuid from 'react-native-uuid';
 import ConfirmationPopup from "../Modals/ConfirmationPopup";
 import { COLORS } from "../colors";
 import useCurrentLocation from "../hooks/useCurrentLocation";
+import { useLazyGetUpdatesDaysQuery } from "../redux/attendance";
 import { useAddUpdateMutation } from "../redux/tasks";
 import Input from "./Input";
 import Loading from "./Loading";
 import Spacer from "./atoms/Spacer";
 import SubmitButton from "./buttons/SubmitButton";
-
 interface AddUpdate {
   setIsVisible: (isVisible: boolean) => void,
   setUploadPopupVisible: (isVisible: boolean) => void,
@@ -25,16 +27,23 @@ interface AddUpdate {
   uploadAll:(path: string) => any
   removeDocument:(url: string) => void
   removeImage:(url: string) => void
+  uploading: boolean
 }
 
-export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId, assignedToId, images, documents, removeDocument, removeImage, uploadAll, userId }: AddUpdate) {
+export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId, assignedToId, images, documents, removeDocument, removeImage, uploadAll, userId, uploading }: AddUpdate) {
   const mapRef = useRef<MapView | null>(null);
   const [isVisibleConfirm, setIsVisibleConfirm] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [showAlert, setShowAlert] = useState(false)
   const [isVisibleFailed, setIsVisibleFailed] = useState(false)
   const [showLocationAndroid, setShowLocationAndroid] = useState(false)
-  const [AddUpdate, { isLoading, isSuccess, isError }] = useAddUpdateMutation()
+  const [addUpdate, { isSuccess, isError }] = useAddUpdateMutation()
   const { currentLocation, error: locationError, openSettings, getLocation } = useCurrentLocation(mapRef as any)
+  // const [AddUpdateAttend, { isLoading: isLoadingAddUpdateAttend }] = useAddUpdateAttendMutation()
+  const [getUpdatesDays] = useLazyGetUpdatesDaysQuery()
+
+  const date = moment().format("DD-MM-YYYY");
+  const id = uuid.v4();
 
   const {
     control,
@@ -56,8 +65,11 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
   },[errors])
 
   const handleSubmitAddUpdate = handleSubmit (async ({ title, description }) => {
+    setIsLoading(true)
+
     if (errors.title || errors.description) {
       setIsVisibleConfirm(false);
+      setIsLoading(true)
       return;
     }
 
@@ -65,12 +77,14 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
     if(locationError === 'Location permission denied.'){
         setIsVisibleConfirm(false);
         setShowAlert(true)
+        setIsLoading(false)
         return;
       }
   
       if(locationError === 'Please enable location in your phone'){
         setIsVisibleConfirm(false);
         setShowLocationAndroid(true)
+        setIsLoading(false)
         return;
       }
   
@@ -78,35 +92,40 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
         console.log("Missing location");
       }
 
-    const result = await AddUpdate({ 
-        assignedToId,
-        title, 
-        description, 
-        latitude: currentLocation?.latitude,
-        longitude: currentLocation?.longitude,
-        taskId
-      } as any)
+    const result = await addUpdate({
+      id, 
+      assignedToId, 
+      taskId, 
+      title, 
+      description, 
+      latitude: currentLocation?.latitude,
+      longitude: currentLocation?.longitude,
+      date, 
+      userId
+    } as any)
 
-        if (result.data && (documents.length > 0 || images.length > 0)) {
-          const uploadResult = await uploadAll(`users/${userId}/tasks/${taskId}/updates/${result.data}`)
-          if (!uploadResult || uploadResult.length === 0) {
-          console.log("Upload error");
-          setIsVisibleFailed(true);
-          return;
-        }
-      }
+    if (result.data && (documents.length > 0 || images.length > 0)) {
+      const uploadResult = await uploadAll(`users/${userId}/tasks/${taskId}/updates/${id}/files`)
+      if (!uploadResult || uploadResult.length === 0) {
+      console.log("Upload error");
+      setIsVisibleFailed(true);
+      return;
+    }
+  }
 
     if ('error' in result) {
       console.log("Adding update error:", result.error);
+      setIsLoading(false)
       return;
     }
 
+    setIsLoading(false)
     setIsVisible(false)
     console.log("Adding update success");
+    getUpdatesDays({ userId })
   })
 
-  if(isLoading) return <Loading visible={true} />
-  // if(isError) return <ErrorComponent />
+  if(isLoading || uploading) return <Loading visible={true} />
 
   return (
     <>
@@ -192,7 +211,7 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
       <Spacer height={6} />
       <SubmitButton text="Add Update" onPress={() => {
          if (!errors.title && !errors.description) {
-          getLocation()
+           getLocation()
            setIsVisibleConfirm(true);
           }
         }}

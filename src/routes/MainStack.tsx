@@ -17,7 +17,7 @@ import SearchScreen from '../screens/mainHeader/SearchScreen'
 import TaskDetails from '../screens/task/TaskDetails'
 import UpdateDetails from '../screens/task/UpdateDetails'
 import { sendSignInLink } from '../utils/sendEmailLink'
-import { Report, Task, Update } from "../utils/types"
+import { Report } from "../utils/types"
 import BottomNavigator from "./BottomTabNavigator"
 
 export type MainStackParamsList = {
@@ -48,10 +48,10 @@ export type MainStackParamsList = {
     taskId: string
   },
   UpdateDetails: {
-    update: Update
-    task: Task
-    userId: string
+    updateId: string
     taskId: string
+    userId: string
+    userName: string | undefined
   },
   SearchScreen: undefined,
   NotificationsScreen: undefined,

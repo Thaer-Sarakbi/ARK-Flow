@@ -36,7 +36,6 @@ export default function CheckInOut({ route }: DayDetails) {
   const checkIn = route.params.checkIn
   const checkOut = route.params.checkOut
 
-  console.log(checkOut)
   return (
     <Container allowBack={true} headerMiddle='Attendance Details' backgroundColor={COLORS.neutral._100}>
       {

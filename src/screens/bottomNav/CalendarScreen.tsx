@@ -4,7 +4,7 @@ import Container from "@/src/components/Container";
 import Loading from "@/src/components/Loading";
 import ErrorComponent from "@/src/components/molecule/ErrorComponent";
 import { useUserData } from "@/src/hooks/useUserData";
-import { useGetDaysWorkingQuery, useGetLeaveDaysQuery } from "@/src/redux/attendance";
+import { useGetDaysWorkingQuery, useGetLeaveDaysQuery, useGetUpdatesDaysQuery } from "@/src/redux/attendance";
 import { useGetUsersQuery } from "@/src/redux/user";
 import { MainStackParamsList } from "@/src/routes/MainStack";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -27,6 +27,7 @@ export default function CalendarScreen() {
   const [value, setValue] = useState<string | undefined>();
   const { data: workingDays, isLoading: isLoadingReport, isError: isErrorReport } = useGetDaysWorkingQuery({ userId: value })
   const { data: leaves, isLoading: isLoadingLeave, isError: isErrorLeave } = useGetLeaveDaysQuery({ userId: value })
+  const { data: updates, isLoading: isLoadingUpdates, isError: isErrorUpdates } = useGetUpdatesDaysQuery({ userId: value })
 
   const dropdownData = listOfUsers?.map(item => ({
     value: item.id,
@@ -55,6 +56,13 @@ export default function CalendarScreen() {
     }
   })
 
+  let updatesDays: any = []
+  updates?.forEach((updatesDay: any) => {
+    if(new Date(updatesDay.data().creationDate.seconds * 1000).getMonth() + 1 === new Date(date).getMonth() + 1){
+      updatesDays.push(moment(new Date(updatesDay.data().creationDate.seconds * 1000)).format('L'))
+    }
+  })
+
   let today = moment(date);
   let customDatesStyles: any = [];
   // Get first and last day of month
@@ -73,7 +81,7 @@ export default function CalendarScreen() {
           allowDisabled: true, // allow custom style to apply to disabled dates
         });  
   }
-  else if(workDays.includes(formattedDay)){
+  else if(workDays.includes(formattedDay) || updatesDays.includes(formattedDay)){
       customDatesStyles.push({
         date: day.clone(),
         style: {backgroundColor: 'green'},

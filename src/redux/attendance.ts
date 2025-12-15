@@ -261,6 +261,52 @@ export const attendanceApi = createApi({
           };
         }
       }
+    }),
+
+    getUpdatesDays: builder.query<any, { userId: string | undefined }>({
+      async queryFn({ userId }) {
+        try{
+          const snapshot = await firestore()
+          .collectionGroup("updates")
+          .get();
+    
+          const userUpdates = snapshot.docs.filter(doc => 
+            doc.ref.path.includes(`users/${userId}/`)
+          );
+
+          return { data: userUpdates };   // ✅ IMPORTANT!
+        } catch(err: any){
+          return {
+            error: {
+              status: err.code || "UNKNOWN",
+              message: err.message || "Unexpected Firestore error",
+            },
+          };
+        }
+      }
+    }),
+
+    getUpdates: builder.query<any, { userId: string | undefined, date: string }>({
+      async queryFn({ userId, date }) {
+        try{
+          const snapshot = await attendanceRef(userId, date)
+          .collection("updates")
+          .get();
+    
+          const userUpdates = snapshot.docs.filter(doc => 
+            doc.ref.path.includes(`users/${userId}/`)
+          );
+
+          return { data: userUpdates };   // ✅ IMPORTANT!
+        } catch(err: any){
+          return {
+            error: {
+              status: err.code || "UNKNOWN",
+              message: err.message || "Unexpected Firestore error",
+            },
+          };
+        }
+      }
     })
   }),
 });
@@ -277,5 +323,8 @@ export const {
   useGetLeaveQuery,
   useGetDaysWorkingQuery,
   useGetLeaveDaysQuery,
-  useLazyGetLeaveDaysQuery
+  useLazyGetLeaveDaysQuery,
+  useGetUpdatesDaysQuery,
+  useLazyGetUpdatesDaysQuery,
+  useGetUpdatesQuery
 } = attendanceApi;

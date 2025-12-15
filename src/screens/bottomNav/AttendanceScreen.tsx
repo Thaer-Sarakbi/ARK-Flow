@@ -1,6 +1,7 @@
 import { COLORS } from "@/src/colors";
 import Spacer from "@/src/components/atoms/Spacer";
 import AttendanceCard from "@/src/components/AttendanceCard";
+import BoxUpload from "@/src/components/BoxUpload";
 import SubmitButton from "@/src/components/buttons/SubmitButton";
 import Container from "@/src/components/Container";
 import Loading from "@/src/components/Loading";
@@ -12,21 +13,11 @@ import ConfirmationPopup from "@/src/Modals/ConfirmationPopup";
 import { useAddCheckInMutation, useAddCheckOutMutation, useAddLeaveMutation, useAddReportMutation, useLazyGetDaysWorkingQuery, useLazyGetLeaveDaysQuery } from "@/src/redux/attendance";
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
-import { Image, ImageProps, Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, ImageProps, Linking, StyleSheet, View } from "react-native";
 import MapView from 'react-native-maps';
 interface BoxUploadProps extends ImageProps {
   title: string;
   onPress?: () => void;
-}
-
-const BoxUpload = ({ title, source, onPress }: BoxUploadProps) => {
-  return (
-    <TouchableOpacity style={styles.boxUploadContainer} onPress={onPress}>
-      <Image style={styles.imgIcon} source={source} />
-      <Spacer height={8}/>
-      <Text style={styles.title}>{title}</Text>
-    </TouchableOpacity>
-  )
 }
 
 export default function AttendanceScreen() {
@@ -445,19 +436,6 @@ const styles = StyleSheet.create({
   closeIcon: {
     width: 20,
     height: 20,
-  },
-  /**
-   * Style Box Upload
-   */
-  boxUploadContainer: { alignItems: 'center', borderWidth: 2, borderRadius: 8, borderColor: COLORS.info, paddingVertical: 10, paddingHorizontal: 4 },
-  imgIcon: {
-    height: 24,
-    width: 24,
-  },
-  title: {
-    color: COLORS.info,
-    fontWeight: 'bold',
-    fontSize: 25,
   },
   caption: {
     color: COLORS.caption,

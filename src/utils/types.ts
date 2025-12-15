@@ -30,12 +30,25 @@ export type Update = {
     updatedBy: string,
     deviceToken: string,
     latitude: number,
-    longitude: number
+    longitude: number,
+    date: string, 
+    userId: string
   }
+
+export type UpdateAttend = {
+  userId: string, 
+  date: string
+  id: string,
+  description: string, 
+  title: string
+}
 export interface Comment {
     id: string
-    comment: string
-    commenter: string
+    userId: string, 
+    taskId: string,
+    updateId: string,
+    comment: string,
+    commenter: string,
     date: Timestamp
 }
 

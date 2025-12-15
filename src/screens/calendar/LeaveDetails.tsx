@@ -2,7 +2,7 @@ import { COLORS } from '@/src/colors';
 import Spacer from '@/src/components/atoms/Spacer';
 import CarouselSlider from '@/src/components/CarouselSlider';
 import Container from '@/src/components/Container';
-import Loading from '@/src/components/Loading';
+import LoadingComponent from '@/src/components/LoadingComponent';
 import ImageViewModal from '@/src/Modals/ImageViewModal';
 import { Report } from '@/src/utils/types';
 import Entypo from '@expo/vector-icons/Entypo';
@@ -38,78 +38,91 @@ export default function LeaveDetails({ route }: LeaveDetails) {
 
   const folderPath = `users/${userId}/attendance/${date}/leave/today/files`;
 
-  async function getSliderFiles(userId: string, date: string) {
+  // async function getSliderFiles(userId: string, date: string) {
 
-    //const result = await storage().ref(folderPath).listAll();
-    const folderRef = ref(storage, folderPath);
-    const result = await folderRef.listAll();
+  //   //const result = await storage().ref(folderPath).listAll();
+  //   const folderRef = ref(storage, folderPath);
+  //   const result = await folderRef.listAll();
 
-    const files = await Promise.all(
-      result.items
-        .filter(item => !item.name.toLowerCase().endsWith(".pdf")) // exclude PDFs
-        .map(async (item) => {
-          const url = await item.getDownloadURL();
-          return url;
-        })
-    );
-    return files;
-  }
+  //   const files = await Promise.all(
+  //     result.items
+  //       .filter(item => !item.name.toLowerCase().endsWith(".pdf")) // exclude PDFs
+  //       .map(async (item) => {
+  //         const url = await item.getDownloadURL();
+  //         return url;
+  //       })
+  //   );
+  //   return files;
+  // }
 
-  async function getFiles(userId: string, date: string) {
-    // const folderPath = `users/${userId}/attendance/${date}/leave/today/files`;
-    //const result = await storage().ref(folderPath).listAll();
-    const folderRef = ref(storage, folderPath);
-    const result = await folderRef.listAll();
+  // async function getFiles(userId: string, date: string) {
+  //   // const folderPath = `users/${userId}/attendance/${date}/leave/today/files`;
+  //   //const result = await storage().ref(folderPath).listAll();
+  //   const folderRef = ref(storage, folderPath);
+  //   const result = await folderRef.listAll();
       
-    // result.items = list of files
-    const files = await Promise.all(
-      result.items.map(async (item) => {
-        const url = await item.getDownloadURL();
-        return (
-            {url}
-        )
-      })
-    );
-    return files;
-  }
+  //   // result.items = list of files
+  //   const files = await Promise.all(
+  //     result.items.map(async (item) => {
+  //       const url = await item.getDownloadURL();
+  //       return (
+  //           {url}
+  //       )
+  //     })
+  //   );
+  //   return files;
+  // }
 
-  async function getPdf(userId: string, date: string) {
-    //const result = await storage().ref(folderPath).listAll();
-    const folderRef = ref(storage, folderPath);
-    const result = await folderRef.listAll();
+  // async function getPdf(userId: string, date: string) {
+  //   //const result = await storage().ref(folderPath).listAll();
+  //   const folderRef = ref(storage, folderPath);
+  //   const result = await folderRef.listAll();
     
-    // result.items = list of files
-    const files = await Promise.all(
-      result.items
-        .filter(item => item.name.toLowerCase().endsWith(".pdf")) // exclude PDFs
-        .map(async (item) => {
-          const url = await item.getDownloadURL();
-          return { uri: url };
-        })
-    );
+  //   // result.items = list of files
+  //   const files = await Promise.all(
+  //     result.items
+  //       .filter(item => item.name.toLowerCase().endsWith(".pdf")) // exclude PDFs
+  //       .map(async (item) => {
+  //         const url = await item.getDownloadURL();
+  //         return { uri: url };
+  //       })
+  //   );
 
-    return files;
-  }
+  //   return files;
+  // }
   
+      async function loadAllFiles() {
+        const folderRef = ref(storage, folderPath);
+        const result = await folderRef.listAll();
+      
+        const imageUrls: string[] = [];
+        const images: IImageInfo[] = [];
+        const pdfs: { uri: string }[] = [];
+      
+        await Promise.all(
+          result.items.map(async (item) => {
+            const url = await item.getDownloadURL();
+            if (item.name.toLowerCase().endsWith(".pdf")) {
+              pdfs.push({ uri: url });
+            } else {
+              imageUrls.push(url);
+              images.push({ url });
+            }
+          })
+        );
+      
+        setSliderImages(imageUrls);
+        setImages(images);
+        setPdf(pdfs);
+        setIsLoadingVisible(false);
+      }
+
   useEffect(() => {
     if (!userId) return;
   
     const loadFiles = async () => {
       setIsLoadingVisible(true)
-      try {
-        const sliderResult = await getSliderFiles(userId, date);
-        setSliderImages(sliderResult);
-  
-        const result = await getFiles(userId, date);
-        setImages(result);
-
-        const pdfResult = await getPdf(userId, date);
-        setPdf(pdfResult);
-      } catch (e) {
-        console.error("Failed to load files:", e);
-      } finally {
-        setIsLoadingVisible(false) 
-      }
+      loadAllFiles()
     };
   
     loadFiles();
@@ -134,11 +147,11 @@ export default function LeaveDetails({ route }: LeaveDetails) {
 
   return (
     <Container allowBack headerMiddle='Leave Details' backgroundColor={COLORS.neutral._100}>
-      <Loading visible={loadingVisible} />
       <Text style={styles.title}>Description:</Text>
       <Spacer height={4} />
       <Text style={styles.caption}>{leaveData.note}</Text>
       <Spacer height={16} />
+      {loadingVisible && <LoadingComponent />}
       {sliderimages.length > 0 && (<>
         <Text style={styles.title}>Images:</Text>
         <Spacer height={6} />

@@ -19,7 +19,7 @@ const Tab = createMaterialTopTabNavigator();
 export default function TopTab() {
   const { data: user, loading, isError: isErrorUserData } = useUserData();
   const { data: listOfUsers, isLoading: isLoadingUsers, isError } = useGetUsersQuery()
-  const [getTasks, ] = useLazyGetTasksQuery()
+  const [getTasks, {isLoading, isError: isErrorGetTasks}] = useLazyGetTasksQuery()
   const [isVisible, setIsVisible] = useState(false)
   
   useEffect(() => {

@@ -1,6 +1,7 @@
-import firestore, { collection, getDocs, getFirestore } from '@react-native-firebase/firestore';
+import firestore, { collection, getDocs, getFirestore, onSnapshot } from '@react-native-firebase/firestore';
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Task } from '../utils/types';
+import { attendanceRef } from '../utils/firestoreRefs';
+import { Comment, Task, Update } from '../utils/types';
 
 const db = getFirestore();
 
@@ -35,6 +36,36 @@ export const tasksApi = createApi({
         }
       },
     }),
+
+    getTasksRealtime: builder.query<any, string | undefined>({
+      async queryFn(userId) {
+        return { data: [] };
+      },
+      async onCacheEntryAdded(
+        userId,
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) {
+        await cacheDataLoaded;
+    
+        const tasksRef = collection(db, `users/${userId}/tasks`);
+    
+        const unsubscribe = onSnapshot(tasksRef, (snapshot) => {
+          updateCachedData((draft) => {
+            draft.length = 0;
+            snapshot.docs.forEach((doc: any) => {
+              draft.push({
+                id: doc.id,
+                ...doc.data(),
+              });
+            });
+          });
+        });
+    
+        await cacheEntryRemoved;
+        unsubscribe();
+      },
+    }),
+    
 
     getTask: builder.query<any, { userId: string | undefined, taskId: string }>({
       async queryFn({ userId, taskId }) {
@@ -99,6 +130,39 @@ export const tasksApi = createApi({
       },
     }),
 
+    getUpdate: builder.query<any, { userId: string | undefined, taskId: string, updateId: string }>({
+      async queryFn({ userId, taskId, updateId }) {
+        try {
+          const docSnap = await firestore()
+            .collection("users")
+            .doc(userId)
+            .collection("tasks")
+            .doc(taskId)
+            .collection("updates")
+            .doc(updateId)
+            .get();
+
+          if (!docSnap.exists) {
+            return { data: null };
+          }
+    
+          return {
+            data: {
+              id: docSnap.id,
+              ...docSnap.data(),
+            }
+          };
+        } catch (err: any) {
+          return {
+            error: {
+              status: err.code || "UNKNOWN",
+              message: err.message || "Unexpected Firestore error",
+            },
+          };
+        }
+      },
+    }),
+
     getComments: builder.query<any, { userId: string | undefined, taskId: string, updateId: string }>({
       async queryFn({ userId, taskId, updateId }) {
         try {
@@ -114,6 +178,7 @@ export const tasksApi = createApi({
               .collection("updates")
               .doc(updateId)
               .collection("comments")
+              .orderBy("creationDate", "desc")
               .get()
           
             const comments = docSnap.docs.map((doc: any) => ({
@@ -162,13 +227,111 @@ export const tasksApi = createApi({
             }
           },
       }),
+
+      addUpdate: builder.mutation<any, Update>({
+        async queryFn({ id, assignedToId, taskId, title, description, latitude, longitude, date, userId }) {
+          try {
+              const batch = firestore().batch()
+
+              // Task update ref
+              const taskUpdateRef = firestore()
+                .collection('users')
+                .doc(assignedToId)
+                .collection('tasks')
+                .doc(taskId)
+                .collection('updates')
+                .doc(id)
+
+              // Attendance update ref
+              const attendUpdateRef = attendanceRef(userId, date)
+                .collection('updates')
+                .doc(id)
+
+              const now = new Date()
+
+              // Write task update
+              batch.set(taskUpdateRef, {
+                id,
+                taskId,
+                assignedToId,
+                title,
+                description,
+                latitude,
+                longitude,
+                creationDate: now,
+              })
+
+              // Write attendance update
+              batch.set(attendUpdateRef, {
+                id,
+                taskId,
+                assignedToId,
+                title,
+                description,
+                latitude,
+                longitude,
+                creationDate: now,
+              })
+
+              // Commit batch
+              await batch.commit()
+
+              return { data: true }
+          } catch (err: any) {
+            console.log(err)
+              return {
+                error: {
+                  status: err.code || "UNKNOWN",
+                  message: err.message || "Unexpected Firestore error",
+                },
+                };
+              }
+            },
+        }),
+
+      addComment: builder.mutation<any, Comment>({
+          async queryFn({ userId, taskId, updateId, comment, commenter }) {
+            try {
+                  await firestore()
+                  .collection("users")
+                  .doc(userId)
+                  .collection("tasks")
+                  .doc(taskId)
+                  .collection("updates")
+                  .doc(updateId)
+                  .collection("comments")
+                  .add({
+                    comment,
+                    commenter,
+                    creationDate: new Date(), 
+                  })
+              
+                 return { data: true };
+            } catch (err: any) {
+              console.log(err)
+                return {
+                  error: {
+                    status: err.code || "UNKNOWN",
+                    message: err.message || "Unexpected Firestore error",
+                  },
+                  };
+                }
+              },
+          }),
   }),
 });
 
 export const {
   useGetTasksQuery,
+  useGetTasksRealtimeQuery,
+  useLazyGetTasksQuery,
   useGetTaskQuery,
   useGetUpdatesQuery,
+  useLazyGetUpdatesQuery,
+  useGetUpdateQuery,
   useGetCommentsQuery,
-  useAddTaskMutation
+  useLazyGetCommentsQuery,
+  useAddTaskMutation,
+  useAddUpdateMutation,
+  useAddCommentMutation
 } = tasksApi;
