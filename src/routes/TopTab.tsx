@@ -57,7 +57,7 @@ export default function TopTab() {
           component={CompletedTaskScreen}
         />
       </Tab.Navigator>
-      <AddTaskButton onPress={() => setIsVisible(true)} />
+      {user?.profile.admin && <AddTaskButton onPress={() => setIsVisible(true)} />}
       <BottomSheet visible={isVisible} onPress={() => setIsVisible(false)}>
         <AddTask listOfUsers={dropdownData!} setIsVisible={setIsVisible} user={user!}/>
       </BottomSheet>

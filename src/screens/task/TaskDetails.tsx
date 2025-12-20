@@ -1,9 +1,11 @@
 import { COLORS } from '@/src/colors';
 import AddUpdate from '@/src/components/AddUpdate';
+import Separator from '@/src/components/atoms/Separator';
 import Spacer from '@/src/components/atoms/Spacer';
 import BoxUpload from '@/src/components/BoxUpload';
 import StatusButton from '@/src/components/buttons/StatusButton';
 import SubmitButton from '@/src/components/buttons/SubmitButton';
+import CommentsBox from '@/src/components/CommentsBox';
 import Container from '@/src/components/Container';
 import Loading from '@/src/components/Loading';
 import LoadingComponent from '@/src/components/LoadingComponent';
@@ -13,33 +15,65 @@ import useCurrentLocation from '@/src/hooks/useCurrentLocation';
 import useDocumentPicker from '@/src/hooks/useDocumentPicker';
 import { useUserData } from '@/src/hooks/useUserData';
 import BottomSheet from '@/src/Modals/BottomSheet';
-import { useGetTaskQuery, useGetUpdatesQuery, useLazyGetUpdatesQuery } from '@/src/redux/tasks';
+import ConfirmationPopup from '@/src/Modals/ConfirmationPopup';
+import ErrorPopup from '@/src/Modals/ErrorPopup';
+import { useUpdateNotificationStatusMutation } from '@/src/redux/notifications';
+import { useAddTaskCommentMutation, useGetRealTaskCommentsQuery, useGetTaskRealtimeQuery, useUpdateTaskStatusMutation } from '@/src/redux/tasks';
+import { useGetUpdatesRealtimeQuery } from '@/src/redux/updates';
 import { MainStackParamsList } from '@/src/routes/MainStack';
 import { Update } from '@/src/utils/types';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import moment from 'moment';
-import React, { useEffect, useRef, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Image, Keyboard, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import MapView from 'react-native-maps';
 import Timeline from 'react-native-timeline-flatlist';
-import { useSelector } from 'react-redux';
 
-export type RootStackNavigationProp = StackNavigationProp<MainStackParamsList, 'TaskDetails'>;
+interface TaskDetails {
+  route: {
+    params: { 
+      id: string, 
+      assignedToId: string, 
+      notificationId?: string, 
+      notificationStatus?: string 
+    }
+  }
+}
 
-const TaskDetails = ({ route }: { route: { params: { taskId: string }}}) => {
+type RootStackNavigationProp = StackNavigationProp<MainStackParamsList, 'TaskDetails'>;
+
+const ListButton = ({ status, onPress }: { status: string, onPress:() => void }) => (
+  <TouchableOpacity onPress={onPress}>
+    <Text style={[styles.caption, { fontSize: 20 }]}>{status}</Text>
+  </TouchableOpacity>
+)
+
+const TaskDetails = ({ route }: TaskDetails) => {
+    const taskId = route.params.id
+    const notificationId = route.params.notificationId
+    const notificationStatus = route.params.notificationStatus
+    const assignedToId = route.params?.assignedToId
     const mapRef = useRef<MapView | null>(null);
-    const isLoading = useSelector((state: any) => state.ui.loading);
+    const [isVisibleConfirm, setIsVisibleConfirm] = useState(false)
     const [isVisible, setIsVisible] = useState(false)
+    const [isVisibleStatus, setIsVisibleStatus] = useState(false)
+    const [isVisibleStatusError, setIsVisibleStatusError] = useState(false)
     const [uploadPopupVisible, setUploadPopupVisible] = useState(false)
+    const [comment, setComment] = useState('')
     const navigation = useNavigation<RootStackNavigationProp>()
     const { data: user, loading, isError: isErrorUserData } = useUserData();
+    const [addComment,  { isLoading: isLoadingAddComment }] = useAddTaskCommentMutation()
+    const { data: comments } = useGetRealTaskCommentsQuery({ userId: assignedToId, taskId });
     // Only run task + updates queries when user.id exists
-    const skipQueries = !user?.id || !route?.params?.taskId;
-    const { data, isLoading: isLoadingTask, isError: isErrorTask } = useGetTaskQuery({ userId: user?.id, taskId: route.params.taskId }, { skip: skipQueries })
-    const { data: updatesData, isLoading: isLoadingUpdates , isError: isErrorUpdates } = useGetUpdatesQuery({ userId: user?.id, taskId: route.params.taskId }, { skip: skipQueries })
+    const skipQueries = !assignedToId || !taskId;
+    const { data, isLoading: isLoadingTask, isError: isErrorTask } = useGetTaskRealtimeQuery({ userId: assignedToId, taskId }, { skip: skipQueries })
+    const currentStatus = data?.status;
+    const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
+    const { data: updatesData, isLoading: isLoadingUpdates , isError: isErrorUpdates } = useGetUpdatesRealtimeQuery({ userId: assignedToId, taskId: taskId }, { skip: skipQueries })
     const { handleDocumentSelection, handleSelectImage, handleSelectCamera, images, removeImage, documents, removeDocument, uploadAll, uploading } = useDocumentPicker()
-    const [getUpdates, { isError, isLoading: isLoadingGetUpdates }] = useLazyGetUpdatesQuery()
+    const  [updateTaskStatus]= useUpdateTaskStatusMutation()
+    const  [updateNotificationStatus]= useUpdateNotificationStatusMutation()
     const { currentLocation, error: locationError, openSettings, getLocation } = useCurrentLocation(mapRef as any)
     const editUpdates = updatesData
     ?.map((update: Update) => {
@@ -52,13 +86,21 @@ const TaskDetails = ({ route }: { route: { params: { taskId: string }}}) => {
     })
     ?.sort((a: any, b: any) => b.date - a.date);
 
+    useFocusEffect(
+      useCallback(() => {
+        if (!notificationId || !user?.id || notificationStatus) return;
+  
+        updateNotificationStatus({
+          userId: user?.id,
+          notificationId
+        });
+  
+      }, [notificationId, user?.id])
+    );
+
     useEffect(() => {
       getLocation(); // fetch when screen opens
     },[])
-
-    useEffect(() => {
-      getUpdates({ userId: user?.id, taskId: route.params.taskId })
-    },[isVisible])
 
     const handleCamera = async () => {
       await handleSelectCamera().then(() => {
@@ -78,12 +120,48 @@ const TaskDetails = ({ route }: { route: { params: { taskId: string }}}) => {
       }).catch((e) => console.log(e))
   };
 
-    if(loading || isLoadingTask || isLoadingGetUpdates || isLoading) return <Loading visible={true} />
-    if(isErrorUserData || isErrorTask || isError) return <ErrorComponent />
+    const onSubmitComment = async () => {
+      const result = await addComment({
+        userId: assignedToId,
+        taskId,
+        comment,
+        commenter: user?.profile.fullName
+      } as any)
+  
+      if ('error' in result) {
+        console.log("Adding comment error:", result.error);
+        return;
+      }
+  
+      setComment('')
+      Keyboard.dismiss()
+
+      console.log('Notification Added')
+    }
+
+  const onSubmitUpdateStatus = async () => {
+    const result = await updateTaskStatus({
+      userId: assignedToId,
+      taskId,
+      status: selectedStatus ?? currentStatus
+    })
+
+    if ('error' in result) {
+      console.log("update status error:", result.error);
+      setIsVisibleStatusError(true)
+      return;
+    }
+
+    setIsVisibleConfirm(true)
+    console.log('Status updated')
+  }
+
+    if(loading || (isLoadingTask && !data)) return <Loading visible={true} />
+    if(isErrorUserData || isErrorTask) return <ErrorComponent />
 
     return (
       <>
-      <Container allowBack headerMiddle='Task Details' backgroundColor={COLORS.neutral._100}>
+      <Container hasInput allowBack headerMiddle='Task Details' backgroundColor={COLORS.neutral._100}>
         <Text style={styles.title}>{data?.title}</Text>
         <Spacer height={14} />
         <TaskInfo title={'Assigned By'} value={data?.assignedBy}/>
@@ -91,7 +169,7 @@ const TaskDetails = ({ route }: { route: { params: { taskId: string }}}) => {
         <TaskInfo title={'Assigned To'} value={data?.assignedTo}/>
         <Spacer height={10} />
         <View style={{ flexDirection: 'row' }}>
-          <TaskInfo title={'Creation Date'} value={moment(data?.creationDate).format('MMM Do YYYY, h:ss a')}/>
+          <TaskInfo title={'Creation Date'} value={moment(data?.creationDate?.seconds * 1000).format('MMM Do YYYY, h:ss a')}/>
           <Spacer width={10} />
           <TaskInfo title={'Duration'} value={`${data?.duration} Day`}/>
         </View>
@@ -101,9 +179,9 @@ const TaskDetails = ({ route }: { route: { params: { taskId: string }}}) => {
         <View style={{ backgroundColor: COLORS.white, borderRadius: 10, padding: 10 }}>
           <Text style={styles.title}>Status</Text>
           <Spacer height={14} />
-          <StatusButton status={data?.status} />
+          <StatusButton status={selectedStatus ?? currentStatus} onPress={() => setIsVisibleStatus(true)} />
           <Spacer height={8} />
-          <SubmitButton text='Submit' />
+          <SubmitButton text='Submit' onPress={onSubmitUpdateStatus} />
         </View>
         <Spacer height={10} />
         <View style={{ backgroundColor: COLORS.white, borderRadius: 10, padding: 10 }}>
@@ -122,18 +200,20 @@ const TaskDetails = ({ route }: { route: { params: { taskId: string }}}) => {
               timeStyle={styles.time}
               onEventPress={(event: any) => {
                 const update = event.data || event;
-                navigation.navigate('UpdateDetails', { updateId: update.id, taskId: update.taskId, userName: user?.profile.fullName, userId: user?.id ?? '' })
+                navigation.navigate('UpdateDetails', { updateId: update.id, taskId: update.taskId, userName: user?.profile.fullName, assignedToId: update.assignedToId, userId: user?.id ?? '' })
               }}                
               titleStyle={styles.titleStyle}
               descriptionStyle={styles.caption}
             />
           }
-          <SubmitButton text='Add Update' onPress={() => setIsVisible(true)} />
+          {assignedToId === user?.id && <SubmitButton text='Add Update' onPress={() => setIsVisible(true)} />}
         </View>
-        <Spacer height={40} />
+        <Spacer height={10} />
+        <CommentsBox comment={comment} comments={comments} setComment={setComment} onSubmitComment={onSubmitComment}/>
+        <Spacer height={10} />
       </Container>
       <BottomSheet visible={isVisible} onPress={() => setIsVisible(false)}>
-        <AddUpdate setIsVisible={setIsVisible} setUploadPopupVisible={setUploadPopupVisible} taskId={route?.params?.taskId} assignedToId={data.assignedToId} images={images} documents={documents} removeImage={removeImage} removeDocument={removeDocument} uploadAll={uploadAll} userId={user?.id} uploading={uploading} />
+        <AddUpdate setIsVisible={setIsVisible} setUploadPopupVisible={setUploadPopupVisible} taskId={taskId} assignedToId={data?.assignedToId} images={images} documents={documents} removeImage={removeImage} removeDocument={removeDocument} uploadAll={uploadAll} userId={user?.id} uploading={uploading} />
       </BottomSheet>
       <BottomSheet visible={uploadPopupVisible} onPress={() => setUploadPopupVisible(false)}>
       <View style={{ flexDirection: 'row' }}>
@@ -144,6 +224,30 @@ const TaskDetails = ({ route }: { route: { params: { taskId: string }}}) => {
         <BoxUpload title='Document' source={require("../../../assets/document.png")} onPress={handleDocument}/>
       </View>
     </BottomSheet>
+    <BottomSheet visible={isVisibleStatus} onPress={() => setIsVisibleStatus(false)}>
+      <ListButton status='Not Started' onPress={() => { setSelectedStatus('Not Started'); setIsVisibleStatus(false)}}/>
+      <Separator marginVertical={10} />
+      <ListButton status='In Progress' onPress={() => { setSelectedStatus('In Progress'); setIsVisibleStatus(false)}}/>
+      <Separator marginVertical={10} />
+      <ListButton status='Completed' onPress={() => { setSelectedStatus('Completed'); setIsVisibleStatus(false)}}/>
+    </BottomSheet>
+    <ConfirmationPopup 
+      isVisible={isVisibleConfirm} 
+      title="Submitted Successfully" 
+      paragraph1="Task Status Updated"
+      onPressClose={() => setIsVisibleConfirm(false)} 
+      buttonTitle="Okay" 
+      icon={<Image style={{ width: 50, height: 50 }} source={require('../../../assets/icons/Success.png')} />} 
+      onPress={() => setIsVisibleConfirm(false)} 
+    />
+    <ErrorPopup 
+      isVisible={isVisibleStatusError} 
+      title="Error"
+      icon={<Image style={{ width: 50, height: 50 }} source={require('../../../assets/icons/Cancel.png')} />}
+      description={"Smoething went wrong \n try again later"}
+      onPress={() => setIsVisibleStatusError(false)}
+      onPressClose={() => setIsVisibleStatusError(false)}
+    />  
     </>
     )
 }

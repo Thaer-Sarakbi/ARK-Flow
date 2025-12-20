@@ -1,7 +1,6 @@
-import firestore, { collection, getDocs, getFirestore, onSnapshot } from '@react-native-firebase/firestore';
+import firestore, { collection, collectionGroup, getDocs, getFirestore, onSnapshot, orderBy, query } from '@react-native-firebase/firestore';
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
-import { attendanceRef } from '../utils/firestoreRefs';
-import { Comment, Task, Update } from '../utils/types';
+import { Comment, Task } from '../utils/types';
 
 const db = getFirestore();
 
@@ -37,24 +36,32 @@ export const tasksApi = createApi({
       },
     }),
 
-    getTasksRealtime: builder.query<any, string | undefined>({
-      async queryFn(userId) {
+    getTasksRealtime: builder.query<any[], { userId?: string; admin?: boolean }>({
+      async queryFn() {
+        // Required initial cache value
         return { data: [] };
       },
       async onCacheEntryAdded(
-        userId,
+        { userId, admin },
         { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
       ) {
+        if (!admin && !userId) return;
+
         await cacheDataLoaded;
     
-        const tasksRef = collection(db, `users/${userId}/tasks`);
-    
+        const tasksRef = admin
+        ? collectionGroup(db, "tasks")
+        : collection(db, `users/${userId}/tasks`);
+       
         const unsubscribe = onSnapshot(tasksRef, (snapshot) => {
           updateCachedData((draft) => {
-            draft.length = 0;
-            snapshot.docs.forEach((doc: any) => {
+            // Correct RTKQ mutation-safe clearing
+            draft.splice(0, draft.length);
+    
+            snapshot.forEach((doc: any) => {
               draft.push({
                 id: doc.id,
+                ...(admin && { userId: doc.ref.parent.parent?.id }),
                 ...doc.data(),
               });
             });
@@ -80,7 +87,6 @@ export const tasksApi = createApi({
           if (!docSnap.exists) {
             return { data: null };
           }
-    
           return {
             data: {
               id: docSnap.id,
@@ -98,70 +104,42 @@ export const tasksApi = createApi({
       },
     }),
 
-    getUpdates: builder.query<any, { userId: string | undefined, taskId: string }>({
-      async queryFn({ userId, taskId }) {
-        try {
-            if (!userId || !taskId) {
-              return { data: [] }; // prevents invalid Firestore paths
-            }
-
-            const docSnap = await firestore()
-              .collection("users")
-              .doc(userId)
-              .collection("tasks")
-              .doc(taskId)
-              .collection("updates")
-              .get()
-          
-            const updates = docSnap.docs.map((doc: any) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-
-           return { data: updates };   // ✅ IMPORTANT!
-        } catch (err: any) {
-          return {
-            error: {
-              status: err.code || "UNKNOWN",
-              message: err.message || "Unexpected Firestore error",
-            },
-          };
-        }
+    getTaskRealtime: builder.query<any | null, { userId?: string; taskId: string }>({
+      async queryFn() {
+        // Initial cache value
+        return { data: null };
       },
-    }),
 
-    getUpdate: builder.query<any, { userId: string | undefined, taskId: string, updateId: string }>({
-      async queryFn({ userId, taskId, updateId }) {
-        try {
-          const docSnap = await firestore()
-            .collection("users")
-            .doc(userId)
-            .collection("tasks")
-            .doc(taskId)
-            .collection("updates")
-            .doc(updateId)
-            .get();
+      async onCacheEntryAdded(
+        { userId, taskId },
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) {
+      if (!userId || !taskId) return;
 
-          if (!docSnap.exists) {
-            return { data: null };
-          }
-    
-          return {
-            data: {
-              id: docSnap.id,
-              ...docSnap.data(),
-            }
-          };
-        } catch (err: any) {
-          return {
-            error: {
-              status: err.code || "UNKNOWN",
-              message: err.message || "Unexpected Firestore error",
-            },
-          };
-        }
-      },
-    }),
+      await cacheDataLoaded;
+
+      const taskRef = firestore()
+        .collection("users")
+        .doc(userId)
+        .collection("tasks")
+        .doc(taskId);
+
+      const unsubscribe = taskRef.onSnapshot((docSnap) => {
+      updateCachedData(() => {
+        if (!docSnap.exists) return null;
+
+        return {
+          id: docSnap.id,
+          ...docSnap.data(),
+        };
+      });
+    });
+
+    await cacheEntryRemoved;
+    unsubscribe();
+    },
+  }),
+
 
     getComments: builder.query<any, { userId: string | undefined, taskId: string, updateId: string }>({
       async queryFn({ userId, taskId, updateId }) {
@@ -201,7 +179,7 @@ export const tasksApi = createApi({
     addTask: builder.mutation<any, Task>({
       async queryFn({ assignedBy, assignedTo, assignedToId, duration, location, status = 'Not Started', title }) {
         try {
-          await firestore()
+          const data = await firestore()
                 .collection("users")
                 .doc(assignedToId)
                 .collection("tasks")
@@ -215,7 +193,7 @@ export const tasksApi = createApi({
                   status, 
                   title
                 })
-             return { data: true };
+             return { data: data.id };
         } catch (err: any) {
           console.log(err)
             return {
@@ -227,67 +205,6 @@ export const tasksApi = createApi({
             }
           },
       }),
-
-      addUpdate: builder.mutation<any, Update>({
-        async queryFn({ id, assignedToId, taskId, title, description, latitude, longitude, date, userId }) {
-          try {
-              const batch = firestore().batch()
-
-              // Task update ref
-              const taskUpdateRef = firestore()
-                .collection('users')
-                .doc(assignedToId)
-                .collection('tasks')
-                .doc(taskId)
-                .collection('updates')
-                .doc(id)
-
-              // Attendance update ref
-              const attendUpdateRef = attendanceRef(userId, date)
-                .collection('updates')
-                .doc(id)
-
-              const now = new Date()
-
-              // Write task update
-              batch.set(taskUpdateRef, {
-                id,
-                taskId,
-                assignedToId,
-                title,
-                description,
-                latitude,
-                longitude,
-                creationDate: now,
-              })
-
-              // Write attendance update
-              batch.set(attendUpdateRef, {
-                id,
-                taskId,
-                assignedToId,
-                title,
-                description,
-                latitude,
-                longitude,
-                creationDate: now,
-              })
-
-              // Commit batch
-              await batch.commit()
-
-              return { data: true }
-          } catch (err: any) {
-            console.log(err)
-              return {
-                error: {
-                  status: err.code || "UNKNOWN",
-                  message: err.message || "Unexpected Firestore error",
-                },
-                };
-              }
-            },
-        }),
 
       addComment: builder.mutation<any, Comment>({
           async queryFn({ userId, taskId, updateId, comment, commenter }) {
@@ -305,7 +222,7 @@ export const tasksApi = createApi({
                     commenter,
                     creationDate: new Date(), 
                   })
-              
+
                  return { data: true };
             } catch (err: any) {
               console.log(err)
@@ -318,6 +235,94 @@ export const tasksApi = createApi({
                 }
               },
           }),
+
+      addTaskComment: builder.mutation<any, Comment>({
+            async queryFn({ userId, taskId, comment, commenter }) {
+              try {
+                    await firestore()
+                    .collection("users")
+                    .doc(userId)
+                    .collection("tasks")
+                    .doc(taskId)
+                    .collection("comments")
+                    .add({
+                      comment,
+                      commenter,
+                      creationDate: new Date(), 
+                    })
+                
+                   return { data: true };
+              } catch (err: any) {
+                console.log(err)
+                  return {
+                    error: {
+                      status: err.code || "UNKNOWN",
+                      message: err.message || "Unexpected Firestore error",
+                    },
+                    };
+                  }
+                },
+        }),
+
+        getRealTaskComments: builder.query<any[], { userId: string | undefined; taskId: string }>({
+        async queryFn() {
+          // initial empty state
+          return { data: [] };
+        },
+      
+        async onCacheEntryAdded(
+          { userId, taskId },
+          { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+        ) {
+          if (!userId || !taskId) return;
+          await cacheDataLoaded;
+      
+          const commentsRef = collection(
+            db,
+            `users/${userId}/tasks/${taskId}/comments`
+          );
+      
+          const q = query(commentsRef, orderBy("creationDate", "desc")); 
+          const unsubscribe = onSnapshot(q, (snapshot) => {
+            updateCachedData((draft: any[]) => {
+              draft.length = 0;
+              snapshot.docs.forEach((doc: any) => {
+                draft.push({
+                  id: doc.id,
+                  ...doc.data(),
+                });
+              });
+            });
+          });
+      
+          await cacheEntryRemoved;
+          unsubscribe();
+        },
+      }),
+
+      updateTaskStatus: builder.mutation<any, {userId: string | undefined, taskId: string, status: string}>({
+        async queryFn({ userId, taskId, status }) {
+              try {
+                await firestore()
+                  .collection("users")
+                  .doc(userId)
+                  .collection("tasks")
+                  .doc(taskId)
+                  .update({
+                    status
+                  })       
+                return { data: true };
+              } catch (err: any) {
+                console.log(err)
+                  return {
+                    error: {
+                      status: err.code || "UNKNOWN",
+                      message: err.message || "Unexpected Firestore error",
+                    },
+                  };
+              }
+        }
+      })
   }),
 });
 
@@ -326,12 +331,13 @@ export const {
   useGetTasksRealtimeQuery,
   useLazyGetTasksQuery,
   useGetTaskQuery,
-  useGetUpdatesQuery,
-  useLazyGetUpdatesQuery,
-  useGetUpdateQuery,
+  useGetTaskRealtimeQuery,
+  useLazyGetTaskQuery,
   useGetCommentsQuery,
   useLazyGetCommentsQuery,
   useAddTaskMutation,
-  useAddUpdateMutation,
-  useAddCommentMutation
+  useAddCommentMutation,
+  useAddTaskCommentMutation,
+  useGetRealTaskCommentsQuery,
+  useUpdateTaskStatusMutation
 } = tasksApi;

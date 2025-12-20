@@ -15,7 +15,7 @@ export const sendSignInLink = async (email: string | null | undefined) => {
   
   // You need this for iOS deep linking
   iOS: {
-    bundleId: 'com.arkdeglory.arkflow', 
+    bundleId: 'com.ark.deglory.arkflow', 
     customScheme: 'arkflow', 
   }
   };

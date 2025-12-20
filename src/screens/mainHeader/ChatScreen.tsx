@@ -3,7 +3,7 @@ import { Text } from 'react-native';
 
 const ChatScreen = () => {
     return (
-      <Container>
+      <Container allowBack>
         <Text>Coming Soon</Text>
       </Container>
     )

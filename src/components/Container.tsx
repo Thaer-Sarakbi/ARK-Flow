@@ -21,6 +21,7 @@ interface ContainerProps extends SafeAreaViewProps {
     headerMiddle?: string;
     FooterComponent?: React.FC;
     edges?: Edges;
+    scrollable?: boolean;
     hasInput?: boolean;
     usingPaddingBottom?: boolean;
     headerBottomLine?: boolean;
@@ -42,7 +43,7 @@ interface ContainerProps extends SafeAreaViewProps {
  * @param {ColorValue} [param0.barBackgroundColor="transparent"]
  * @returns {*}
  */
-const Container = ({ children, style, headerMiddle, barStyle = "dark-content", barBackgroundColor = "transparent", allowBack = false, hasInput = false, backgroundColor = COLORS.white, edges, usingPaddingBottom = true, usingPaddingTop = true, headerBottomLine = false, barHidden = false, noPadding = false, noHeader = false , FooterComponent, EnableRight}: ContainerProps) => {
+const Container = ({ children, style, headerMiddle, barStyle = "dark-content", barBackgroundColor = "transparent", scrollable = true,  allowBack = false, hasInput = false, backgroundColor = COLORS.white, edges, usingPaddingBottom = true, usingPaddingTop = true, headerBottomLine = false, barHidden = false, noPadding = false, noHeader = false , FooterComponent, EnableRight}: ContainerProps) => {
     return (
         <SafeAreaView style={[style, styles.container, { backgroundColor }]} edges={edges}>
             <StatusBar translucent backgroundColor={barBackgroundColor} barStyle={barStyle} hidden={barHidden} />
@@ -54,9 +55,16 @@ const Container = ({ children, style, headerMiddle, barStyle = "dark-content", b
                     </ScrollView>
                 </KeyboardAvoidingView>
             ) : (
+              scrollable ? (
                 <ScrollView style={[styles.wrapper,  (!usingPaddingBottom || FooterComponent) && {paddingBottom:0}, !usingPaddingTop && {paddingTop: 0}, { padding: noPadding ? 0 : 16 }]}>
-                    {children}
+                  {children}
                 </ScrollView>
+              ) : (
+                <View style={[styles.wrapper,  (!usingPaddingBottom || FooterComponent) && {paddingBottom:0}, !usingPaddingTop && {paddingTop: 0}, { padding: noPadding ? 0 : 16 }]}>
+                  {children}
+                </View>
+              )
+                
             )}
             {FooterComponent && <View><FooterComponent /></View>}
         </SafeAreaView>

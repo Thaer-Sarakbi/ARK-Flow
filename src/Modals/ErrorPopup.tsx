@@ -76,6 +76,7 @@ const styles = StyleSheet.create({
   },
   caption: {
     color: COLORS.caption,
-    fontSize: 15
+    fontSize: 15,
+    textAlign: 'center'
   }
 })

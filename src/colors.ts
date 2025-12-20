@@ -1,5 +1,6 @@
   interface Color {
     primary: string,
+    secondary: string,
     title: string,
     white: string,
     typographyDefault: string,
@@ -25,6 +26,7 @@
 
   export const COLORS: Color = {
     primary: 'rgba(245, 124, 0, 1)',
+    secondary: 'rgb(255, 235, 215)',
     title: "#000000",
     caption: '#8E8E8E',
     white: "#FFFFFF",

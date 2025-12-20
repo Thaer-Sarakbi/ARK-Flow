@@ -26,3 +26,25 @@ platform :android do
     )
   end
 end
+
+default_platform(:ios)
+
+platform :ios do
+  
+  desc "Build IOS App"
+  lane :build_release_ios do
+    # match
+    gym(
+      workspace: "ios/arkflow.xcworkspace",
+      configuration: "Release",
+      scheme: "arkflow",
+      export_options: {
+        method: "ad-hoc",
+        signingStyle: "automatic",
+        provisioningProfiles: {
+          "com.ark.deglory.arkflow" => "match AdHoc com.ark.deglory.arkflow",
+        }
+      }
+    )
+  end
+end

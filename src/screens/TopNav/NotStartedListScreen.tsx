@@ -12,7 +12,7 @@ export default function NotStartedListScreen() {
   const [isFetching, setIsFetching] = useState(false)
   const { data: user, loading, isError: isErrorUserData } = useUserData();
   const [getTasks] = useLazyGetTasksQuery()
-  const { data: tasks, isLoading: isLoadingTasks, isError } = useGetTasksRealtimeQuery(user?.id, { skip: !user?.id })
+  const { data: tasks, isLoading: isLoadingTasks, isError } = useGetTasksRealtimeQuery({ userId: user?.id, admin: user?.profile.admin }, { skip: !user?.id })
   
   const notStartedTasks = useMemo(
     () => tasks?.filter((t: Task) => t.status === "Not Started") || [],
@@ -35,7 +35,7 @@ export default function NotStartedListScreen() {
           <View style={styles.container}>
             <FlatList 
               data={notStartedTasks}
-              renderItem={({ item }) => <TaskCard title={item.title} status={item.status} taskId={item.id} assignedTo={item.assignedTo} duration={item.duration} location={item.location} creationDate={item.creationDate}/>}
+              renderItem={({ item }) => <TaskCard title={item.title} status={item.status} taskId={item.id} assignedTo={item.assignedTo} duration={item.duration} location={item.location} creationDate={item.creationDate} assignedToId={item.assignedToId}/>}
               onRefresh= {() => onRefresh()}
               refreshing={isFetching}
             />

@@ -12,8 +12,7 @@ export default function InProgressTasksScreen() {
   const [isFetching, setIsFetching] = useState(false)
   const { data: user, loading, isError: isErrorUserData } = useUserData();
   const [getTasks] = useLazyGetTasksQuery()
-  // const { data: listOfTasks, isLoading: isLoadingTasks, isError } = useGetTasksQuery({ userId: user?.id }, { skip: !user?.id })
- const { data: listOfTasks, isLoading: isLoadingTasks, isError } = useGetTasksRealtimeQuery(user?.id, { skip: !user?.id })
+ const { data: listOfTasks, isLoading: isLoadingTasks, isError } =  useGetTasksRealtimeQuery({ userId: user?.id, admin: user?.profile.admin }, { skip: !user?.id })
 
   const inProgressTasks = useMemo(
     () => listOfTasks?.filter((t: Task) => t.status === "In Progress") || [],
@@ -35,7 +34,7 @@ export default function InProgressTasksScreen() {
           <View style={styles.container}>
             <FlatList 
               data={inProgressTasks}
-              renderItem={({ item }) =>  <TaskCard title={item.title} status={item.status} taskId={item.id} assignedTo={item.assignedTo} duration={item.duration} location={item.location} creationDate={item.creationDate}/>}
+              renderItem={({ item }) =>  <TaskCard title={item.title} status={item.status} taskId={item.id} assignedTo={item.assignedTo} duration={item.duration} location={item.location} creationDate={item.creationDate} assignedToId={item.assignedToId}/>}
               onRefresh= {() => onRefresh()}
               refreshing={isFetching}
             />

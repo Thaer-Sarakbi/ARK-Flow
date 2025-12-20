@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.arkdeglory.arkflow</string>
+	<string>com.ark.deglory.arkflow</string>
 	<key>PROJECT_ID</key>
 	<string>flawless-helper-317308</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:160225678375:ios:5431f5296dfdbfbb4e2a02</string>
+	<string>1:160225678375:ios:d9976e492ab158ed4e2a02</string>
 </dict>
 </plist>

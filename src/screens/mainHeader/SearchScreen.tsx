@@ -3,7 +3,7 @@ import { Text } from 'react-native';
 
 const SearchScreen = () => {
     return (
-      <Container>
+      <Container allowBack>
         <Text>Coming Soon</Text>
       </Container>
     )

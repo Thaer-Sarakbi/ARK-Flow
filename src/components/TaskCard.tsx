@@ -18,6 +18,7 @@ interface TaskCard {
     duration: number
     location: string
     creationDate: Timestamp
+    assignedToId: string
 }
 
 export type RootStackNavigationProp = StackNavigationProp<MainStackParamsList>;
@@ -42,7 +43,7 @@ function addNewlinesToString(text: string, maxLength: number) {
   return result;
 }
 
-export default function TaskCard({ title, status, taskId, assignedTo, duration, location, creationDate }: TaskCard) {
+export default function TaskCard({ title, status, taskId, assignedTo, assignedToId, duration, location, creationDate }: TaskCard) {
   const navigation = useNavigation<RootStackNavigationProp>()
 
   const data = [{icon: 'person-outline', text: assignedTo},{ icon: 'hourglass-outline', text: `${duration} Day` },{ icon: 'location-outline', text: location }]
@@ -67,7 +68,7 @@ export default function TaskCard({ title, status, taskId, assignedTo, duration, 
   }
 
   return (
-    <TouchableOpacity style={[styles.container, shadow.cards]} onPress={() => navigation.navigate('TaskDetails', { taskId })}>
+    <TouchableOpacity style={[styles.container, shadow.cards]} onPress={() => navigation.navigate('TaskDetails', { id: taskId, assignedToId })}>
       <Text style={styles.caption}>{moment(new Date(creationDate?.seconds * 1000)).format('MMMM Do YYYY, h:ss a')}</Text>
       <Separator marginVertical={10} />
       <View style={styles.titleContainer}>

@@ -65,3 +65,16 @@ export interface User {
     verified: boolean
    }
 }
+
+export interface Notifications {
+  id: string,
+  title: string,
+  userId: string | undefined,
+  message: string,
+  readed: boolean,
+  screenName: string,
+  screenId: string,
+  by: string,
+  creationDate: Timestamp,
+  assignedToId: string
+}
