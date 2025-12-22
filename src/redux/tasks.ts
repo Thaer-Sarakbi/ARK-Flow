@@ -206,36 +206,6 @@ export const tasksApi = createApi({
           },
       }),
 
-      addComment: builder.mutation<any, Comment>({
-          async queryFn({ userId, taskId, updateId, comment, commenter }) {
-            try {
-                  await firestore()
-                  .collection("users")
-                  .doc(userId)
-                  .collection("tasks")
-                  .doc(taskId)
-                  .collection("updates")
-                  .doc(updateId)
-                  .collection("comments")
-                  .add({
-                    comment,
-                    commenter,
-                    creationDate: new Date(), 
-                  })
-
-                 return { data: true };
-            } catch (err: any) {
-              console.log(err)
-                return {
-                  error: {
-                    status: err.code || "UNKNOWN",
-                    message: err.message || "Unexpected Firestore error",
-                  },
-                  };
-                }
-              },
-          }),
-
       addTaskComment: builder.mutation<any, Comment>({
             async queryFn({ userId, taskId, comment, commenter }) {
               try {
@@ -336,7 +306,6 @@ export const {
   useGetCommentsQuery,
   useLazyGetCommentsQuery,
   useAddTaskMutation,
-  useAddCommentMutation,
   useAddTaskCommentMutation,
   useGetRealTaskCommentsQuery,
   useUpdateTaskStatusMutation

@@ -1,6 +1,7 @@
 import { COLORS } from '@/src/colors';
 import Spacer from '@/src/components/atoms/Spacer';
 import CarouselSlider from '@/src/components/CarouselSlider';
+import CommentsBox from '@/src/components/CommentsBox';
 import Container from '@/src/components/Container';
 import Loading from '@/src/components/Loading';
 import LoadingComponent from '@/src/components/LoadingComponent';
@@ -9,13 +10,12 @@ import MapViewComponent from '@/src/components/molecule/MapViewComponent';
 import TaskCard from '@/src/components/TaskCard';
 import ImageViewModal from '@/src/Modals/ImageViewModal';
 import { setLoading } from '@/src/redux/slices/uiSlice';
-import { useAddCommentMutation, useGetCommentsQuery, useGetTaskQuery, useGetUpdateQuery, useLazyGetCommentsQuery } from '@/src/redux/tasks';
-import { Comment } from '@/src/utils/types';
+import { useGetTaskQuery } from '@/src/redux/tasks';
+import { useAddUpdateCommentMutation, useGetRealUpdateCommentsQuery, useGetUpdateQuery } from '@/src/redux/updates';
 import Entypo from '@expo/vector-icons/Entypo';
-import Ionicons from '@expo/vector-icons/Ionicons';
 import { getStorage, ref } from '@react-native-firebase/storage';
 import { useEffect, useState } from 'react';
-import { Keyboard, StyleSheet, Text, TextInput, TouchableHighlight, TouchableOpacity, View } from "react-native";
+import { Keyboard, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from "react-native";
 import FileViewer from "react-native-file-viewer";
 import RNFS from 'react-native-fs';
 import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type';
@@ -24,10 +24,11 @@ import { useDispatch } from 'react-redux';
 interface UpdateDetails {
   route: {
     params: {
-      userName: string
+      userName: string | undefined
       userId: string
       taskId: string
-      updateId: string
+      updateId: string,
+      assignedToId: string
     }
   }
 }
@@ -38,14 +39,14 @@ export default function UpdateDetails({ route }: UpdateDetails) {
   const updateId = route.params.updateId
   const userId = route.params.userId
   const userName = route.params.userName
+  const assignedToId = route.params.assignedToId
 
   const dispatch = useDispatch();
-  const skipQueries = !userId || !taskId || !updateId;
-  const { data: update, isLoading: isLoadingUpdate  } = useGetUpdateQuery({ userId, taskId, updateId })
-  const { data: task, isLoading: isLoadingTask, isError: isErrorTask } = useGetTaskQuery({ userId, taskId }, { skip: skipQueries })
-  const { data, isLoading, isError } = useGetCommentsQuery({ userId, taskId, updateId })
-  const [addComment, { isLoading: isLoadingAddComment }] = useAddCommentMutation()
-  const [getComments, { isLoading: isLoadingGetComments, isError: isErrorGetComments }] = useLazyGetCommentsQuery()
+  const skipQueries = !assignedToId || !taskId || !updateId;
+  const { data: update, isLoading: isLoadingUpdate, isError: isErrorUpdate  } = useGetUpdateQuery({ userId: assignedToId, taskId, updateId }, { skip: skipQueries })
+  const { data: task, isLoading: isLoadingTask, isError: isErrorTask } = useGetTaskQuery({ userId: assignedToId, taskId }, { skip: skipQueries })
+  const {data} = useGetRealUpdateCommentsQuery({  userId: assignedToId, taskId, updateId }, { skip: skipQueries })
+  const [addComment, { isLoading: isLoadingAddComment }] = useAddUpdateCommentMutation()
   const [sliderimages, setSliderImages] = useState<string[]>([]);
   const [visible, setIsVisible] = useState<boolean>(false);
   const [loadingVisible, setIsLoadingVisible] = useState<boolean>(false);
@@ -86,8 +87,15 @@ export default function UpdateDetails({ route }: UpdateDetails) {
     if (!userId || !taskId || !updateId) return;
   
     const loadFiles = async () => {
-      setIsLoadingVisible(true)
-      loadAllFiles()
+
+      try {
+        setIsLoadingVisible(true)
+        await loadAllFiles()
+      } catch (e) {
+        console.error('Failed to load files', e)
+      } finally {
+        setIsLoadingVisible(false)
+      }
     };
   
     loadFiles();
@@ -116,7 +124,7 @@ export default function UpdateDetails({ route }: UpdateDetails) {
 
   const onSubmitComment = async () => {
     const result = await addComment({
-      userId,
+      userId: assignedToId,
       taskId,
       updateId,
       comment,
@@ -129,14 +137,12 @@ export default function UpdateDetails({ route }: UpdateDetails) {
     }
 
     setComment('')
-    await getComments({ userId, taskId, updateId })
     Keyboard.dismiss()
   }
 
-  const isCommentValid = comment.trim().length > 0;
-
-  if (isLoadingUpdate || isLoadingTask || !update || !task) return <Loading visible={true} />
-
+  if (isLoadingUpdate || isLoadingTask) return <Loading visible={true} />
+  if (isErrorUpdate || isErrorTask) return <ErrorComponent />
+  
   return (
    <Container hasInput headerMiddle='Update Details' backgroundColor={COLORS.neutral._100} allowBack>
       <Text style={styles.title}>{update.title}</Text>
@@ -170,40 +176,9 @@ export default function UpdateDetails({ route }: UpdateDetails) {
       <MapViewComponent longitude={update.longitude} latitude={update.latitude}/>
       <Spacer height={10} />
       <Text style={styles.title}>Task:</Text>
-      <TaskCard taskId={taskId} title={task.title} assignedTo={task.assignedTo} location={task.location} status={task.status} duration={task.duration} creationDate={task.creationDate} />
-      <Spacer height={12} />
-      <Text style={styles.title}>Comments:</Text>
-      <Spacer height={6} />
-      {
-        isLoading || isLoadingGetComments ? <LoadingComponent /> :
-        isError || isErrorGetComments ? <ErrorComponent /> :
-        data.map((comment: Comment) => {
-            return(
-                <View key={comment.id}>
-                  <View style={{ backgroundColor: COLORS.white, padding: 8, borderRadius: 8 }}>
-                    <Text style={[styles.title, { fontSize: 19, fontWeight: '500' }]}>{comment.commenter}</Text>
-                    <Text style={styles.caption}>{comment.comment}</Text>
-                  </View>
-                  <Spacer height={8} />
-                </View>
-            )
-        })
-      }
-      <Spacer height={80}/>
-      <View style={styles.commentContainer}>
-       <TextInput
-         value={comment}
-         onChangeText={(text) => setComment(text)}
-         onSubmitEditing={Keyboard.dismiss}
-         style={styles.input}
-       />
-       <TouchableOpacity 
-        onPress={isCommentValid ? onSubmitComment : undefined}
-         style={{ backgroundColor: COLORS.primary, borderRadius: 50, width: 50, height: 50, justifyContent: 'center', alignItems: 'center' }}
-       >
-         <Ionicons name="send-outline" size={25} color={'white'}  />
-       </TouchableOpacity>
-     </View>
+      <TaskCard taskId={taskId} title={task.title} assignedTo={task.assignedTo} location={task.location} status={task.status} duration={task.duration} creationDate={task.creationDate} assignedToId={task.assignedToId}/>
+      <Spacer height={16} />
+      <CommentsBox comment={comment} comments={data} setComment={setComment} onSubmitComment={onSubmitComment}/>
      <ImageViewModal index={index} visible={visible} images={images} setIsVisible={setIsVisible} />
     </Container>
   )
@@ -218,27 +193,6 @@ const styles = StyleSheet.create({
     caption: {
       color: COLORS.caption,
       fontSize: 15
-    },
-    commentContainer: { 
-      flex: 1,
-      position: 'absolute', 
-      bottom: 0, 
-      width: '100%', 
-      borderRadius: 8,
-      backgroundColor: COLORS.neutral._400, 
-      flexDirection: 'row', 
-      alignItems: 'center', 
-      paddingLeft: 10, 
-      paddingRight: 5 
-    },
-    input: { 
-      flex: 1, 
-      backgroundColor: 'white', 
-      padding: 10,
-      borderRadius: 10, 
-      marginVertical: 5, 
-      marginRight: 5, 
-      fontSize: 15 
     },
     pdfContainer: { 
       backgroundColor: COLORS.neutral._400, 

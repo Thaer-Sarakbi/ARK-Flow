@@ -11,6 +11,7 @@
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		5F375F3AB55CB676A7131F00 /* Pods_arkflow.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 313AE4C859DB5D4B24924088 /* Pods_arkflow.framework */; };
 		958A8F622EB9DC74008683A3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 958A8F612EB9DC74008683A3 /* GoogleService-Info.plist */; };
+		959B12802EF4F1180047BBC1 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 959B127F2EF4F1180047BBC1 /* GoogleService-Info.plist */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		BC86B9F2BA9D7B8A063DE039 /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2163DC17A947DAEABCA91246 /* ExpoModulesProvider.swift */; };
 		CF88EB7A5CABA2E90FBD7380 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5805264CCD34FD5B1A0251CC /* PrivacyInfo.xcprivacy */; };
@@ -26,6 +27,7 @@
 		5805264CCD34FD5B1A0251CC /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = arkflow/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		8FD1624169E0C1F3A4CEDB6D /* Pods-arkflow.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-arkflow.debug.xcconfig"; path = "Target Support Files/Pods-arkflow/Pods-arkflow.debug.xcconfig"; sourceTree = "<group>"; };
 		958A8F612EB9DC74008683A3 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		959B127F2EF4F1180047BBC1 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = arkflow/SplashScreen.storyboard; sourceTree = "<group>"; };
 		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
 		BDE210D762A5817EA65B2834 /* Pods-arkflow.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-arkflow.release.xcconfig"; path = "Target Support Files/Pods-arkflow/Pods-arkflow.release.xcconfig"; sourceTree = "<group>"; };
@@ -49,6 +51,7 @@
 		13B07FAE1A68108700A75B9A /* arkflow */ = {
 			isa = PBXGroup;
 			children = (
+				959B127F2EF4F1180047BBC1 /* GoogleService-Info.plist */,
 				F11748412D0307B40044C1D9 /* AppDelegate.swift */,
 				F11748442D0722820044C1D9 /* arkflow-Bridging-Header.h */,
 				BB2F792B24A3F905000567C9 /* Supporting */,
@@ -202,6 +205,7 @@
 				958A8F622EB9DC74008683A3 /* GoogleService-Info.plist in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
 				CF88EB7A5CABA2E90FBD7380 /* PrivacyInfo.xcprivacy in Resources */,
+				959B12802EF4F1180047BBC1 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -439,9 +443,11 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = arkflow/arkflow.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = XLU4J9BUT7;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = XLU4J9BUT7;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -464,6 +470,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ark.deglory.arkflow;
 				PRODUCT_NAME = arkflow;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AdHoc com.ark.deglory.arkflow";
 				SWIFT_OBJC_BRIDGING_HEADER = "arkflow/arkflow-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -480,9 +487,11 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = arkflow/arkflow.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Automatic;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = XLU4J9BUT7;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = XLU4J9BUT7;
 				INFOPLIST_FILE = arkflow/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "ARK Flow";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -500,6 +509,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ark.deglory.arkflow;
 				PRODUCT_NAME = arkflow;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AdHoc com.ark.deglory.arkflow";
 				SWIFT_OBJC_BRIDGING_HEADER = "arkflow/arkflow-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

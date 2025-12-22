@@ -25,6 +25,15 @@ platform :android do
       project_dir: 'android/'
     )
   end
+
+  desc "Build android aab"
+  lane :build_bundle_android do
+    gradle(
+      task: 'bundle',
+      build_type: 'Release',
+      project_dir: 'android/'
+    )
+  end
 end
 
 default_platform(:ios)

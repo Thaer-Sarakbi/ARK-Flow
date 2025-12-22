@@ -23,18 +23,13 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 Build android apk
 
-----
-
-
-## iOS
-
-### ios build_release_ios
+### android build_bundle_android
 
 ```sh
-[bundle exec] fastlane ios build_release_ios
+[bundle exec] fastlane android build_bundle_android
 ```
 
-Build IOS App
+Build android aab
 
 ----
 
