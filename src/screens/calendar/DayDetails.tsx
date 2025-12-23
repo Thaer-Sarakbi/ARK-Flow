@@ -80,7 +80,7 @@ export default function DayDetails({ route }: DayDetails) {
       <Text style={styles.title}>Task Updates</Text>
       {
         (updates?.length ?? 0) > 0 ? updates.map((update: any) => (
-            <TouchableOpacity key={update.id} style={styles.updateComponent} onPress={() => navigation.navigate('UpdateDetails', { updateId: update.data().id, taskId: update.data().taskId, assignedToId: update.data().assignedToId, userName: user?.profile.fullName, userId })}>
+            <TouchableOpacity key={update.id} style={styles.updateComponent} onPress={() => navigation.navigate('UpdateDetails', { updateId: update.data().id, taskId: update.data().taskId, assignedToId: update.data().assignedToId, userName: user?.profile.fullName, assignedBy: update.data().assignedBy, assignedById: update.data().assignedById, userId: user?.id })}>
               <View>
                 <Text style={[styles.title, { fontSize: 18 }]}>{update.data().title}</Text>
                 <Text style={styles.caption}>{update.data().description}</Text> 

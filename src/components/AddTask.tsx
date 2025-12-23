@@ -4,6 +4,7 @@ import { Controller, useForm } from "react-hook-form";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { COLORS } from "../colors";
+import { useAddNotificationMutation } from "../redux/notifications";
 import { useAddTaskMutation } from "../redux/tasks";
 import { User } from "../utils/types";
 import Input from "./Input";
@@ -21,6 +22,7 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
   const [assignedToId, setAssignedToId] = useState('');
   const [isFocus, setIsFocus] = useState(false);
   const [addTask, { isLoading, isSuccess, isError }] = useAddTaskMutation()
+  const [addNotification, { isLoading: isLoadingAddNot, isError: isErrorAddNot }] = useAddNotificationMutation()
 
   const {
     control,
@@ -45,6 +47,7 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
         title, 
         description, 
         assignedBy: user.profile.fullName, 
+        assignedById: user.id,
         assignedTo: value, 
         assignedToId: assignedToId, 
         duration, 
@@ -58,6 +61,25 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
 
     setIsVisible(false)
     console.log("Adding task success");
+
+    const addNotResult = await addNotification({
+      userId: assignedToId,
+      taskId: result.data,
+      screenName: 'TaskDetails',
+      screenId: result.data,
+      message: 'You have assigned a new task by by',
+      by: user.profile.fullName,
+      title,
+      assignedToId,
+      assignedById: user.id
+    } as any)
+
+    if ('error' in result) {
+      console.log("Adding notification error:", addNotResult.error);
+      return;
+    }
+
+    console.log('Notification Added')
   }
 
   return (

@@ -443,11 +443,9 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = arkflow/arkflow.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = XLU4J9BUT7;
+				DEVELOPMENT_TEAM = XLU4J9BUT7;
 				ENABLE_BITCODE = NO;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -470,7 +468,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ark.deglory.arkflow;
 				PRODUCT_NAME = arkflow;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AdHoc com.ark.deglory.arkflow";
 				SWIFT_OBJC_BRIDGING_HEADER = "arkflow/arkflow-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -487,11 +484,9 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = arkflow/arkflow.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = XLU4J9BUT7;
+				DEVELOPMENT_TEAM = XLU4J9BUT7;
 				INFOPLIST_FILE = arkflow/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "ARK Flow";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
@@ -509,7 +504,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.ark.deglory.arkflow;
 				PRODUCT_NAME = arkflow;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = "match AdHoc com.ark.deglory.arkflow";
 				SWIFT_OBJC_BRIDGING_HEADER = "arkflow/arkflow-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";

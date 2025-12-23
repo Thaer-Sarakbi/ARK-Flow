@@ -1,25 +1,41 @@
-// src/components/BackgroundWithGradient.tsx
-
 import Icon from '@expo/vector-icons/Ionicons';
-import React from 'react';
+import { useNavigation } from '@react-navigation/native';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from '../colors';
+import { useUserData } from '../hooks/useUserData';
+import { useGetNotificationsRealtimeQuery } from '../redux/notifications';
+import { RootStackNavigationProp } from './TaskCard';
 
 const MainHeader = () => {
+    const navigation = useNavigation<RootStackNavigationProp>();
+    const { data: user, loading, isError: isErrorUserData } = useUserData();
+    const {data: notificationsList, isLoading: isLoadingNots, isError} = useGetNotificationsRealtimeQuery({ userId: user?.id }, { skip: !user?.id })
+
+    const unreadCount = useMemo(
+      () => notificationsList?.filter((n: any) => !n.readed).length ?? 0,
+      [notificationsList]
+    );
+
     return(
       <View style={styles.container}>
         <View style={styles.left}>
           <Text style={styles.title}>Tasks</Text>
         </View>
         <View style={styles.right}>
-            <TouchableOpacity onPress={() => {}}>
-            <Icon name= {'search-outline'} size={35} color={'white'} />
+            <TouchableOpacity onPress={() => navigation.navigate('SearchScreen')}>
+              <Icon name= {'search-outline'} size={35} color={'white'} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => {}}>
-            <Icon name= {'notifications-outline'} size={35} color={'white'} />
+            <TouchableOpacity onPress={() => navigation.navigate('NotificationsScreen')}>
+              <Icon name= {'notifications-outline'} size={35} color={'white'} />
+              {unreadCount > 0 && (
+              <View style={styles.badge}>
+                <Text style={styles.badgeText}>{unreadCount}</Text>
+              </View>
+              )}
             </TouchableOpacity>
-            <TouchableOpacity onPress={() => {}}>
-            <Icon name= {'chatbubbles-outline'} size={35} color={'white'} />
+            <TouchableOpacity onPress={() => navigation.navigate('ChatScreen')}>
+              <Icon name= {'chatbubbles-outline'} size={35} color={'white'} />
             </TouchableOpacity>
         </View>
       </View>
@@ -55,14 +71,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginHorizontal: 15
     },
-    notificationIconBadge: { 
-      backgroundColor: 'red', 
-      position: 'absolute', 
-      top: -5, 
-      left: 15, 
-      zIndex: 1, 
-      justifyContent: 'center', 
-      alignItems: 'center', 
-      borderRadius: 10 
-    }
+    badge: { backgroundColor: 'red', position: 'absolute', borderRadius: 50, paddingHorizontal: 7, paddingVertical: 2, right: 0, top: -4},
+    badgeText: { color: COLORS.white }
   })

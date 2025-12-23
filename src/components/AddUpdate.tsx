@@ -11,9 +11,8 @@ import ConfirmationPopup from "../Modals/ConfirmationPopup";
 import { COLORS } from "../colors";
 import useCurrentLocation from "../hooks/useCurrentLocation";
 import { useLazyGetUpdatesDaysQuery } from "../redux/attendance";
-import { useAddUpdateMutation } from "../redux/tasks";
+import { useAddUpdateMutation } from "../redux/updates";
 import Input from "./Input";
-import Loading from "./Loading";
 import Spacer from "./atoms/Spacer";
 import SubmitButton from "./buttons/SubmitButton";
 interface AddUpdate {
@@ -21,6 +20,7 @@ interface AddUpdate {
   setUploadPopupVisible: (isVisible: boolean) => void,
   taskId: string, 
   assignedToId: string,
+  assignedById: string
   images: Asset[],
   userId: string | undefined,
   documents: DocumentPickerResponse[]
@@ -30,7 +30,7 @@ interface AddUpdate {
   uploading: boolean
 }
 
-export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId, assignedToId, images, documents, removeDocument, removeImage, uploadAll, userId, uploading }: AddUpdate) {
+export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId, assignedToId, assignedById, images, documents, removeDocument, removeImage, uploadAll, userId, uploading }: AddUpdate) {
   const mapRef = useRef<MapView | null>(null);
   const [isVisibleConfirm, setIsVisibleConfirm] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -94,7 +94,8 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
 
     const result = await addUpdate({
       id, 
-      assignedToId, 
+      assignedToId,
+      assignedById, 
       taskId, 
       title, 
       description, 
@@ -125,7 +126,8 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
     getUpdatesDays({ userId })
   })
 
-  if(isLoading || uploading) return <Loading visible={true} />
+  //don't add any loading here
+  // if(isLoading || uploading) return <Loading visible={true} />
 
   return (
     <>

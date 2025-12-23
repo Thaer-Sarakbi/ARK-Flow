@@ -17,7 +17,7 @@ import { useUserData } from '@/src/hooks/useUserData';
 import BottomSheet from '@/src/Modals/BottomSheet';
 import ConfirmationPopup from '@/src/Modals/ConfirmationPopup';
 import ErrorPopup from '@/src/Modals/ErrorPopup';
-import { useUpdateNotificationStatusMutation } from '@/src/redux/notifications';
+import { useAddNotificationMutation, useUpdateNotificationStatusMutation } from '@/src/redux/notifications';
 import { useAddTaskCommentMutation, useGetRealTaskCommentsQuery, useGetTaskRealtimeQuery, useUpdateTaskStatusMutation } from '@/src/redux/tasks';
 import { useGetUpdatesRealtimeQuery } from '@/src/redux/updates';
 import { MainStackParamsList } from '@/src/routes/MainStack';
@@ -33,7 +33,7 @@ import Timeline from 'react-native-timeline-flatlist';
 interface TaskDetails {
   route: {
     params: { 
-      id: string, 
+      taskId: string, 
       assignedToId: string, 
       notificationId?: string, 
       notificationStatus?: string 
@@ -50,7 +50,7 @@ const ListButton = ({ status, onPress }: { status: string, onPress:() => void })
 )
 
 const TaskDetails = ({ route }: TaskDetails) => {
-    const taskId = route.params.id
+    const taskId = route.params.taskId
     const notificationId = route.params.notificationId
     const notificationStatus = route.params.notificationStatus
     const assignedToId = route.params?.assignedToId
@@ -74,6 +74,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
     const { handleDocumentSelection, handleSelectImage, handleSelectCamera, images, removeImage, documents, removeDocument, uploadAll, uploading } = useDocumentPicker()
     const  [updateTaskStatus]= useUpdateTaskStatusMutation()
     const  [updateNotificationStatus]= useUpdateNotificationStatusMutation()
+    const [addNotification, { isLoading: isLoadingAddNot, isError: isErrorAddNot }] = useAddNotificationMutation()
     const { currentLocation, error: locationError, openSettings, getLocation } = useCurrentLocation(mapRef as any)
     const editUpdates = updatesData
     ?.map((update: Update) => {
@@ -86,6 +87,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
     })
     ?.sort((a: any, b: any) => b.date - a.date);
 
+    console.log(taskId )
     useFocusEffect(
       useCallback(() => {
         if (!notificationId || !user?.id || notificationStatus) return;
@@ -132,12 +134,40 @@ const TaskDetails = ({ route }: TaskDetails) => {
         console.log("Adding comment error:", result.error);
         return;
       }
-  
+
       setComment('')
       Keyboard.dismiss()
 
+      let notifyUserId: string | null = null;
+
+      if (user?.id === data.assignedById) {
+        // assignedBy commented → notify assignedTo
+        notifyUserId = assignedToId;
+      } else if (user?.id === assignedToId) {
+        // assignedTo commented → notify assignedBy
+        notifyUserId = data.assignedById;
+      }
+  
+      if (notifyUserId && notifyUserId !== user?.id) {
+        const addNotResult = await addNotification({
+          userId: notifyUserId, // 🔔 receiver
+          taskId,
+          screenName: 'TaskDetails',
+          screenId: taskId,
+          message: 'Commented on task by',
+          by: user?.profile.fullName,
+          title: data?.title,
+          assignedToId,
+          assignedById: data.assignedById,
+        } as any);
+  
+        if ('error' in addNotResult) {
+          console.log('Adding notification error:', addNotResult.error);
+          return;
+        }
       console.log('Notification Added')
     }
+  }
 
   const onSubmitUpdateStatus = async () => {
     const result = await updateTaskStatus({
@@ -200,7 +230,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
               timeStyle={styles.time}
               onEventPress={(event: any) => {
                 const update = event.data || event;
-                navigation.navigate('UpdateDetails', { updateId: update.id, taskId: update.taskId, userName: user?.profile.fullName, assignedToId: update.assignedToId, userId: user?.id ?? '' })
+                navigation.navigate('UpdateDetails', { updateId: update.id, taskId: update.taskId, userName: user?.profile.fullName, assignedToId: update.assignedToId, assignedById: data.assignedById, assignedBy: data.assignedBy, userId: user?.id ?? '' })
               }}                
               titleStyle={styles.titleStyle}
               descriptionStyle={styles.caption}
@@ -213,7 +243,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
         <Spacer height={10} />
       </Container>
       <BottomSheet visible={isVisible} onPress={() => setIsVisible(false)}>
-        <AddUpdate setIsVisible={setIsVisible} setUploadPopupVisible={setUploadPopupVisible} taskId={taskId} assignedToId={data?.assignedToId} images={images} documents={documents} removeImage={removeImage} removeDocument={removeDocument} uploadAll={uploadAll} userId={user?.id} uploading={uploading} />
+        <AddUpdate setIsVisible={setIsVisible} setUploadPopupVisible={setUploadPopupVisible} taskId={taskId} assignedToId={data?.assignedToId} assignedById={data?.assignedById} images={images} documents={documents} removeImage={removeImage} removeDocument={removeDocument} uploadAll={uploadAll} userId={user?.id} uploading={uploading} />
       </BottomSheet>
       <BottomSheet visible={uploadPopupVisible} onPress={() => setUploadPopupVisible(false)}>
       <View style={{ flexDirection: 'row' }}>

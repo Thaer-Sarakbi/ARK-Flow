@@ -9,12 +9,14 @@ import ErrorComponent from '@/src/components/molecule/ErrorComponent';
 import MapViewComponent from '@/src/components/molecule/MapViewComponent';
 import TaskCard from '@/src/components/TaskCard';
 import ImageViewModal from '@/src/Modals/ImageViewModal';
+import { useAddNotificationMutation, useUpdateNotificationStatusMutation } from '@/src/redux/notifications';
 import { setLoading } from '@/src/redux/slices/uiSlice';
 import { useGetTaskQuery } from '@/src/redux/tasks';
 import { useAddUpdateCommentMutation, useGetRealUpdateCommentsQuery, useGetUpdateQuery } from '@/src/redux/updates';
 import Entypo from '@expo/vector-icons/Entypo';
 import { getStorage, ref } from '@react-native-firebase/storage';
-import { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useEffect, useState } from 'react';
 import { Keyboard, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from "react-native";
 import FileViewer from "react-native-file-viewer";
 import RNFS from 'react-native-fs';
@@ -29,6 +31,9 @@ interface UpdateDetails {
       taskId: string
       updateId: string,
       assignedToId: string
+      assignedById: string
+      notificationStatus: string
+      notificationId: string
     }
   }
 }
@@ -40,6 +45,9 @@ export default function UpdateDetails({ route }: UpdateDetails) {
   const userId = route.params.userId
   const userName = route.params.userName
   const assignedToId = route.params.assignedToId
+  const assignedById = route.params.assignedById
+  const notificationId = route.params.notificationId
+  const notificationStatus = route.params.notificationStatus
 
   const dispatch = useDispatch();
   const skipQueries = !assignedToId || !taskId || !updateId;
@@ -47,6 +55,8 @@ export default function UpdateDetails({ route }: UpdateDetails) {
   const { data: task, isLoading: isLoadingTask, isError: isErrorTask } = useGetTaskQuery({ userId: assignedToId, taskId }, { skip: skipQueries })
   const {data} = useGetRealUpdateCommentsQuery({  userId: assignedToId, taskId, updateId }, { skip: skipQueries })
   const [addComment, { isLoading: isLoadingAddComment }] = useAddUpdateCommentMutation()
+  const  [updateNotificationStatus]= useUpdateNotificationStatusMutation()
+  const [addNotification, { isLoading: isLoadingAddNot, isError: isErrorAddNot }] = useAddNotificationMutation()
   const [sliderimages, setSliderImages] = useState<string[]>([]);
   const [visible, setIsVisible] = useState<boolean>(false);
   const [loadingVisible, setIsLoadingVisible] = useState<boolean>(false);
@@ -82,6 +92,18 @@ export default function UpdateDetails({ route }: UpdateDetails) {
     setPdf(pdfs);
     setIsLoadingVisible(false);
   }
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!notificationId || !userId || notificationStatus) return;
+    
+      updateNotificationStatus({
+        userId,
+        notificationId
+      });
+    
+    }, [notificationId, userId])
+  );
 
   useEffect(() => {
     if (!userId || !taskId || !updateId) return;
@@ -134,6 +156,37 @@ export default function UpdateDetails({ route }: UpdateDetails) {
     if ('error' in result) {
       console.log("Adding update error:", result.error);
       return;
+    }
+      
+    let notifyUserId: string | null = null;
+
+    if (userId === assignedById) {
+      // assignedBy commented → notify assignedTo
+      notifyUserId = assignedToId;
+    } else if (userId === assignedToId) {
+      // assignedTo commented → notify assignedBy
+      notifyUserId = assignedById;
+    }
+
+    if (notifyUserId && notifyUserId !== userId) {
+      const addNotResult = await addNotification({
+        userId: notifyUserId, // 🔔 receiver
+        taskId,
+        screenName: 'UpdateDetails',
+        screenId: updateId,
+        message: 'Commented on your update by',
+        by: userName,
+        title: update.title,
+        assignedToId,
+        assignedById,
+      } as any);
+
+      if ('error' in addNotResult) {
+        console.log('Adding notification error:', addNotResult.error);
+        return;
+      }
+
+      console.log('Notification Added');
     }
 
     setComment('')

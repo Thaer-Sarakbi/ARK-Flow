@@ -121,7 +121,7 @@ export const updatesApi = createApi({
     }),
 
       addUpdate: builder.mutation<any, Update>({
-        async queryFn({ id, assignedToId, taskId, title, description, latitude, longitude, date, userId }) {
+        async queryFn({ id, assignedToId, assignedById, taskId, title, description, latitude, longitude, date, userId }) {
           try {
               const batch = firestore().batch()
 
@@ -146,6 +146,7 @@ export const updatesApi = createApi({
                 id,
                 taskId,
                 assignedToId,
+                assignedById,
                 title,
                 description,
                 latitude,
@@ -158,6 +159,7 @@ export const updatesApi = createApi({
                 id,
                 taskId,
                 assignedToId,
+                assignedById,
                 title,
                 description,
                 latitude,

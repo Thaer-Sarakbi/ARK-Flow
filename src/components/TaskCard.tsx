@@ -68,7 +68,7 @@ export default function TaskCard({ title, status, taskId, assignedTo, assignedTo
   }
 
   return (
-    <TouchableOpacity style={[styles.container, shadow.cards]} onPress={() => navigation.navigate('TaskDetails', { id: taskId, assignedToId })}>
+    <TouchableOpacity style={[styles.container, shadow.cards]} onPress={() => navigation.navigate('TaskDetails', { taskId, assignedToId })}>
       <Text style={styles.caption}>{moment(new Date(creationDate?.seconds * 1000)).format('MMMM Do YYYY, h:ss a')}</Text>
       <Separator marginVertical={10} />
       <View style={styles.titleContainer}>

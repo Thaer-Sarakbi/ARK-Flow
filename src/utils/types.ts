@@ -16,6 +16,7 @@ export interface Task {
     status: string
     title: string
     creationDate: Timestamp
+    assignedById: string
 }
 
 export type Update = {
@@ -32,7 +33,8 @@ export type Update = {
     latitude: number,
     longitude: number,
     date: string, 
-    userId: string
+    userId: string,
+    assignedById: string
   }
 
 export type UpdateAttend = {
@@ -77,4 +79,6 @@ export interface Notifications {
   by: string,
   creationDate: Timestamp,
   assignedToId: string
+  taskId: string
+  assignedById: string
 }

@@ -177,7 +177,7 @@ export const tasksApi = createApi({
     }),
 
     addTask: builder.mutation<any, Task>({
-      async queryFn({ assignedBy, assignedTo, assignedToId, duration, location, status = 'Not Started', title }) {
+      async queryFn({ assignedBy, assignedTo, assignedToId, duration, location, status = 'Not Started', title, assignedById }) {
         try {
           const data = await firestore()
                 .collection("users")
@@ -187,6 +187,7 @@ export const tasksApi = createApi({
                   assignedBy, 
                   assignedTo, 
                   assignedToId, 
+                  assignedById,
                   creationDate: new Date(), 
                   duration, 
                   location, 
