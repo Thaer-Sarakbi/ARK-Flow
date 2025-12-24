@@ -1,10 +1,10 @@
 import firestore from '@react-native-firebase/firestore'
 import { createStackNavigator } from "@react-navigation/stack"
-import * as Notifications from 'expo-notifications'
+// import * as Notifications from 'expo-notifications'
 import { useEffect, useState } from "react"
 import { Linking, Platform } from 'react-native'
+// import { Notifications, Registered, RegistrationError } from 'react-native-notifications'
 import Loading from '../components/Loading'
-import usePushNotification from '../hooks/usePushNotification'
 import { useUserData } from '../hooks/useUserData'
 import ConfirmationPopup from '../Modals/ConfirmationPopup'
 import CheckInOut from "../screens/calendar/CheckInOut"
@@ -17,88 +17,47 @@ import SearchScreen from '../screens/mainHeader/SearchScreen'
 import TaskDetails from '../screens/task/TaskDetails'
 import UpdateDetails from '../screens/task/UpdateDetails'
 import { sendSignInLink } from '../utils/sendEmailLink'
-import { Report } from "../utils/types"
 import BottomNavigator from "./BottomTabNavigator"
-
-export type MainStackParamsList = {
-  BottomNav: undefined,
-  DayDetails: {
-    date: number;
-    userId: string
-  },
-  ReportDetails: {
-    date: string;
-    report: Report,
-    userId: string
-  },
-  LeaveDetails: {
-    date: string;
-    leave: Report
-    userId: string
-  },
-  CheckInOut: {
-    checkIn: {
-      time: Date
-    },
-    checkOut: {
-      time: Date
-    }
-  },
-  TaskDetails: {
-    taskId: string
-  },
-  UpdateDetails: {
-    updateId: string
-    taskId: string
-    userId: string
-    userName: string | undefined
-  },
-  SearchScreen: undefined,
-  NotificationsScreen: undefined,
-  ChatScreen: undefined
-}
+import { MainStackParamsList } from './params'
 
 const Stack = createStackNavigator<MainStackParamsList>()
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
 
 const MainStack = () => { 
     const { data, loading } = useUserData();
     const [isVisible, setIsvisible] = useState(false)
-    const { registerForExpoPushToken, schedulePushNotification } = usePushNotification()
-    const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
-    const [notification, setNotification] = useState<Notifications.Notification | undefined>(
-      undefined
-    );
+    //const { expoToken, registerForExpoPushToken, schedulePushNotification } = usePushNotification()
+    // const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
+    // const [notification, setNotification] = useState<Notifications.Notification | undefined>(
+    //   undefined
+    // );
  
+    // async function getMyChannels() {
+    //   const channels = await Notifications.getNotificationChannelsAsync();
+    //   console.log(channels); // Returns an object of channels
+    // }
+
     useEffect(() => {
       if (Platform.OS === 'android') {
-        Notifications.getNotificationChannelsAsync().then(value => setChannels(value ?? []));
+        // Notifications.getNotificationChannelsAsync().then(value => setChannels(value ?? []));
+        // getMyChannels()
       }
-      const notificationListener = Notifications.addNotificationReceivedListener(notification => {
-        console.log(notification)
-        setNotification(notification);
-      });
+      // const notificationListener = Notifications.addNotificationReceivedListener(notification => {
+      //   console.log(notification)
+      //   setNotification(notification);
+      // });
   
-      const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
-        console.log(response);
-      });
+      // const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
+      //   console.log(response);
+      // });
   
-      return () => {
-        notificationListener.remove();
-        responseListener.remove();
-      };
+      // return () => {
+      //   notificationListener.remove();
+      //   responseListener.remove();
+      // };
     }, []);
 
     useEffect(() => {
-      registerForExpoPushToken()
+      //registerForExpoPushToken()
       //schedulePushNotification()
     },[])
 

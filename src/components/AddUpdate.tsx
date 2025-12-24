@@ -13,6 +13,7 @@ import useCurrentLocation from "../hooks/useCurrentLocation";
 import { useLazyGetUpdatesDaysQuery } from "../redux/attendance";
 import { useAddUpdateMutation } from "../redux/updates";
 import Input from "./Input";
+import Loading from "./Loading";
 import Spacer from "./atoms/Spacer";
 import SubmitButton from "./buttons/SubmitButton";
 interface AddUpdate {
@@ -128,6 +129,7 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
 
   //don't add any loading here
   // if(isLoading || uploading) return <Loading visible={true} />
+  if(uploading) return <Loading visible={true} />
 
   return (
     <>
