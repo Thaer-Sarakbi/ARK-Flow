@@ -20,7 +20,7 @@ import ErrorPopup from '@/src/Modals/ErrorPopup';
 import { useAddNotificationMutation, useUpdateNotificationStatusMutation } from '@/src/redux/notifications';
 import { useAddTaskCommentMutation, useGetRealTaskCommentsQuery, useGetTaskRealtimeQuery, useUpdateTaskStatusMutation } from '@/src/redux/tasks';
 import { useGetUpdatesRealtimeQuery } from '@/src/redux/updates';
-import { MainStackParamsList } from '@/src/routes/MainStack';
+import { MainStackParamsList } from '@/src/routes/params';
 import { Update } from '@/src/utils/types';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -194,6 +194,8 @@ const TaskDetails = ({ route }: TaskDetails) => {
       <Container hasInput allowBack headerMiddle='Task Details' backgroundColor={COLORS.neutral._100}>
         <Text style={styles.title}>{data?.title}</Text>
         <Spacer height={14} />
+        <TaskInfo title={'Description'} value={data?.description}/>
+        <Spacer height={10} />
         <TaskInfo title={'Assigned By'} value={data?.assignedBy}/>
         <Spacer height={10} />
         <TaskInfo title={'Assigned To'} value={data?.assignedTo}/>

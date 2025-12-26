@@ -84,7 +84,9 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
-    <ScrollView style={{ maxHeight: 600 }}>
+    <ScrollView>
+      <Text style={{ fontSize: 25, fontWeight: 'bold', color: COLORS.title }}>Assign Task</Text>
+      <Spacer height={14} />
       <Text style={styles.title}>Title</Text>
       <Spacer height={6} />
       <Controller

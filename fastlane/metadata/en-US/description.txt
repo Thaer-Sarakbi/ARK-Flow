@@ -1,0 +1,9 @@
+This app is a comprehensive workforce management solution designed to simplify daily operations and improve transparency between employees and administrators.
+
+Employees can easily check in and check out with location tracking, submit daily work reports, upload files and images, manage assigned tasks, and communicate through task comments. All actions are recorded in real time, ensuring accurate attendance logs and up-to-date task progress.
+
+Administrators gain full visibility across all users, with access to attendance history, task status, reports, and notifications from a centralized dashboard. Real-time updates ensure that changes—such as new comments, task updates, or reports—are instantly reflected without manual refresh.
+
+The app also includes a notification system that keeps users informed about important updates while allowing read/unread tracking for better clarity. Built with scalability and security in mind, it supports role-based access so users only see their own data, while admins can oversee the entire organization.
+
+Whether for small teams or growing organizations, this app streamlines daily workflows, enhances accountability, and provides reliable records for attendance and performance tracking—all in one place.

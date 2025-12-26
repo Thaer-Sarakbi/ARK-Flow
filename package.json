@@ -1,7 +1,7 @@
 {
   "name": "ark-flow",
   "main": "index.ts",
-  "version": "2.0.1",
+  "version": "2.1.2",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -9,8 +9,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "android:build": "cd fastlane; bundle exec fastlane build_release_android",
-    "ios:build": "cd fastlane; bundle exec fastlane build_release_ios"
+    "android:build": "cd fastlane; bundle exec fastlane android build_release_android",
+    "ios:build": "cd fastlane; bundle exec fastlane ios build_release_ios"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",

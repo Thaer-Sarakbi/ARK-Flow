@@ -4,16 +4,42 @@
 # For a list of all available actions, check out
 #
 #     https://docs.fastlane.tools/actions
-#
-# For a list of all available plugins, check out
-#
-#     https://docs.fastlane.tools/plugins/available-plugins
-#
 
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
-default_platform(:android)
+platform :ios do
+  
+  desc "Build IOS App"
+  lane :build_release_ios do
+    # match
+    gym(
+      workspace: "ios/arkflow.xcworkspace",
+      configuration: "Release",
+      scheme: "arkflow",
+      export_options: {
+        method: "ad-hoc",
+        # method: "app-store",
+        signingStyle: "automatic",
+        provisioningProfiles: {
+          "com.ark.deglory.arkflow" => "match AdHoc com.ark.deglory.arkflow",
+          # "com.ark.deglory.arkflow" => "match AppStore com.ark.deglory.arkflow",
+        }
+      }
+    )
+    # deliver(
+    #   verify_only: true,
+    #   # submit_for_review: true,
+    #   force: true,  # Skip HTMl report verification
+    #   username: "newwavehotel@gmail.com",
+    #   app_identifier: "com.ark.deglory.arkflow",
+    #   ipa: "arkflow.ipa",
+    #   #skip_binary_upload: true, # upload ipa
+    #   skip_screenshots: true,
+    #   skip_metadata: true
+    # )
+  end
+end
 
 platform :android do
   
@@ -32,28 +58,6 @@ platform :android do
       task: 'bundle',
       build_type: 'Release',
       project_dir: 'android/'
-    )
-  end
-end
-
-default_platform(:ios)
-
-platform :ios do
-  
-  desc "Build IOS App"
-  lane :build_release_ios do
-    # match
-    gym(
-      workspace: "ios/arkflow.xcworkspace",
-      configuration: "Release",
-      scheme: "arkflow",
-      export_options: {
-        method: "ad-hoc",
-        signingStyle: "automatic",
-        provisioningProfiles: {
-          "com.ark.deglory.arkflow" => "match AdHoc com.ark.deglory.arkflow",
-        }
-      }
     )
   end
 end
