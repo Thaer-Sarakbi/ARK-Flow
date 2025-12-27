@@ -12,7 +12,7 @@ export default function CompletedTaskScreen() {
   const [isFetching, setIsFetching] = useState(false)
   const { data: user, loading, isError: isErrorUserData } = useUserData();
   const [getTasks] = useLazyGetTasksQuery()
-  const { data: listOfTasks, isLoading: isLoadingTasks, isError } =  useGetTasksRealtimeQuery({ userId: user?.id, admin: user?.profile.admin }, { skip: !user?.id })
+  const { data: listOfTasks, isLoading: isLoadingTasks, isError } =  useGetTasksRealtimeQuery({ userId: user?.id }, { skip: !user?.id })
 
   const completedTasks = useMemo(
     () => listOfTasks?.filter((t: Task) => t.status === "Completed") || [],

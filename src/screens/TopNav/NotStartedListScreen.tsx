@@ -12,7 +12,7 @@ export default function NotStartedListScreen() {
   const [isFetching, setIsFetching] = useState(false)
   const { data: user, loading, isError: isErrorUserData } = useUserData();
   const [getTasks] = useLazyGetTasksQuery()
-  const { data: tasks, isLoading: isLoadingTasks, isError } = useGetTasksRealtimeQuery({ userId: user?.id, admin: user?.profile.admin }, { skip: !user?.id })
+  const { data: tasks, isLoading: isLoadingTasks, isError } = useGetTasksRealtimeQuery({ userId: user?.id }, { skip: !user?.id })
   
   const notStartedTasks = useMemo(
     () => tasks?.filter((t: Task) => t.status === "Not Started") || [],

@@ -8,14 +8,14 @@ import { Task } from "@/src/utils/types";
 import { useMemo, useState } from "react";
 import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 
-export default function InProgressTasksScreen() {
+export default function MyTasksScreen() {
   const [isFetching, setIsFetching] = useState(false)
   const { data: user, loading, isError: isErrorUserData } = useUserData();
   const [getTasks] = useLazyGetTasksQuery()
  const { data: listOfTasks, isLoading: isLoadingTasks, isError } =  useGetTasksRealtimeQuery({ userId: user?.id }, { skip: !user?.id })
 
-  const inProgressTasks = useMemo(
-    () => listOfTasks?.filter((t: Task) => t.status === "In Progress") || [],
+  const myTasks = useMemo(
+    () => listOfTasks?.filter((t: Task) => t.assignedToId === user?.id) || [],
     [listOfTasks]
   );
 
@@ -30,10 +30,10 @@ export default function InProgressTasksScreen() {
   return (
     <>
       {
-        inProgressTasks.length > 0 ? (
+        myTasks.length > 0 ? (
           <View style={styles.container}>
             <FlatList 
-              data={inProgressTasks}
+              data={myTasks}
               renderItem={({ item }) =>  <TaskCard title={item.title} status={item.status} taskId={item.id} assignedTo={item.assignedTo} duration={item.duration} location={item.location} creationDate={item.creationDate} assignedToId={item.assignedToId}/>}
               onRefresh= {() => onRefresh()}
               refreshing={isFetching}
@@ -43,7 +43,7 @@ export default function InProgressTasksScreen() {
           <View style={styles.blank}>
             <Image style={{ width: 120 , height: 120 }} source={require('@/assets/icons/noTasks.png')} />
             <Spacer height={8} />
-            <Text style={{ alignSelf: 'center' }}>No Tasks In Progress</Text>
+            <Text style={{ alignSelf: 'center' }}>No Tasks</Text>
           </View>
         )
       }

@@ -36,22 +36,20 @@ export const tasksApi = createApi({
       },
     }),
 
-    getTasksRealtime: builder.query<any[], { userId?: string; admin?: boolean }>({
+    getTasksRealtime: builder.query<any[], { userId?: string }>({
       async queryFn() {
         // Required initial cache value
         return { data: [] };
       },
       async onCacheEntryAdded(
-        { userId, admin },
+        { userId },
         { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
       ) {
-        if (!admin && !userId) return;
+        if (!userId) return;
 
         await cacheDataLoaded;
     
-        const tasksRef = admin
-        ? collectionGroup(db, "tasks")
-        : collection(db, `users/${userId}/tasks`);
+        const tasksRef = collectionGroup(db, "tasks")
        
         const unsubscribe = onSnapshot(tasksRef, (snapshot) => {
           updateCachedData((draft) => {
@@ -61,7 +59,7 @@ export const tasksApi = createApi({
             snapshot.forEach((doc: any) => {
               draft.push({
                 id: doc.id,
-                ...(admin && { userId: doc.ref.parent.parent?.id }),
+                ...({ userId: doc.ref.parent.parent?.id }),
                 ...doc.data(),
               });
             });

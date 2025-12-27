@@ -211,7 +211,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
         <View style={{ backgroundColor: COLORS.white, borderRadius: 10, padding: 10 }}>
           <Text style={styles.title}>Status</Text>
           <Spacer height={14} />
-          <StatusButton status={selectedStatus ?? currentStatus} onPress={() => setIsVisibleStatus(true)} />
+          <StatusButton status={selectedStatus ?? currentStatus} onPress={() => user?.id === data?.assignedToId && setIsVisibleStatus(true)} />
           <Spacer height={8} />
           <SubmitButton text='Submit' onPress={onSubmitUpdateStatus} />
         </View>

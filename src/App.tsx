@@ -2,8 +2,10 @@ import { getAuth, onAuthStateChanged } from '@react-native-firebase/auth';
 import remoteConfig from '@react-native-firebase/remote-config';
 import { NavigationContainer } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
+import { Image } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
+import ConfirmationPopup from './Modals/ConfirmationPopup';
 import { store } from './redux/store';
 import AuthStack from './routes/AuthStack';
 import MainStack from './routes/MainStack';
@@ -39,17 +41,30 @@ export default function App() {
       }
     } catch (error) {
       setVisibleForeUpdate(false)
-
     }
   }
 
+  const handleUpdateApp = () => {
+    console.log('Update')
+  }
+
   return (
-    <SafeAreaProvider>
-      <NavigationContainer>
-        <Provider store={store}>
-          {currentUser ? <MainStack /> : <AuthStack />}
-        </Provider>
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <>
+      <SafeAreaProvider>
+        <NavigationContainer>
+          <Provider store={store}>
+            {currentUser ? <MainStack /> : <AuthStack />}
+          </Provider>
+        </NavigationContainer>
+      </SafeAreaProvider>
+      <ConfirmationPopup 
+        isVisible={visibleForeUpdate}
+        icon={<Image style={{ width: 67, height: 59 }} source={require('../assets/icons/Warning.png')} />}  
+        title='Update Version' 
+        paragraph1='Your app version is old' 
+        paragraph2='please update your app' 
+        buttonTitle='Update' onPress={handleUpdateApp} 
+      />
+    </>
   );
 }

@@ -12,6 +12,7 @@ import { useLazyGetTasksQuery } from '../redux/tasks';
 import { useGetUsersQuery } from '../redux/user';
 import CompletedTaskScreen from '../screens/TopNav/CompletedTaskScreen';
 import InProgressTasksScreen from '../screens/TopNav/InProgressTasksScreen';
+import MyTasksScreen from '../screens/TopNav/MyTasksScreen';
 import NotStartedListScreen from '../screens/TopNav/NotStartedListScreen';
 
 const Tab = createMaterialTopTabNavigator();
@@ -38,12 +39,16 @@ export default function TopTab() {
     <>
       <MainHeader />
       <Tab.Navigator 
-      initialRouteName= "Not Started" 
+      initialRouteName= "My Tasks" 
         screenOptions={{
           tabBarLabelStyle: { fontSize: 12 },
           tabBarIndicatorStyle: { backgroundColor: COLORS.primary }
         }}
       >
+        <Tab.Screen 
+          name="My Tasks" 
+          component={MyTasksScreen}
+        />
         <Tab.Screen 
           name="Not Started" 
           component={NotStartedListScreen}
