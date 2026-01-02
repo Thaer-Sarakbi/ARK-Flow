@@ -66,6 +66,6 @@ export default function useCurrentLocation(mapRef: React.RefObject<MapView>) {
     }
   };
 
-  return { location,
+  return { location, requestPermission,
     currentLocation, loading, error, openSettings, getLocation };
 }

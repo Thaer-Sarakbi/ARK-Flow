@@ -4,6 +4,7 @@ import React from "react";
 import { Alert } from "react-native";
 import RNFS from 'react-native-fs';
 import { Asset, launchCamera, launchImageLibrary } from "react-native-image-picker";
+import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024;
 const storage = getStorage();
@@ -14,6 +15,16 @@ const useDocumentPicker = () => {
   const [images, setImages] = React.useState<Asset[]>([]);
   const [leaveImages, setLeaveImages] = React.useState<Asset[]>([]);
   const [uploading, setUploading] = React.useState(false);
+
+  const requestCameraPermission = async () => {
+    const permission = PERMISSIONS.IOS.CAMERA
+  
+      let result = await check(permission);
+      if (result === RESULTS.GRANTED) return true;
+  
+      result = await request(permission);
+      return result === RESULTS.GRANTED;
+  };
 
   const handleDocumentSelection = async (allowMultiSelection?: boolean) => {
 
@@ -252,6 +263,7 @@ const useDocumentPicker = () => {
     images,
     leaveImages,
     uploading,
+    requestCameraPermission,
     handleDocumentSelection,
     handleLeaveDocumentSelection,
     handleSelectImage,

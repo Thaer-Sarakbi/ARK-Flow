@@ -5,7 +5,7 @@ import { StackNavigationProp } from '@react-navigation/stack';
 import moment from 'moment';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { COLORS } from "../colors";
-import { MainStackParamsList } from '../routes/MainStack';
+import { MainStackParamsList } from '../routes/params';
 import { shadow } from "../utils/shadows";
 import Separator from './atoms/Separator';
 import Spacer from './atoms/Spacer';
@@ -24,22 +24,35 @@ interface TaskCard {
 export type RootStackNavigationProp = StackNavigationProp<MainStackParamsList>;
 
 function addNewlinesToString(text: string, maxLength: number) {
+  const words = text.split(' ');
   let result = '';
   let currentLineLength = 0;
-  for (let i = 0; i < text.length; i++) {
-    result += text[i];
-    currentLineLength++;
 
-    // If the current character is a newline, reset currentLineLength
-    if (text[i] === '\n') {
-      currentLineLength = 0;
-    } 
-    // If current line length exceeds maxLength and it's not the end of the string, add a newline
-    else if (currentLineLength >= maxLength && i < text.length - 1) {
-      result += '\n';
-      currentLineLength = 0;
+  for (let i = 0; i < words.length; i++) {
+    const word = words[i];
+
+    // If the word itself is longer than maxLength, just append it with a newline
+    if (word.length > maxLength && currentLineLength === 0) {
+        result += word + '\n';
+        currentLineLength = 0;
+        continue;
+    }
+
+    // If adding the next word exceeds the max length, start a new line
+    if (currentLineLength + word.length + (currentLineLength > 0 ? 1 : 0) > maxLength) {
+      result += '\n' + word;
+      currentLineLength = word.length;
+    } else {
+      // Otherwise, add a space if it's not the very first word
+      if (currentLineLength > 0) {
+        result += ' ';
+        currentLineLength += 1;
+      }
+      result += word;
+      currentLineLength += word.length;
     }
   }
+
   return result;
 }
 

@@ -1,10 +1,13 @@
 import firestore from '@react-native-firebase/firestore'
 import { createStackNavigator } from "@react-navigation/stack"
 // import * as Notifications from 'expo-notifications'
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Linking, Platform } from 'react-native'
 // import { Notifications, Registered, RegistrationError } from 'react-native-notifications'
+import MapView from 'react-native-maps'
 import Loading from '../components/Loading'
+import useCurrentLocation from '../hooks/useCurrentLocation'
+import useDocumentPicker from '../hooks/useDocumentPicker'
 import { useUserData } from '../hooks/useUserData'
 import ConfirmationPopup from '../Modals/ConfirmationPopup'
 import CheckInOut from "../screens/calendar/CheckInOut"
@@ -23,9 +26,11 @@ import { MainStackParamsList } from './params'
 const Stack = createStackNavigator<MainStackParamsList>()
 
 const MainStack = () => { 
+    const mapRef = useRef<MapView | null>(null);
     const { data, loading } = useUserData();
     const [isVisible, setIsvisible] = useState(false)
-    //const { expoToken, registerForExpoPushToken, schedulePushNotification } = usePushNotification()
+    const { requestPermission } = useCurrentLocation(mapRef as any)
+    const { requestCameraPermission } = useDocumentPicker()
     // const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
     // const [notification, setNotification] = useState<Notifications.Notification | undefined>(
     //   undefined
@@ -59,6 +64,10 @@ const MainStack = () => {
     useEffect(() => {
       //registerForExpoPushToken()
       //schedulePushNotification()
+      requestPermission()
+      if(Platform.OS === 'ios'){
+        requestCameraPermission()
+      }
     },[])
 
     useEffect(() => {
