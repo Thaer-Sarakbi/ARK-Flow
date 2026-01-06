@@ -9,7 +9,7 @@ import ErrorComponent from '../components/molecule/ErrorComponent';
 import { useUserData } from '../hooks/useUserData';
 import BottomSheet from '../Modals/BottomSheet';
 import { useLazyGetTasksQuery } from '../redux/tasks';
-import { useGetUsersQuery } from '../redux/user';
+import { useGetUsersRealtimeQuery } from '../redux/user';
 import CompletedTaskScreen from '../screens/TopNav/CompletedTaskScreen';
 import InProgressTasksScreen from '../screens/TopNav/InProgressTasksScreen';
 import MyTasksScreen from '../screens/TopNav/MyTasksScreen';
@@ -19,7 +19,7 @@ const Tab = createMaterialTopTabNavigator();
 
 export default function TopTab() {
   const { data: user, loading, isError: isErrorUserData } = useUserData();
-  const { data: listOfUsers, isLoading: isLoadingUsers, isError } = useGetUsersQuery()
+  const { data: listOfUsers, isLoading: isLoadingUsers, isError }= useGetUsersRealtimeQuery()
   const [getTasks, {isLoading, isError: isErrorGetTasks}] = useLazyGetTasksQuery()
   const [isVisible, setIsVisible] = useState(false)
   
@@ -29,7 +29,8 @@ export default function TopTab() {
 
   const dropdownData = listOfUsers?.map(item => ({
     value: item.id,
-    label: item.name
+    label: item.name,
+    fcmToken: item.fcmToken
   }));
 
   if(loading || isLoadingUsers) return <LoadingComponent />

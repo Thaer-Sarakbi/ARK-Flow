@@ -87,7 +87,6 @@ const TaskDetails = ({ route }: TaskDetails) => {
     })
     ?.sort((a: any, b: any) => b.date - a.date);
 
-    console.log(taskId )
     useFocusEffect(
       useCallback(() => {
         if (!notificationId || !user?.id || notificationStatus) return;

@@ -6,6 +6,7 @@ import { Dropdown } from "react-native-element-dropdown";
 import { COLORS } from "../colors";
 import { useAddNotificationMutation } from "../redux/notifications";
 import { useAddTaskMutation } from "../redux/tasks";
+import { pushNotification } from "../utils/PushNotificationService";
 import { User } from "../utils/types";
 import Input from "./Input";
 import Spacer from "./atoms/Spacer";
@@ -20,6 +21,7 @@ interface AddTask {
 export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
   const [value, setValue] = useState<string | undefined>();
   const [assignedToId, setAssignedToId] = useState('');
+  const [assignedToFcmToken, setAssignedToFcmToken] = useState('');
   const [isFocus, setIsFocus] = useState(false);
   const [addTask, { isLoading, isSuccess, isError }] = useAddTaskMutation()
   const [addNotification, { isLoading: isLoadingAddNot, isError: isErrorAddNot }] = useAddNotificationMutation()
@@ -67,7 +69,7 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
       taskId: result.data,
       screenName: 'TaskDetails',
       screenId: result.data,
-      message: 'You have assigned a new task by by',
+      message: 'You have assigned a new task by ',
       by: user.profile.fullName,
       title,
       assignedToId,
@@ -80,6 +82,8 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
     }
 
     console.log('Notification Added')
+
+    pushNotification(assignedToFcmToken, assignedToId, title, user.profile.fullName, 'TaskDetails')
   }
 
   return (
@@ -173,6 +177,7 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
             onChange={(item) => {
                 setValue(item.label)
                 setAssignedToId(item.value)
+                setAssignedToFcmToken(item.fcmToken)
                 onChange(item)
             }}
             renderLeftIcon={() => (

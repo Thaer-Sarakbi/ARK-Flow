@@ -1,9 +1,11 @@
+import { getFirestore } from '@react-native-firebase/firestore'
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react'
 import { usersRef } from '../utils/firestoreRefs'
 
 interface UserListItem {
   id: string
   name: string
+  fcmToken: string
 }
 
 interface AddUser {
@@ -13,6 +15,8 @@ interface AddUser {
     phoneNumber: string
     userId: string
   }
+
+  const db = getFirestore();
 
 export const usersApi = createApi({
   reducerPath: 'usersApi',
@@ -28,7 +32,8 @@ export const usersApi = createApi({
             const data = doc.data()
             return{
               id: doc.id,
-              name: data.fullName
+              name: data.fullName,
+              fcmToken: data.fcmToken
             }
           })
           return { data: usersList }
@@ -38,6 +43,37 @@ export const usersApi = createApi({
       },
       providesTags: ['Users'],
     }),
+
+    getUsersRealtime: builder.query<UserListItem[], void>({
+      queryFn: async () => ({ data: [] }),
+    
+      async onCacheEntryAdded(
+        _arg,
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) {
+        await cacheDataLoaded;
+    
+        const unsubscribe = usersRef.onSnapshot(snapshot => {
+          const usersList: UserListItem[] = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+              id: doc.id,
+              name: data.fullName,
+              fcmToken: data.fcmToken,
+            };
+          });
+    
+          updateCachedData(() => usersList);
+        });
+    
+        await cacheEntryRemoved;
+        unsubscribe();
+      },
+    
+      providesTags: ['Users'],
+    }),
+    
+  
 
     addUser: builder.mutation<any, AddUser>({
         async queryFn({ fullName, email, phoneNumber, password, userId }) {
@@ -67,4 +103,4 @@ export const usersApi = createApi({
   }),
 })
 
-export const { useGetUsersQuery, useAddUserMutation } = usersApi
+export const { useGetUsersRealtimeQuery, useGetUsersQuery, useAddUserMutation } = usersApi

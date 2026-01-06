@@ -48,7 +48,7 @@ setup_permissions([
   'MediaLibrary',
   # 'Microphone',
   # 'Motion',
-  # 'Notifications',
+  'Notifications',
   'PhotoLibrary',
   'PhotoLibraryAddOnly',
   # 'Reminders',

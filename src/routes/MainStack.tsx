@@ -2,8 +2,10 @@ import firestore from '@react-native-firebase/firestore'
 import { createStackNavigator } from "@react-navigation/stack"
 // import * as Notifications from 'expo-notifications'
 import { useEffect, useRef, useState } from "react"
-import { Linking, Platform } from 'react-native'
+import { Linking, PermissionsAndroid, Platform } from 'react-native'
 // import { Notifications, Registered, RegistrationError } from 'react-native-notifications'
+import notifee, { AndroidImportance } from '@notifee/react-native'
+import messaging from '@react-native-firebase/messaging'
 import MapView from 'react-native-maps'
 import Loading from '../components/Loading'
 import useCurrentLocation from '../hooks/useCurrentLocation'
@@ -31,44 +33,51 @@ const MainStack = () => {
     const [isVisible, setIsvisible] = useState(false)
     const { requestPermission } = useCurrentLocation(mapRef as any)
     const { requestCameraPermission } = useDocumentPicker()
-    // const [channels, setChannels] = useState<Notifications.NotificationChannel[]>([]);
-    // const [notification, setNotification] = useState<Notifications.Notification | undefined>(
-    //   undefined
-    // );
- 
-    // async function getMyChannels() {
-    //   const channels = await Notifications.getNotificationChannelsAsync();
-    //   console.log(channels); // Returns an object of channels
-    // }
 
     useEffect(() => {
-      if (Platform.OS === 'android') {
-        // Notifications.getNotificationChannelsAsync().then(value => setChannels(value ?? []));
-        // getMyChannels()
-      }
-      // const notificationListener = Notifications.addNotificationReceivedListener(notification => {
-      //   console.log(notification)
-      //   setNotification(notification);
-      // });
-  
-      // const responseListener = Notifications.addNotificationResponseReceivedListener(response => {
-      //   console.log(response);
-      // });
-  
-      // return () => {
-      //   notificationListener.remove();
-      //   responseListener.remove();
-      // };
+      notifee.createChannel({
+        id: 'newTask',
+        name: 'New Task',
+        importance: AndroidImportance.HIGH,
+        vibration: true,
+        //vibrationPattern: [0, 500, 200, 500],
+      });
     }, []);
 
     useEffect(() => {
-      //registerForExpoPushToken()
-      //schedulePushNotification()
-      requestPermission()
-      if(Platform.OS === 'ios'){
-        requestCameraPermission()
+      const unsubscribe = messaging().onMessage(async remoteMessage => {
+        console.log('A new message arrived! (FORGROUND)', JSON.stringify(remoteMessage))
+        await notifee.displayNotification({
+          title: remoteMessage.notification?.title,
+          body: remoteMessage.notification?.body,
+          android: {
+            channelId: 'newTask',
+          },
+        });
+      });
+    
+      const unsubscribeBackground = messaging().setBackgroundMessageHandler(async remoteMessage => {
+        console.log(
+          'A new message arrived! (BACKGROUND)',
+          JSON.stringify(remoteMessage),
+        );
+      });
+      
+      return () => {
+        unsubscribe()
+        unsubscribeBackground
+      };
+    }, []);
+
+    useEffect(() => {
+      if(data?.id){
+        requestNotificationPermission() 
       }
-    },[])
+      // requestPermission()
+      // if(Platform.OS === 'ios'){
+      //   requestCameraPermission()
+      // }
+    },[data?.id])
 
     useEffect(() => {
       if(data?.id && !data.profile?.verified && Platform.OS === 'android'){
@@ -107,6 +116,58 @@ const MainStack = () => {
     checkInitialURL()
     Linking.addEventListener('url', handleDeepLink);
     }, [data]);
+
+    // Get the FCM token
+    async function getFcmToken() {
+      let fcmToken = await messaging().getToken().catch((e) => console.log(e));
+      console.log('fcmToken ', fcmToken)
+      if (fcmToken && data?.id) {
+        firestore()
+        .collection('users')
+        .doc(data?.id)
+        .update({ fcmToken }).then(() => {
+          console.log('updated')
+        }).catch((e) => {
+          console.log('error ', e)
+        });
+      }
+    }
+
+    async function requestNotificationPermission() {
+      if (Platform.OS === 'ios') {
+        await messaging().registerDeviceForRemoteMessages();
+    
+        const authStatus = await messaging().requestPermission({
+          alert: true,
+          sound: true,
+          badge: true,
+        });
+    
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    
+        if (enabled) {
+          getFcmToken();
+        }
+      }
+    
+      if (Platform.OS === 'android') {
+        await requestAndroidPermission();
+      }
+    }
+
+    async function requestAndroidPermission() {
+      if (Platform.OS === 'android' && Platform.Version >= 33) {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+        );
+    
+        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+          getFcmToken();
+        }
+      }
+    }
 
     if(loading) return <Loading visible />
     return(
