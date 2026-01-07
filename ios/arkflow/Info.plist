@@ -21,7 +21,7 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>2.1.5</string>
+	<string>2.2.1</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -48,13 +48,13 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>ARK Flow requires access to your Camera.</string>
+	<string>Camera access is used to take photos required to complete your request.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>ARK Flow requires access to your location.</string>
+	<string>Your location is used only to determine your position while performing an activity.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>ARK Flow requires access to your location.</string>
+	<string>Your location is used only to determine your position while performing an activity.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>ARK Flow requires access to your location.</string>
+	<string>Your location is used only to determine your position while performing an activity.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>ARK Flow requires access to your photo library to allow you to select and upload photos with your consent.</string>
 	<key>NSUserActivityTypes</key>

@@ -1,15 +1,10 @@
-import firestore from '@react-native-firebase/firestore'
-import { createStackNavigator } from "@react-navigation/stack"
-// import * as Notifications from 'expo-notifications'
-import { useEffect, useRef, useState } from "react"
-import { Linking, PermissionsAndroid, Platform } from 'react-native'
-// import { Notifications, Registered, RegistrationError } from 'react-native-notifications'
 import notifee, { AndroidImportance } from '@notifee/react-native'
+import firestore from '@react-native-firebase/firestore'
 import messaging from '@react-native-firebase/messaging'
-import MapView from 'react-native-maps'
+import { createStackNavigator } from "@react-navigation/stack"
+import { useEffect, useState } from "react"
+import { Linking, PermissionsAndroid, Platform } from 'react-native'
 import Loading from '../components/Loading'
-import useCurrentLocation from '../hooks/useCurrentLocation'
-import useDocumentPicker from '../hooks/useDocumentPicker'
 import { useUserData } from '../hooks/useUserData'
 import ConfirmationPopup from '../Modals/ConfirmationPopup'
 import CheckInOut from "../screens/calendar/CheckInOut"
@@ -28,11 +23,8 @@ import { MainStackParamsList } from './params'
 const Stack = createStackNavigator<MainStackParamsList>()
 
 const MainStack = () => { 
-    const mapRef = useRef<MapView | null>(null);
     const { data, loading } = useUserData();
     const [isVisible, setIsvisible] = useState(false)
-    const { requestPermission } = useCurrentLocation(mapRef as any)
-    const { requestCameraPermission } = useDocumentPicker()
 
     useEffect(() => {
       notifee.createChannel({
@@ -73,10 +65,6 @@ const MainStack = () => {
       if(data?.id){
         requestNotificationPermission() 
       }
-      // requestPermission()
-      // if(Platform.OS === 'ios'){
-      //   requestCameraPermission()
-      // }
     },[data?.id])
 
     useEffect(() => {

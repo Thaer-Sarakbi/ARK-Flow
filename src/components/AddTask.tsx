@@ -1,9 +1,12 @@
+import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
+import { Asset } from "react-native-image-picker";
 import { COLORS } from "../colors";
+import useDocumentPicker from "../hooks/useDocumentPicker";
 import { useAddNotificationMutation } from "../redux/notifications";
 import { useAddTaskMutation } from "../redux/tasks";
 import { pushNotification } from "../utils/PushNotificationService";
@@ -25,6 +28,7 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
   const [isFocus, setIsFocus] = useState(false);
   const [addTask, { isLoading, isSuccess, isError }] = useAddTaskMutation()
   const [addNotification, { isLoading: isLoadingAddNot, isError: isErrorAddNot }] = useAddNotificationMutation()
+  const { images, handleSelectImage, removeImage, uploadAll } = useDocumentPicker()
 
   const {
     control,
@@ -64,6 +68,10 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
     setIsVisible(false)
     console.log("Adding task success");
 
+    if(images.length > 0){
+      await uploadAll(`users/${assignedToId}/tasks/${result.data}/files`)
+    }
+
     const addNotResult = await addNotification({
       userId: assignedToId,
       taskId: result.data,
@@ -85,6 +93,10 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
 
     pushNotification(assignedToFcmToken, assignedToId, title, user.profile.fullName, 'TaskDetails')
   }
+
+  const handleGallery = async () => {
+    await handleSelectImage()
+  };
 
   return (
     <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
@@ -253,6 +265,18 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
         )}
       />
       <Spacer height={20} />
+      {
+        images?.map((image: Asset, i: number) => (
+          <View key={i} style={styles.uploadButton}>
+            <Text>{image.fileName}</Text>
+            {removeImage && <TouchableOpacity onPress={() => removeImage(image.uri as string)}>
+              <Feather name="x" size={20} color={'black'} />
+            </TouchableOpacity>}
+          </View>
+        ))
+      }
+      <SubmitButton text='Upload' mode='outlined' onPress={handleGallery}/>
+      <Spacer height={8} />
       <SubmitButton text="Assign" onPress={handleSubmit(handleSubmitLogin)}/>
       </ScrollView>
     </KeyboardAvoidingView>
@@ -289,5 +313,10 @@ const styles = StyleSheet.create({
       color: COLORS.neutral._600,
       fontWeight: '400',
       fontSize: 16
+    },
+    uploadButton: { 
+      flexDirection: 'row', 
+      justifyContent: 'space-between', 
+      alignItems: 'center' 
     }
 });

@@ -17,16 +17,19 @@ import { useUserData } from '@/src/hooks/useUserData';
 import BottomSheet from '@/src/Modals/BottomSheet';
 import ConfirmationPopup from '@/src/Modals/ConfirmationPopup';
 import ErrorPopup from '@/src/Modals/ErrorPopup';
+import ImageViewModal from '@/src/Modals/ImageViewModal';
 import { useAddNotificationMutation, useUpdateNotificationStatusMutation } from '@/src/redux/notifications';
 import { useAddTaskCommentMutation, useGetRealTaskCommentsQuery, useGetTaskRealtimeQuery, useUpdateTaskStatusMutation } from '@/src/redux/tasks';
 import { useGetUpdatesRealtimeQuery } from '@/src/redux/updates';
 import { MainStackParamsList } from '@/src/routes/params';
 import { Update } from '@/src/utils/types';
+import { getStorage, ref } from '@react-native-firebase/storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import moment from 'moment';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Image, Keyboard, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type';
 import MapView from 'react-native-maps';
 import Timeline from 'react-native-timeline-flatlist';
 
@@ -41,6 +44,7 @@ interface TaskDetails {
   }
 }
 
+const storage = getStorage();
 type RootStackNavigationProp = StackNavigationProp<MainStackParamsList, 'TaskDetails'>;
 
 const ListButton = ({ status, onPress }: { status: string, onPress:() => void }) => (
@@ -61,6 +65,11 @@ const TaskDetails = ({ route }: TaskDetails) => {
     const [isVisibleStatusError, setIsVisibleStatusError] = useState(false)
     const [uploadPopupVisible, setUploadPopupVisible] = useState(false)
     const [comment, setComment] = useState('')
+    const [imagesList, setImagesList] = useState<IImageInfo[]>([]);
+    const [sliderimages, setSliderImages] = useState<string[]>([]);
+    const [isImageViewVisible, setIsImageViewVisible] = useState<boolean>(false);
+    const [index, setIndex] = useState(0);
+    const [loadingVisible, setIsLoadingVisible] = useState<boolean>(false);
     const navigation = useNavigation<RootStackNavigationProp>()
     const { data: user, loading, isError: isErrorUserData } = useUserData();
     const [addComment,  { isLoading: isLoadingAddComment }] = useAddTaskCommentMutation()
@@ -87,6 +96,8 @@ const TaskDetails = ({ route }: TaskDetails) => {
     })
     ?.sort((a: any, b: any) => b.date - a.date);
 
+    const folderPath = `users/${assignedToId}/tasks/${taskId}/files`;
+
     useFocusEffect(
       useCallback(() => {
         if (!notificationId || !user?.id || notificationStatus) return;
@@ -101,7 +112,33 @@ const TaskDetails = ({ route }: TaskDetails) => {
 
     useEffect(() => {
       getLocation(); // fetch when screen opens
+      const loadFiles = async () => {
+        setIsLoadingVisible(true)
+        loadAllFiles()
+      };
+
+      loadFiles()
     },[])
+
+    async function loadAllFiles() {
+      const folderRef = ref(storage, folderPath);
+      const result = await folderRef.listAll();
+            
+      const imageUrls: string[] = [];
+      const images: IImageInfo[] = [];
+            
+      await Promise.all(
+        result.items.map(async (item) => {
+          const url = await item.getDownloadURL();
+          imageUrls.push(url);
+          images.push({ url });
+        })
+      );
+            
+      setSliderImages(imageUrls);
+      setImagesList(images);
+      setIsLoadingVisible(false);
+    }
 
     const handleCamera = async () => {
       await handleSelectCamera().then(() => {
@@ -193,7 +230,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
       <Container hasInput allowBack headerMiddle='Task Details' backgroundColor={COLORS.neutral._100}>
         <Text style={styles.title}>{data?.title}</Text>
         <Spacer height={14} />
-        <TaskInfo title={'Description'} value={data?.description}/>
+        <TaskInfo title={'Description'} value={data?.description} sliderimages={sliderimages} setIsVisible={setIsImageViewVisible} index={index} setIndex={setIndex} loadingVisible={loadingVisible} hasCarousel={false} />
         <Spacer height={10} />
         <TaskInfo title={'Assigned By'} value={data?.assignedBy}/>
         <Spacer height={10} />
@@ -279,6 +316,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
       onPress={() => setIsVisibleStatusError(false)}
       onPressClose={() => setIsVisibleStatusError(false)}
     />  
+    <ImageViewModal index={index} visible={isImageViewVisible} images={imagesList} setIsVisible={setIsImageViewVisible} />
     </>
     )
 }

@@ -6,7 +6,7 @@ import Loading from "@/src/components/Loading";
 import ErrorComponent from "@/src/components/molecule/ErrorComponent";
 import { useUserData } from "@/src/hooks/useUserData";
 import { useGetCheckInQuery, useGetCheckOutQuery, useGetLeaveQuery, useGetReportQuery, useGetUpdatesQuery } from "@/src/redux/attendance";
-import { MainStackParamsList } from "@/src/routes/MainStack";
+import { MainStackParamsList } from "@/src/routes/params";
 import Entypo from '@expo/vector-icons/Entypo';
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
@@ -81,10 +81,7 @@ export default function DayDetails({ route }: DayDetails) {
       {
         (updates?.length ?? 0) > 0 ? updates.map((update: any) => (
             <TouchableOpacity key={update.id} style={styles.updateComponent} onPress={() => navigation.navigate('UpdateDetails', { updateId: update.data().id, taskId: update.data().taskId, assignedToId: update.data().assignedToId, userName: user?.profile.fullName, assignedBy: update.data().assignedBy, assignedById: update.data().assignedById, userId: user?.id })}>
-              <View>
-                <Text style={[styles.title, { fontSize: 18 }]}>{update.data().title}</Text>
-                <Text style={styles.caption}>{update.data().description}</Text> 
-              </View>        
+              <Text style={[styles.caption, { fontSize: 18, textAlign: 'left' }]}>{update.data().title}</Text>
               <Entypo name="chevron-small-right" size={24} color="black" />
             </TouchableOpacity>
         ))  

@@ -1,7 +1,6 @@
-import { getFirestore } from '@react-native-firebase/firestore'
+import firestore, { getFirestore } from '@react-native-firebase/firestore'
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react'
 import { usersRef } from '../utils/firestoreRefs'
-
 interface UserListItem {
   id: string
   name: string
@@ -16,7 +15,7 @@ interface AddUser {
     userId: string
   }
 
-  const db = getFirestore();
+const db = getFirestore();
 
 export const usersApi = createApi({
   reducerPath: 'usersApi',
@@ -100,7 +99,28 @@ export const usersApi = createApi({
         },
         invalidatesTags: ['Users'], // so cached user lists auto-refresh
       }),
+
+      deleteUser: builder.mutation<any, { userId:string }>({
+        async queryFn({ userId }) {
+          try {
+            await firestore()
+                  .collection("users")
+                  .doc(userId)
+                  .delete()
+
+            return { data: true };
+          } catch (err: any) {
+            console.log(err)
+              return {
+                error: {
+                  status: err.code || "UNKNOWN",
+                  message: err.message || "Unexpected Firestore error",
+                },
+                };
+              }
+            },
+        }),
   }),
 })
 
-export const { useGetUsersRealtimeQuery, useGetUsersQuery, useAddUserMutation } = usersApi
+export const { useGetUsersRealtimeQuery, useGetUsersQuery, useAddUserMutation, useDeleteUserMutation } = usersApi

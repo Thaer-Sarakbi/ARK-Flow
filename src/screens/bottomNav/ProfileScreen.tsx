@@ -6,7 +6,9 @@ import useShowPassword from '@/src/hooks/useShowPassword';
 import { useUserData } from '@/src/hooks/useUserData';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import notifee from '@notifee/react-native';
 import { getAuth, signOut } from '@react-native-firebase/auth';
+import firestore from '@react-native-firebase/firestore';
 import moment from 'moment';
 import { ImageBackground, StyleSheet, Text, useWindowDimensions, View } from "react-native";
 import packageJson from '../../../package.json';
@@ -36,11 +38,24 @@ export default function ProfileScreen() {
   ]
 
   const onLogOut = async () => {
-      await signOut(auth).then(function() {
-        console.log('Signed Out');
-      }, function(error) {
-        console.error('Sign Out Error', error);
-      });
+    try {
+      // Clears all displayed notifications
+      await notifee.cancelAllNotifications();
+    } catch (error) {
+      console.error('Error clearing notifications:', error);
+    }
+
+    await firestore()
+    .collection('users')
+    .doc(data?.id)
+    .update({ fcmToken: '' })
+    .then(() => console.log('fcm token cleared'))
+
+    await signOut(auth).then(function() {
+      console.log('Signed Out');
+    }, function(error) {
+      console.error('Sign Out Error', error);
+    });
   }
 
   return (
