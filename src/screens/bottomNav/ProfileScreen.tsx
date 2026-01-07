@@ -2,15 +2,20 @@ import { COLORS } from '@/src/colors';
 import Spacer from '@/src/components/atoms/Spacer';
 import SubmitButton from '@/src/components/buttons/SubmitButton';
 import Container from '@/src/components/Container';
+import Input from '@/src/components/Input';
 import useShowPassword from '@/src/hooks/useShowPassword';
 import { useUserData } from '@/src/hooks/useUserData';
+import PopupModal from '@/src/Modals/PopupModal';
+import { useDeleteUserMutation } from '@/src/redux/user';
+import Feather from '@expo/vector-icons/Feather';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import notifee from '@notifee/react-native';
 import { getAuth, signOut } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import moment from 'moment';
-import { ImageBackground, StyleSheet, Text, useWindowDimensions, View } from "react-native";
+import { useState } from 'react';
+import { ImageBackground, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import packageJson from '../../../package.json';
 import Separator from '../../components/atoms/Separator';
 
@@ -27,8 +32,12 @@ const UploadFile = ({ text }: { text: string }) => (
 )
 
 export default function ProfileScreen() {
+  const [text, setText] = useState('')
+  const [isVisible, setIsVisible] = useState(false)
+  const [error, setError] = useState('')
   const { height } = useWindowDimensions();
   const { showPassword, toggleShowPassword } = useShowPassword() 
+  const [deleteUser] = useDeleteUserMutation()
   const { data, loading } = useUserData();
 
   const  fields = [
@@ -58,7 +67,32 @@ export default function ProfileScreen() {
     });
   }
 
+  const ondeleteAccount = async() => {
+    if(text === data?.email){
+      auth.currentUser?.delete().then(async () => {
+        deleteUser({ userId: data?.id}) 
+        await notifee.cancelAllNotifications();
+        console.log("User deleted")
+      })
+      .catch((error) => console.log(error));
+
+      setIsVisible(false)
+      setText('')
+    } else {
+      //setIsVisible(false)
+      setError('Incorrect Email')
+      setText('')
+    }
+  }
+
+  const onClose = () => {
+    setIsVisible(false)
+    setText('')
+    setError('')
+  }
+
   return (
+    <>
     <Container edges={{ bottom: 'additive' }} noPadding={true} noHeader>
       <View>
         <ImageBackground style={[styles.background, { height: height / 3 }]} source={require('@/assets/profile.jpg')} >
@@ -92,7 +126,6 @@ export default function ProfileScreen() {
              </View>
             ))
           }
-        
           <Text style = {styles.mainTitle}>Document Provider</Text>
           <Spacer height={10} />
           <View style = {{ flexDirection: 'row', justifyContent: 'space-around' }}>
@@ -108,12 +141,40 @@ export default function ProfileScreen() {
           <Spacer height={15} />
 
           <SubmitButton text='Log Out' mode='outlined' onPress={onLogOut}/>
+          <Spacer height={10} />
+          <SubmitButton text='Delete Account'  onPress={() => setIsVisible(true)}/>
 
           <Text style={styles.version}>version: {packageJson.version}</Text>
         </View>
         <Spacer height={40} />
       </View>
     </Container>
+    <PopupModal isVisible={isVisible}>
+      <View style={{ width: '100%'}}>
+        <TouchableOpacity style={styles.closeBox} onPress={onClose}>
+          <Feather name="x" size={24} color={'black'} />
+        </TouchableOpacity>
+      </View>
+      <View style={styles.popuopBody}>
+        <Text style={[styles.title, { fontWeight: 'bold', fontSize: 25 }]}>Confirm Delete</Text>
+        <Text style={styles.value}>Please type your email to delete your account</Text>
+        <Spacer height={10} />
+        <Input
+          autoFocus
+          autoCapitalize="none"
+          label='Your email' 
+          borderColor={COLORS.neutral._300} 
+          inputColor={COLORS.title} 
+          labelColor={COLORS.neutral._400} 
+          onChangeText={setText}
+          value={text}
+        />
+        <Text style={styles.errorMsg}>{error}</Text>
+        <Spacer height={14} />
+        <SubmitButton text='Confirm' onPress={ondeleteAccount} />
+      </View>
+    </PopupModal>
+    </>
   );
 }
 
@@ -144,7 +205,8 @@ const styles = StyleSheet.create({
   },
   value: { 
     color: COLORS.caption, 
-    fontSize: 15 
+    fontSize: 15,
+    textAlign: 'center' 
   },
   docs: { 
     color: COLORS.caption, 
@@ -168,5 +230,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center', 
     fontSize: 15, 
     marginVertical: 10 
-  }
+  },
+  closeBox: { justifyContent: 'center', alignItems: 'flex-end' },
+  popuopBody: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorMsg : { color: COLORS.danger, alignSelf: 'flex-start', fontSize: 12 }
 });
