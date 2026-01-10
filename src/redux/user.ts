@@ -71,8 +71,6 @@ export const usersApi = createApi({
     
       providesTags: ['Users'],
     }),
-    
-  
 
     addUser: builder.mutation<any, AddUser>({
         async queryFn({ fullName, email, phoneNumber, password, userId }) {

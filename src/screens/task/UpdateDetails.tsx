@@ -65,7 +65,7 @@ export default function UpdateDetails({ route }: UpdateDetails) {
   const [pdf, setPdf] = useState<{uri: string}[]>([]);
   const [comment, setComment] = useState('')
 
-  const folderPath = `users/${userId}/tasks/${taskId}/updates/${updateId}/files`;
+  const folderPath = `users/${assignedToId}/tasks/${taskId}/updates/${updateId}/files`;
 
   async function loadAllFiles() {
     const folderRef = ref(storage, folderPath);

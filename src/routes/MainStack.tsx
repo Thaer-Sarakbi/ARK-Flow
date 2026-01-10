@@ -5,6 +5,7 @@ import { createStackNavigator } from "@react-navigation/stack"
 import { useEffect, useState } from "react"
 import { Linking, PermissionsAndroid, Platform } from 'react-native'
 import Loading from '../components/Loading'
+import useCurrentLocation from '../hooks/useCurrentLocation'
 import { useUserData } from '../hooks/useUserData'
 import ConfirmationPopup from '../Modals/ConfirmationPopup'
 import CheckInOut from "../screens/calendar/CheckInOut"
@@ -25,6 +26,8 @@ const Stack = createStackNavigator<MainStackParamsList>()
 const MainStack = () => { 
     const { data, loading } = useUserData();
     const [isVisible, setIsvisible] = useState(false)
+    const [showAlert, setShowAlert] = useState(false)
+    const { openSettings } = useCurrentLocation('' as any)
 
     useEffect(() => {
       notifee.createChannel({
@@ -38,6 +41,7 @@ const MainStack = () => {
 
     useEffect(() => {
       const unsubscribe = messaging().onMessage(async remoteMessage => {
+        checkNotificationsPermission()
         console.log('A new message arrived! (FORGROUND)', JSON.stringify(remoteMessage))
         await notifee.displayNotification({
           title: remoteMessage.notification?.title,
@@ -49,6 +53,7 @@ const MainStack = () => {
       });
     
       const unsubscribeBackground = messaging().setBackgroundMessageHandler(async remoteMessage => {
+       // checkNotificationsPermission()
         console.log(
           'A new message arrived! (BACKGROUND)',
           JSON.stringify(remoteMessage),
@@ -62,9 +67,8 @@ const MainStack = () => {
     }, []);
 
     useEffect(() => {
-      if(data?.id){
-        requestNotificationPermission() 
-      }
+      getFcmToken();
+      requestNotificationPermission() 
     },[data?.id])
 
     useEffect(() => {
@@ -125,35 +129,39 @@ const MainStack = () => {
       if (Platform.OS === 'ios') {
         await messaging().registerDeviceForRemoteMessages();
     
-        const authStatus = await messaging().requestPermission({
+        // const authStatus = await messaging().requestPermission({
+        //   alert: true,
+        //   sound: true,
+        //   badge: true,
+        // });
+    
+        // const enabled =
+        //   authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+        //   authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+    
+        // if (enabled) {
+        //   getFcmToken();
+        // }
+
+        await messaging().requestPermission({
           alert: true,
           sound: true,
           badge: true,
         });
-    
-        const enabled =
-          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-    
-        if (enabled) {
-          getFcmToken();
-        }
       }
     
-      if (Platform.OS === 'android') {
-        await requestAndroidPermission();
+      if (Platform.OS === 'android' && Platform.Version >= 33) {
+        await checkNotificationsPermission();
       }
     }
 
-    async function requestAndroidPermission() {
-      if (Platform.OS === 'android' && Platform.Version >= 33) {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
-        );
-    
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          getFcmToken();
-        }
+    async function checkNotificationsPermission() {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
+      );
+  
+      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
+        setShowAlert(true)
       }
     }
 
@@ -213,6 +221,10 @@ const MainStack = () => {
         />
       </Stack.Navigator>
       <ConfirmationPopup isVisible={isVisible} buttonTitle='Resend' title="Verify your email" paragraph1={`Open the link your received in email: \n\n ${data?.email}`} paragraph2='Make sure the email is correct' paragraph3='Check Spam if not founded' onPress={() => sendSignInLink(data?.email)}/>
+      <ConfirmationPopup isVisible={showAlert} title="Permission Needed" paragraph1="Please enable notifications" onPress={() => {
+        openSettings()
+        setShowAlert(false)
+      }} onPressClose={() => setShowAlert(false)} buttonTitle="Enable"/>
       </>
     )
   }

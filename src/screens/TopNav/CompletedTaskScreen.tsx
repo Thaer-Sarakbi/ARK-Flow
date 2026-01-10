@@ -14,10 +14,15 @@ export default function CompletedTaskScreen() {
   const [getTasks] = useLazyGetTasksQuery()
   const { data: listOfTasks, isLoading: isLoadingTasks, isError } =  useGetTasksRealtimeQuery({ userId: user?.id }, { skip: !user?.id })
 
-  const completedTasks = useMemo(
-    () => listOfTasks?.filter((t: Task) => t.status === "Completed") || [],
-    [listOfTasks]
-  );
+  const completedTasks = useMemo(() => {
+    if (!listOfTasks) return [];
+  
+    return [...listOfTasks]
+      .filter((t: Task) => t.status === "Completed")
+      .sort(
+        (a, b) => b.creationDate.seconds - a.creationDate.seconds
+      );
+  }, [listOfTasks]);
 
   const onRefresh = () => {
     setIsFetching(true)

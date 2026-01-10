@@ -14,10 +14,15 @@ export default function InProgressTasksScreen() {
   const [getTasks] = useLazyGetTasksQuery()
  const { data: listOfTasks, isLoading: isLoadingTasks, isError } =  useGetTasksRealtimeQuery({ userId: user?.id }, { skip: !user?.id })
 
-  const inProgressTasks = useMemo(
-    () => listOfTasks?.filter((t: Task) => t.status === "In Progress") || [],
-    [listOfTasks]
-  );
+  const inProgressTasks = useMemo(() => {
+    if (!listOfTasks) return [];
+  
+    return [...listOfTasks]
+      .filter((t: Task) => t.status === "In Progress")
+      .sort(
+        (a, b) => b.creationDate.seconds - a.creationDate.seconds
+      );
+  }, [listOfTasks]);
 
   const onRefresh = () => {
     setIsFetching(true)

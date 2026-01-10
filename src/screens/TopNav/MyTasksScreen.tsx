@@ -15,7 +15,7 @@ export default function MyTasksScreen() {
  const { data: listOfTasks, isLoading: isLoadingTasks, isError } =  useGetTasksRealtimeQuery({ userId: user?.id }, { skip: !user?.id })
 
   const myTasks = useMemo(
-    () => listOfTasks?.filter((t: Task) => t.assignedToId === user?.id) || [],
+    () => listOfTasks?.filter((t: Task) => t.assignedToId === user?.id || t.assignedById === user?.id) || [],
     [listOfTasks]
   );
 

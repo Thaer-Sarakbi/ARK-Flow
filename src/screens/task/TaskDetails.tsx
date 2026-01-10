@@ -258,6 +258,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
           {
             isLoadingUpdates ? <LoadingComponent /> :
             isErrorUpdates ? <ErrorComponent /> :
+            editUpdates?.length === 0 ? <Text style={{ textAlign: 'center', color: COLORS.caption }}>No Updates yet!</Text> :
             <Timeline
               data={editUpdates}
               isUsingFlatlist={false}
@@ -274,7 +275,10 @@ const TaskDetails = ({ route }: TaskDetails) => {
               descriptionStyle={styles.caption}
             />
           }
-          {assignedToId === user?.id && <SubmitButton text='Add Update' onPress={() => setIsVisible(true)} />}
+          {assignedToId === user?.id && <>
+            <Spacer height={6} />
+            <SubmitButton text='Add Update' onPress={() => setIsVisible(true)} />
+          </>}
         </View>
         <Spacer height={10} />
         <CommentsBox comment={comment} comments={comments} setComment={setComment} onSubmitComment={onSubmitComment}/>
