@@ -6,7 +6,7 @@ import ErrorComponent from "@/src/components/molecule/ErrorComponent";
 import { useUserData } from "@/src/hooks/useUserData";
 import { useGetDaysWorkingQuery, useGetLeaveDaysQuery, useGetUpdatesDaysQuery } from "@/src/redux/attendance";
 import { useGetUsersQuery } from "@/src/redux/user";
-import { MainStackParamsList } from "@/src/routes/MainStack";
+import { MainStackParamsList } from "@/src/routes/params";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";

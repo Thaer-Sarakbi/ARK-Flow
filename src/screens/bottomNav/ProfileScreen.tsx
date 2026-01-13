@@ -3,9 +3,11 @@ import Spacer from '@/src/components/atoms/Spacer';
 import SubmitButton from '@/src/components/buttons/SubmitButton';
 import Container from '@/src/components/Container';
 import Input from '@/src/components/Input';
+import Loading from '@/src/components/Loading';
 import useShowPassword from '@/src/hooks/useShowPassword';
 import { useUserData } from '@/src/hooks/useUserData';
 import PopupModal from '@/src/Modals/PopupModal';
+import UpdatePlacePopup from '@/src/Modals/UpdatePlacePopup';
 import { useDeleteUserMutation } from '@/src/redux/user';
 import Feather from '@expo/vector-icons/Feather';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
@@ -14,7 +16,7 @@ import notifee from '@notifee/react-native';
 import { getAuth, signOut } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
 import moment from 'moment';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ImageBackground, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import packageJson from '../../../package.json';
 import Separator from '../../components/atoms/Separator';
@@ -34,6 +36,9 @@ const UploadFile = ({ text }: { text: string }) => (
 export default function ProfileScreen() {
   const [text, setText] = useState('')
   const [isVisible, setIsVisible] = useState(false)
+  const [showPlaceAlert, setShowPlaceAlert] = useState(false)
+  const [placeName, setPlaceName] = useState<string | undefined>('')
+  const [placeId, setPlaceId] = useState<number | undefined>()
   const [error, setError] = useState('')
   const { height } = useWindowDimensions();
   const { showPassword, toggleShowPassword } = useShowPassword() 
@@ -43,8 +48,14 @@ export default function ProfileScreen() {
   const  fields = [
     {id: 1, title: 'Email', value: data?.email},
     {id: 2, title: 'Mobile Number', value: data?.profile.phoneNumber},
-    {id: 3, title: 'Password', value: showPassword ? data?.profile.password : '*******'}
+    {id: 3, title: 'Password', value: showPassword ? data?.profile.password : '*******'},
+    {id: 4, title: 'Place', value: placeName}
   ]
+
+  useEffect(() => {
+    setPlaceName(data?.profile.placeName)
+    setPlaceId(data?.profile.placeId)
+  },[data])
 
   const onLogOut = async () => {
     try {
@@ -70,7 +81,7 @@ export default function ProfileScreen() {
   const ondeleteAccount = async() => {
     if(text === data?.email){
       auth.currentUser?.delete().then(async () => {
-        deleteUser({ userId: data?.id}) 
+        await deleteUser({ userId: data?.id }).unwrap()
         await notifee.cancelAllNotifications();
         console.log("User deleted")
       })
@@ -91,6 +102,7 @@ export default function ProfileScreen() {
     setError('')
   }
 
+  if(loading) return <Loading visible={true} />
   return (
     <>
     <Container edges={{ bottom: 'additive' }} noPadding={true} noHeader>
@@ -121,6 +133,11 @@ export default function ProfileScreen() {
                   style={{marginRight: 10}} 
                   onPress={toggleShowPassword} 
                  />)} 
+
+                {field.title === 'Place' && (
+                  <TouchableOpacity onPress={() => setShowPlaceAlert(true)}>
+                    <Text style={{ textDecorationLine: 'underline', textDecorationColor: COLORS.info, color: COLORS.info, fontSize: 16 }}>change</Text>
+                  </TouchableOpacity>)} 
                 </View>
                 <Separator marginVertical={15} />
              </View>
@@ -174,6 +191,7 @@ export default function ProfileScreen() {
         <SubmitButton text='Confirm' onPress={ondeleteAccount} />
       </View>
     </PopupModal>
+    <UpdatePlacePopup isVisible={showPlaceAlert} id={data?.id} placeName={placeName} placeId={placeId} setPlaceName={setPlaceName} setPlaceId={setPlaceId} title="Your Place" paragraph1="Please choose your place" disable={() => setShowPlaceAlert(false)} buttonTitle="Submit"/>
     </>
   );
 }

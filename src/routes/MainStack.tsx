@@ -8,6 +8,7 @@ import Loading from '../components/Loading'
 import useCurrentLocation from '../hooks/useCurrentLocation'
 import { useUserData } from '../hooks/useUserData'
 import ConfirmationPopup from '../Modals/ConfirmationPopup'
+import UpdatePlacePopup from '../Modals/UpdatePlacePopup'
 import CheckInOut from "../screens/calendar/CheckInOut"
 import DayDetails from "../screens/calendar/DayDetails"
 import LeaveDetails from "../screens/calendar/LeaveDetails"
@@ -25,8 +26,11 @@ const Stack = createStackNavigator<MainStackParamsList>()
 
 const MainStack = () => { 
     const { data, loading } = useUserData();
+    const [placeName, setPlaceName] = useState<string | undefined>('')
+    const [placeId, setPlaceId] = useState<number | undefined>()
     const [isVisible, setIsvisible] = useState(false)
     const [showAlert, setShowAlert] = useState(false)
+    const [showPlaceAlert, setShowPlaceAlert] = useState(false)
     const { openSettings } = useCurrentLocation('' as any)
 
     useEffect(() => {
@@ -69,6 +73,9 @@ const MainStack = () => {
     useEffect(() => {
       getFcmToken();
       requestNotificationPermission() 
+      if(data?.id){
+        checkPlace()
+      }
     },[data?.id])
 
     useEffect(() => {
@@ -165,6 +172,17 @@ const MainStack = () => {
       }
     }
 
+    const checkPlace = async () => {
+      const result = await firestore()
+        .collection('users')
+        .doc(data?.id)
+        .get()
+
+      if(!result.data()?.placeName){
+        setShowPlaceAlert(true)
+      }
+    }
+
     if(loading) return <Loading visible />
     return(
       <>
@@ -225,6 +243,7 @@ const MainStack = () => {
         openSettings()
         setShowAlert(false)
       }} onPressClose={() => setShowAlert(false)} buttonTitle="Enable"/>
+      <UpdatePlacePopup isVisible={showPlaceAlert} id={data?.id} placeName={placeName} placeId={placeId} setPlaceName={setPlaceName} setPlaceId={setPlaceId} title="Your Place" paragraph1="Please choose your place" disable={() => setShowPlaceAlert(false)} buttonTitle="Submit"/>
       </>
     )
   }

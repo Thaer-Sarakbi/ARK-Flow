@@ -65,7 +65,9 @@ export interface User {
     password: string,
     phoneNumber: string,
     verified: boolean,
-    fcmToken: string
+    fcmToken: string,
+    placeName: string,
+    placeId: number
    }
 }
 

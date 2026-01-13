@@ -7,7 +7,9 @@ import ErrorComponent from "@/src/components/molecule/ErrorComponent";
 import PasswordValidator from "@/src/components/molecule/PasswordValidator";
 import ErrorPopup from "@/src/Modals/ErrorPopup";
 import { useAddUserMutation } from "@/src/redux/user";
+import { Places } from "@/src/utils/Constants";
 import { sendSignInLink } from "@/src/utils/sendEmailLink";
+import Ionicons from "@expo/vector-icons/Ionicons";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createUserWithEmailAndPassword, getAuth } from '@react-native-firebase/auth';
 import { useNavigation } from "@react-navigation/native";
@@ -15,6 +17,7 @@ import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import * as Animatable from 'react-native-animatable';
+import { Dropdown } from "react-native-element-dropdown";
 import { z } from 'zod';
 
 const auth = getAuth();
@@ -22,7 +25,10 @@ const auth = getAuth();
 export default function SignUpScreen() {
   const navigation = useNavigation()
   const [message, setMessage] = useState('')
+  const [placeName, setPlaceName] = useState<string>('');
+  const [placeId, setPlaceId] = useState<number>(0);
   const [showAlert, setShowAlert] = useState(false)
+  const [isFocus, setIsFocus] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState<string>("Weak");
   const [addUser, { isLoading, isSuccess, isError }] = useAddUserMutation()
 
@@ -35,8 +41,8 @@ export default function SignUpScreen() {
         required_error: 'This field is required'
       }).email({ message: 'Invalid email' }),
       phoneNumber: z .string()
-      .min(1, { message: 'This field is required' })
-      .max(11, { message: 'Invalid phone number' }),
+      .min(1, { message: 'This field is required' }),
+      place: z.coerce.number().positive(),
       password: z.string({
         required_error: 'This field is required'
       }).refine((val) => val.length > 0, { message: 'This field is required' }),
@@ -59,6 +65,7 @@ export default function SignUpScreen() {
         fullName: "",
         email: "",
         phoneNumber: "",
+        place: 0,
         password: "",
         confirmPassword: ""
       },
@@ -75,7 +82,7 @@ export default function SignUpScreen() {
 
       await createUserWithEmailAndPassword(auth, email, password).then((res) => {
         setMessage('User account created!');
-        addUser({ fullName, email, phoneNumber, password, userId: res.user.uid })
+        addUser({ fullName, email, phoneNumber, placeName, placeId, password, userId: res.user.uid })
         if(Platform.OS === 'android'){
           sendSignInLink(email)
         }
@@ -166,6 +173,53 @@ export default function SignUpScreen() {
                 />
               )}
             />
+            <Spacer height={20} />
+            <Text style={styles.textFooter}>Place</Text>
+            <Spacer height={6} />
+            <Controller
+              name="place"
+              control={control}
+              rules={{
+                required: {
+                  value: true,
+                  message: 'Location is required'
+                }
+              }}
+              render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
+              <>
+                <Dropdown      
+                  style={[styles.dropdown, isFocus && { borderColor: COLORS.info }, error && { borderColor: COLORS.danger }]}
+                  selectedTextStyle={styles.selectedTextStyle}
+                  inputSearchStyle={styles.inputSearchStyle}
+                  iconStyle={styles.iconStyle}
+                  data={Places}
+                  search
+                  maxHeight={250}
+                  labelField="label"
+                  valueField="value"
+                  searchPlaceholder="Search..."
+                  value={value}
+                  onFocus={() => setIsFocus(true)}
+                  onBlur={onBlur}
+                  onChange={(item) => {
+                    setPlaceName(item.label)
+                    setPlaceId(item.value)
+                    // setIsFocus(item)
+                    onChange(item.value)
+                  }}
+                  renderLeftIcon={() => (
+                    <Ionicons
+                      style={styles.icon}
+                      name="person-outline"
+                      size={16}
+                    />
+                  )}
+          />
+          <Spacer height={6} />
+          {error && <Text style={{ fontWeight: 'regular', fontSize: 12, color: COLORS.danger }}>{error.message}</Text>}
+          </>
+        )}
+      />
         <Spacer height={20} />
         <Text style={styles.textFooter}>Password</Text>
         <Spacer height={6} />
@@ -257,5 +311,26 @@ const styles = StyleSheet.create({
     color: COLORS.title,
     fontWeight: '400',
     fontSize: 18
-  }
+  },
+  dropdown: {
+    borderColor: COLORS.neutral._500,
+    borderWidth: 0.5,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 12
+  },
+  selectedTextStyle: {
+    fontSize: 16,
+  },
+  inputSearchStyle: {
+    height: 40,
+    fontSize: 16,
+  },
+  iconStyle: {
+    width: 20,
+    height: 20,
+  },
+  icon: {
+    marginRight: 5,
+  },
 })

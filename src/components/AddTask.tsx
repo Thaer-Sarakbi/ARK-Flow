@@ -9,6 +9,7 @@ import { COLORS } from "../colors";
 import useDocumentPicker from "../hooks/useDocumentPicker";
 import { useAddNotificationMutation } from "../redux/notifications";
 import { useAddTaskMutation } from "../redux/tasks";
+import { Places } from "../utils/Constants";
 import { pushNotification } from "../utils/PushNotificationService";
 import { User } from "../utils/types";
 import Input from "./Input";
@@ -23,6 +24,7 @@ interface AddTask {
 
 export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
   const [value, setValue] = useState<string | undefined>();
+  const [location, setLocation] = useState<string | undefined>();
   const [assignedToId, setAssignedToId] = useState('');
   const [assignedToFcmToken, setAssignedToFcmToken] = useState('');
   const [isFocus, setIsFocus] = useState(false);
@@ -47,7 +49,7 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
   })
 
   const handleSubmitLogin = async () => {
-    const { title, description, duration, location } = watch()
+    const { title, description, duration } = watch()
 
     const result = await addTask({ 
         title, 
@@ -179,7 +181,7 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
             iconStyle={styles.iconStyle}
             data={listOfUsers}
             search
-            maxHeight={250}
+            maxHeight={300}
             labelField="label"
             valueField="value"
             searchPlaceholder="Search..."
@@ -190,6 +192,51 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
                 setValue(item.label)
                 setAssignedToId(item.value)
                 setAssignedToFcmToken(item.fcmToken)
+                onChange(item)
+            }}
+            renderLeftIcon={() => (
+              <Ionicons
+                style={styles.icon}
+                name="person-outline"
+                size={16}
+              />
+            )}
+          />
+          <Spacer height={6} />
+          {error && <Text style={{ fontWeight: 'regular', fontSize: 12, color: COLORS.danger }}>{error.message}</Text>}
+          </>
+        )}
+      />
+      <Spacer height={20} />
+      <Text style={styles.title}>Location</Text>
+      <Spacer height={6} />
+      <Controller
+        name="location"
+        control={control}
+        rules={{
+          required: {
+            value: true,
+            message: 'Location is required'
+          }
+        }}
+        render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
+          <>
+          <Dropdown      
+            style={[styles.dropdown, isFocus && { borderColor: COLORS.info }, error && { borderColor: COLORS.danger }]}
+            selectedTextStyle={styles.selectedTextStyle}
+            inputSearchStyle={styles.inputSearchStyle}
+            iconStyle={styles.iconStyle}
+            data={Places}
+            search
+            maxHeight={250}
+            labelField="label"
+            valueField="value"
+            searchPlaceholder="Search..."
+            value={value}
+            onFocus={() => setIsFocus(true)}
+            onBlur={onBlur}
+            onChange={(item) => {
+                setLocation(item.label)
                 onChange(item)
             }}
             renderLeftIcon={() => (
@@ -237,33 +284,6 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
         <Spacer width={10} />
         <Text style={styles.title}>Days</Text>
       </View>
-      <Spacer height={20} />
-      <Text style={styles.title}>Location</Text>
-      <Spacer height={6} />
-      <Controller
-        name="location"
-        control={control}
-        rules={{
-          required: {
-            value: true,
-            message: 'Location is required'
-          }
-        }}
-        render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
-          <Input 
-            autoCapitalize="none"
-            label="Location" 
-            borderColor={COLORS.neutral._300} 
-            inputColor={COLORS.title} 
-            labelColor={COLORS.neutral._400} 
-            onChangeText={onChange}
-            onBlur={onBlur}
-            value={value}
-            errorText={error?.message}
-            style={{ width: '45%' }}
-          />
-        )}
-      />
       <Spacer height={20} />
       {
         images?.map((image: Asset, i: number) => (

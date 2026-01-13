@@ -12,7 +12,9 @@ interface AddUser {
     email: string,
     password: string,
     phoneNumber: string
-    userId: string
+    userId: string,
+    placeName: string, 
+    placeId: number
   }
 
 const db = getFirestore();
@@ -73,13 +75,15 @@ export const usersApi = createApi({
     }),
 
     addUser: builder.mutation<any, AddUser>({
-        async queryFn({ fullName, email, phoneNumber, password, userId }) {
+        async queryFn({ fullName, email, phoneNumber, placeName, placeId, password, userId }) {
           try {
             const res = await usersRef.doc(userId).set({
               fullName,
               email,
               password,
               phoneNumber,
+              placeName, 
+              placeId,
               admin: false,
               creationDate: new Date(),
               verified: false

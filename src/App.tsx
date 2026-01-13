@@ -2,7 +2,7 @@ import { getAuth, onAuthStateChanged } from '@react-native-firebase/auth';
 import remoteConfig from '@react-native-firebase/remote-config';
 import { NavigationContainer } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
-import { Image } from 'react-native';
+import { Image, Linking, Platform } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { Provider } from 'react-redux';
 import ConfirmationPopup from './Modals/ConfirmationPopup';
@@ -19,9 +19,9 @@ export default function App() {
 
   useEffect(() => {
     fetchAndActivateConfig()
-      onAuthStateChanged(auth, u => {
-          setCurrentUser(u)
-      })
+    onAuthStateChanged(auth, u => {
+      setCurrentUser(u)
+    })
   },[])
 
   async function fetchAndActivateConfig() {
@@ -34,10 +34,10 @@ export default function App() {
 
       // Retrieve an updated config value
       const versionNumber = remoteConfig().getValue("min_version").asString();
-      if (DeviceInformation.VERSION.toString() < versionNumber) {
+      if (DeviceInformation.VERSION.toString() < versionNumber && Platform.OS === 'android') {
         setVisibleForeUpdate(true)
       } else {
-        setVisibleForeUpdate(false)
+        //setVisibleForeUpdate(false)
       }
     } catch (error) {
       setVisibleForeUpdate(false)
@@ -45,7 +45,7 @@ export default function App() {
   }
 
   const handleUpdateApp = () => {
-    console.log('Update')
+    Linking.openURL("https://play.google.com/store/apps/details?id=com.arkdeglory.arkflow");
   }
 
   return (
