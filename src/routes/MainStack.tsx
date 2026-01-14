@@ -4,8 +4,8 @@ import messaging from '@react-native-firebase/messaging'
 import { createStackNavigator } from "@react-navigation/stack"
 import { useEffect, useState } from "react"
 import { Linking, PermissionsAndroid, Platform } from 'react-native'
+import { requestNotifications } from 'react-native-permissions'
 import Loading from '../components/Loading'
-import useCurrentLocation from '../hooks/useCurrentLocation'
 import { useUserData } from '../hooks/useUserData'
 import ConfirmationPopup from '../Modals/ConfirmationPopup'
 import UpdatePlacePopup from '../Modals/UpdatePlacePopup'
@@ -31,7 +31,6 @@ const MainStack = () => {
     const [isVisible, setIsvisible] = useState(false)
     const [showAlert, setShowAlert] = useState(false)
     const [showPlaceAlert, setShowPlaceAlert] = useState(false)
-    const { openSettings } = useCurrentLocation('' as any)
 
     useEffect(() => {
       notifee.createChannel({
@@ -45,7 +44,11 @@ const MainStack = () => {
 
     useEffect(() => {
       const unsubscribe = messaging().onMessage(async remoteMessage => {
-        checkNotificationsPermission()
+        const ok = await requestNotificationPermission();
+        console.log(ok)
+        if(!ok){
+          setShowAlert(true)
+        }
         console.log('A new message arrived! (FORGROUND)', JSON.stringify(remoteMessage))
         await notifee.displayNotification({
           title: remoteMessage.notification?.title,
@@ -57,7 +60,11 @@ const MainStack = () => {
       });
     
       const unsubscribeBackground = messaging().setBackgroundMessageHandler(async remoteMessage => {
-       // checkNotificationsPermission()
+        const ok = await requestNotificationPermission();
+        console.log(ok)
+        if(!ok){
+          setShowAlert(true)
+        }
         console.log(
           'A new message arrived! (BACKGROUND)',
           JSON.stringify(remoteMessage),
@@ -72,7 +79,7 @@ const MainStack = () => {
 
     useEffect(() => {
       getFcmToken();
-      requestNotificationPermission() 
+      requestNotificationPermission() ;
       if(data?.id){
         checkPlace()
       }
@@ -136,39 +143,23 @@ const MainStack = () => {
       if (Platform.OS === 'ios') {
         await messaging().registerDeviceForRemoteMessages();
     
-        // const authStatus = await messaging().requestPermission({
-        //   alert: true,
-        //   sound: true,
-        //   badge: true,
-        // });
-    
-        // const enabled =
-        //   authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-        //   authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-    
-        // if (enabled) {
-        //   getFcmToken();
-        // }
-
-        await messaging().requestPermission({
+        const authStatus = await messaging().requestPermission({
           alert: true,
           sound: true,
           badge: true,
         });
-      }
     
-      if (Platform.OS === 'android' && Platform.Version >= 33) {
-        await checkNotificationsPermission();
-      }
-    }
+        const enabled =
+          authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+          authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-    async function checkNotificationsPermission() {
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS
-      );
-  
-      if (granted !== PermissionsAndroid.RESULTS.GRANTED) {
-        setShowAlert(true)
+        return enabled
+      } else if (Platform.OS === 'android' && Platform.Version >= 33) {
+        await requestNotifications(['alert', 'sound', 'badge'])
+        const permission = PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS;
+        const hasPermission = await PermissionsAndroid.check(permission);
+
+        return hasPermission
       }
     }
 
@@ -180,6 +171,14 @@ const MainStack = () => {
 
       if(!result.data()?.placeName){
         setShowPlaceAlert(true)
+      }
+    }
+
+    const openSettings = () => {
+      if(Platform.OS === 'ios'){
+        Linking.openURL('App-Prefs:NOTIFICATIONS_ID&path=com.ark.deglory.arkflow')
+      } else {
+        Linking.openSettings();
       }
     }
 
@@ -241,6 +240,7 @@ const MainStack = () => {
       <ConfirmationPopup isVisible={isVisible} buttonTitle='Resend' title="Verify your email" paragraph1={`Open the link your received in email: \n\n ${data?.email}`} paragraph2='Make sure the email is correct' paragraph3='Check Spam if not founded' onPress={() => sendSignInLink(data?.email)}/>
       <ConfirmationPopup isVisible={showAlert} title="Permission Needed" paragraph1="Please enable notifications" onPress={() => {
         openSettings()
+        
         setShowAlert(false)
       }} onPressClose={() => setShowAlert(false)} buttonTitle="Enable"/>
       <UpdatePlacePopup isVisible={showPlaceAlert} id={data?.id} placeName={placeName} placeId={placeId} setPlaceName={setPlaceName} setPlaceId={setPlaceId} title="Your Place" paragraph1="Please choose your place" disable={() => setShowPlaceAlert(false)} buttonTitle="Submit"/>
