@@ -7,11 +7,12 @@ import { useUserData } from "@/src/hooks/useUserData";
 import { useGetDaysWorkingQuery, useGetLeaveDaysQuery, useGetUpdatesDaysQuery } from "@/src/redux/attendance";
 import { useGetUsersQuery } from "@/src/redux/user";
 import { MainStackParamsList } from "@/src/routes/params";
+import { Places } from "@/src/utils/Constants";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import moment from "moment";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { StyleSheet } from "react-native";
 import CalendarPicker from "react-native-calendar-picker";
 import { Dropdown } from 'react-native-element-dropdown';
@@ -21,26 +22,44 @@ export type RootStackNavigationProp = StackNavigationProp<MainStackParamsList>;
 export default function CalendarScreen() {
   const navigation =  useNavigation<RootStackNavigationProp>()
   const [isFocus, setIsFocus] = useState(false);
+  const [isFocus2, setIsFocus2] = useState(false);
   const [date,setDate] = useState(new Date());
   const { data: user, loading, isError: isErrorUserData } = useUserData();
   const { data: listOfUsers, isLoading: isLoadingUsers, isError } = useGetUsersQuery()
+  const [placeId, setPlaceId] = useState<number | undefined>();
+  const [place, setPlace] = useState<string | undefined>();
   const [value, setValue] = useState<string | undefined>();
-  const { data: workingDays, isLoading: isLoadingReport, isError: isErrorReport } = useGetDaysWorkingQuery({ userId: value })
-  const { data: leaves, isLoading: isLoadingLeave, isError: isErrorLeave } = useGetLeaveDaysQuery({ userId: value })
-  const { data: updates, isLoading: isLoadingUpdates, isError: isErrorUpdates } = useGetUpdatesDaysQuery({ userId: value })
+  const skip = !value;
+  const { data: workingDays, isLoading: isLoadingReport, isError: isErrorReport } = useGetDaysWorkingQuery({ userId: value }, { skip })
+  const { data: leaves, isLoading: isLoadingLeave, isError: isErrorLeave } = useGetLeaveDaysQuery({ userId: value }, { skip })
+  const { data: updates, isLoading: isLoadingUpdates, isError: isErrorUpdates } = useGetUpdatesDaysQuery({ userId: value }, { skip })
 
-  const dropdownData = listOfUsers?.map(item => ({
-    value: item.id,
-    label: item.name
-  }));
+  // const filteredUsers = listOfUsers?.filter((user) => {return user.placeName === place})
+  const filteredUsers = useMemo(() => {
+    if (!listOfUsers || !place) return [];
+    return listOfUsers.filter(user => user.placeName === place);
+  }, [listOfUsers, place]);
 
+  // const dropdownData = filteredUsers?.map(item => ({
+  //   value: item.id,
+  //   label: item.name
+  // }));
+  const dropdownData = useMemo(() => {
+    return filteredUsers.map(item => ({
+      value: item.id,
+      label: item.name,
+    }));
+  }, [filteredUsers]);
+  
   useEffect(() => {
     if (user?.id) {
       setValue(user.id);
+      setPlace(user.profile.placeName);
+      setPlaceId(user.profile.placeId)
     }
   }, [user]); 
  
-  let workDays: any = []
+  let workDays: string[] = []
   if(workingDays){
     workingDays.forEach((day: any) => {
       if(new Date(day.data().time.seconds * 1000).getMonth() + 1 === new Date(date).getMonth() + 1){
@@ -49,14 +68,14 @@ export default function CalendarScreen() {
     })
   }
 
-  let leaveDays: any = []
+  let leaveDays: string[] = []
   leaves?.forEach((leaveDay: any) => {
     if(new Date(leaveDay.data().time.seconds * 1000).getMonth() + 1 === new Date(date).getMonth() + 1){
       leaveDays.push(moment(new Date(leaveDay.data().time.seconds * 1000)).format('L'))
     }
   })
 
-  let updatesDays: any = []
+  let updatesDays: string[] = []
   updates?.forEach((updatesDay: any) => {
     if(new Date(updatesDay.data().creationDate.seconds * 1000).getMonth() + 1 === new Date(date).getMonth() + 1){
       updatesDays.push(moment(new Date(updatesDay.data().creationDate.seconds * 1000)).format('L'))
@@ -101,16 +120,46 @@ export default function CalendarScreen() {
     }
   }
 
-  if (isLoadingLeave || isLoadingReport || loading || isLoadingUsers) return <Loading visible={true} />
-  if (isError || isErrorReport || isErrorLeave || isErrorUserData) return <ErrorComponent />
+  if (isLoadingLeave || isLoadingReport || loading || isLoadingUsers || isLoadingUpdates) return <Loading visible={true} />
+  if (isError || isErrorReport || isErrorLeave || isErrorUserData || isErrorUpdates) return <ErrorComponent />
   
   return (
     <Container headerMiddle="Calendar">
+       <Dropdown
+          disable={!user?.profile.admin ? true : false}
+          style={[styles.dropdown, isFocus && { borderColor: COLORS.info }]}
+          selectedTextStyle={styles.selectedTextStyle}
+          inputSearchStyle={styles.inputSearchStyle}
+          iconStyle={styles.iconStyle}
+          data={Places}
+          search
+          maxHeight={300}
+          labelField="label"
+          valueField="value"
+          searchPlaceholder="Search..."
+          value={placeId}
+          onFocus={() => setIsFocus(true)}
+          onBlur={() => setIsFocus(false)}
+          onChange={item => {
+            setPlaceId(item.value);
+            setPlace((item.label))
+            setValue('')
+            setIsFocus(false);
+          }}
+          renderLeftIcon={() => (
+            <Ionicons
+              style={styles.icon}
+              name="location-outline"
+              size={16}
+            />
+          )}
+        />
+      <Spacer height={6} />
       {
         dropdownData && (
           <Dropdown
           disable={!user?.profile.admin ? true : false}
-          style={[styles.dropdown, isFocus && { borderColor: COLORS.info }]}
+          style={[styles.dropdown, isFocus2 && { borderColor: COLORS.info }]}
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}
           iconStyle={styles.iconStyle}
@@ -121,11 +170,11 @@ export default function CalendarScreen() {
           valueField="value"
           searchPlaceholder="Search..."
           value={value}
-          onFocus={() => setIsFocus(true)}
-          onBlur={() => setIsFocus(false)}
+          onFocus={() => setIsFocus2(true)}
+          onBlur={() => setIsFocus2(false)}
           onChange={item => {
             setValue(item.value);
-            setIsFocus(false);
+            setIsFocus2(false);
           }}
           renderLeftIcon={() => (
             <Ionicons

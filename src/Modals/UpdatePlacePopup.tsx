@@ -1,3 +1,4 @@
+import Ionicons from '@expo/vector-icons/Ionicons';
 import firestore from '@react-native-firebase/firestore';
 import { useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
@@ -81,6 +82,13 @@ const UpdatePlacePopup = ({isVisible = false, id, placeId, placeName, setPlaceNa
             setPlaceId(item.value)
             setIsFocus(item)
           }}
+          renderLeftIcon={() => (
+            <Ionicons
+              style={styles.icon}
+              name="location-outline"
+              size={16}
+            />
+          )}
         />
       <Spacer height={gapBetween} />
       </View>

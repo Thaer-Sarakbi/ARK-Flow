@@ -210,7 +210,7 @@ export default function SignUpScreen() {
                   renderLeftIcon={() => (
                     <Ionicons
                       style={styles.icon}
-                      name="person-outline"
+                      name="location-outline"
                       size={16}
                     />
                   )}
