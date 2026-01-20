@@ -4,11 +4,11 @@ import SubmitButton from '@/src/components/buttons/SubmitButton';
 import Container from '@/src/components/Container';
 import Input from '@/src/components/Input';
 import Loading from '@/src/components/Loading';
+import ErrorComponent from '@/src/components/molecule/ErrorComponent';
 import useShowPassword from '@/src/hooks/useShowPassword';
-import { useUserData } from '@/src/hooks/useUserData';
 import PopupModal from '@/src/Modals/PopupModal';
 import UpdatePlacePopup from '@/src/Modals/UpdatePlacePopup';
-import { useDeleteUserMutation } from '@/src/redux/user';
+import { useDeleteUserMutation, useUserDataRealTimeQuery } from '@/src/redux/user';
 import Feather from '@expo/vector-icons/Feather';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -43,18 +43,18 @@ export default function ProfileScreen() {
   const { height } = useWindowDimensions();
   const { showPassword, toggleShowPassword } = useShowPassword() 
   const [deleteUser] = useDeleteUserMutation()
-  const { data, loading } = useUserData();
+  const { data, isLoading, isError } = useUserDataRealTimeQuery('')
 
   const  fields = [
     {id: 1, title: 'Email', value: data?.email},
-    {id: 2, title: 'Mobile Number', value: data?.profile.phoneNumber},
-    {id: 3, title: 'Password', value: showPassword ? data?.profile.password : '*******'},
+    {id: 2, title: 'Mobile Number', value: data?.phoneNumber},
+    {id: 3, title: 'Password', value: showPassword ? data?.password : '*******'},
     {id: 4, title: 'Place', value: placeName}
   ]
 
   useEffect(() => {
-    setPlaceName(data?.profile.placeName)
-    setPlaceId(data?.profile.placeId)
+    setPlaceName(data?.placeName)
+    setPlaceId(data?.placeId)
   },[data])
 
   const onLogOut = async () => {
@@ -102,14 +102,15 @@ export default function ProfileScreen() {
     setError('')
   }
 
-  if(loading) return <Loading visible={true} />
+  if(isLoading) return <Loading visible={true} />
+  if(isError) return <ErrorComponent />
   return (
     <>
     <Container edges={{ bottom: 'additive' }} noPadding={true} noHeader>
       <View>
         <ImageBackground style={[styles.background, { height: height / 3 }]} source={require('@/assets/profile.jpg')} >
           <MaterialCommunityIcons name="account-outline" color={COLORS.neutral._400} size={60} />
-          <Text style = {styles.name}>{data?.profile.fullName}</Text>
+          <Text style = {styles.name}>{data?.fullName}</Text>
           {/* <Text style = {styles.joined}>Joined in {moment(user?.creationDate).format('MMMM YYYY')}</Text> */}
           <Text style={styles.joined}>Joined in {moment(data?.accountCreated).format('MMMM YYYY')}</Text>
         </ImageBackground>

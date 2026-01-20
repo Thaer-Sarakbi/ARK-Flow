@@ -34,7 +34,7 @@ export default function App() {
 
       // Retrieve an updated config value
       const versionNumber = remoteConfig().getValue("min_version").asString();
-      if (DeviceInformation.VERSION.toString() < versionNumber && Platform.OS === 'android') {
+      if (DeviceInformation.VERSION.toString() < versionNumber) {
         setVisibleForeUpdate(true)
       } else {
         //setVisibleForeUpdate(false)
@@ -45,7 +45,12 @@ export default function App() {
   }
 
   const handleUpdateApp = () => {
-    Linking.openURL("https://play.google.com/store/apps/details?id=com.arkdeglory.arkflow");
+    if(Platform.OS === 'android'){
+      Linking.openURL("https://play.google.com/store/apps/details?id=com.arkdeglory.arkflow");
+    } else if(Platform.OS === 'ios'){
+      Linking.openURL("https://apps.apple.com/my/app/ark-flow/id6756696175");
+    }
+   
   }
 
   return (

@@ -1,6 +1,8 @@
+import { getAuth } from '@react-native-firebase/auth'
 import firestore, { getFirestore } from '@react-native-firebase/firestore'
 import { createApi, fakeBaseQuery } from '@reduxjs/toolkit/query/react'
 import { usersRef } from '../utils/firestoreRefs'
+import { User } from '../utils/types'
 interface UserListItem {
   id: string
   name: string
@@ -19,6 +21,7 @@ interface AddUser {
   }
 
 const db = getFirestore();
+const auth = getAuth();
 
 export const usersApi = createApi({
   reducerPath: 'usersApi',
@@ -124,7 +127,44 @@ export const usersApi = createApi({
               }
             },
         }),
+
+        userDataRealTime: builder.query<User | null, any>({
+          async queryFn() {
+            // Initial cache value
+            return { data: null };
+          },
+    
+          async onCacheEntryAdded(
+            {},
+            { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+          ) {
+          const currentUser = auth.currentUser;
+          if (!currentUser) return;
+
+          const uid = currentUser.uid;
+    
+          await cacheDataLoaded;
+    
+          const userRef = await firestore()
+          .collection('users')
+          .doc(uid)
+    
+          const unsubscribe = userRef.onSnapshot((docSnap) => {
+          updateCachedData(() => {
+            if (!docSnap.exists) return null;
+    
+            return {
+              id: uid,
+              ...docSnap.data(),
+            };
+          });
+        });
+    
+        await cacheEntryRemoved;
+        unsubscribe();
+        },
+      }),
   }),
 })
 
-export const { useGetUsersRealtimeQuery, useGetUsersQuery, useAddUserMutation, useDeleteUserMutation } = usersApi
+export const { useGetUsersRealtimeQuery, useGetUsersQuery, useAddUserMutation, useDeleteUserMutation, useUserDataRealTimeQuery } = usersApi

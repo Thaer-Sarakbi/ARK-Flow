@@ -7,10 +7,12 @@ import Container from "@/src/components/Container";
 import Loading from "@/src/components/Loading";
 import useCurrentLocation from "@/src/hooks/useCurrentLocation";
 import useDocumentPicker from "@/src/hooks/useDocumentPicker";
-import { useUserData } from "@/src/hooks/useUserData";
 import BottomSheet from "@/src/Modals/BottomSheet";
 import ConfirmationPopup from "@/src/Modals/ConfirmationPopup";
 import { useAddCheckInMutation, useAddCheckOutMutation, useAddLeaveMutation, useAddReportMutation, useLazyGetDaysWorkingQuery, useLazyGetLeaveDaysQuery } from "@/src/redux/attendance";
+import { useUserDataRealTimeQuery } from "@/src/redux/user";
+import { Places } from "@/src/utils/Constants";
+import { getDistance } from 'geolib';
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import { Image, ImageProps, Linking, StyleSheet, View } from "react-native";
@@ -29,8 +31,10 @@ export default function AttendanceScreen() {
   const [uploadPopupLeaveVisible, setUploadPopupLeaveVisible] = useState(false)
   const [isVisibleReportSuccess, setIsVisibleReportSuccess] = useState(false)
   const [isVisibleReportFailed, setIsVisibleReportFailed] = useState(false)
+  const [isVisibleFailed, setIsVisibleFailed] = useState(false)
   const [isVisibleLeaveSuccess, setIsVisibleLeaveSuccess] = useState(false)
   const [isVisibleLeaveFailed, setIsVisibleLeaveFailed] = useState(false)
+  const [isVisibleWrongPlace, setIsVisibleWrongPlace] = useState(false)
   const [isVisibleConfirmCheckIn, setIsVisibleConfirmCheckIn] = useState(false)
   const [isVisibleCheckInSuccess, setIsVisibleCheckInSuccess] = useState(false)
   const [isVisibleCheckInFailed, setIsVisibleCheckInFailed] = useState(false)
@@ -39,6 +43,8 @@ export default function AttendanceScreen() {
   const [isVisibleCheckOutFailed, setIsVisibleCheckOutFailed] = useState(false)
   const [isVisibleEmptyReport, setIsVisibleEmptyReport] = useState(false)
   const [isVisibleEmptyLeave, setIsVisibleEmptyLeave] = useState(false)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [errorSecondMessage, setSecondErrorMessage] = useState("")
   const [checkInNote, setCheckInNote] = useState("")
   const [checkOutNote, setCheckOutNote] = useState("")
   const [report, setReport] = useState("")
@@ -46,7 +52,8 @@ export default function AttendanceScreen() {
   const { location, currentLocation, loading, error, openSettings, getLocation } = useCurrentLocation(mapRef as any)
   const [addCheckIn, { isLoading, error: checkInError }] = useAddCheckInMutation();
   const [addCheckOut] = useAddCheckOutMutation();
-  const { data, loading: userDataLoading } = useUserData();
+  // const { data, loading: userDataLoading } = useUserData();
+  const { data, isLoading: isLoadingUser, isError } = useUserDataRealTimeQuery({})
   const [getDaysWorking, resGetDaysWorking] = useLazyGetDaysWorkingQuery()
   const [getLeaveDays, resGetLeaveDays] = useLazyGetLeaveDaysQuery()
   
@@ -58,6 +65,25 @@ export default function AttendanceScreen() {
   useEffect(() => {
     getLocation(); // fetch when screen opens
   },[])
+
+  function isUserInsideArea(userLat: number, userLng: number): boolean {
+
+    const TARGET_LOCATION: any = {
+      latitude: Places.find(place => place.value === data?.placeId)?.latitude,
+      longitude: Places.find(place => place.value === data?.placeId)?.longitude,
+    }
+
+    const RADIUS_METERS = 125
+    
+    if (!TARGET_LOCATION.latitude || !TARGET_LOCATION.longitude) return true;
+
+    const distance = getDistance(
+      { latitude: userLat, longitude: userLng },
+      TARGET_LOCATION
+    )
+  
+    return distance <= RADIUS_METERS
+  }
 
   const submitCheckIn = async () => {
     getLocation()
@@ -78,6 +104,16 @@ export default function AttendanceScreen() {
       return setIsVisibleCheckInFailed(true);
     }
   
+    const inside = isUserInsideArea(
+      currentLocation?.latitude,
+      currentLocation?.longitude
+    )
+
+    if(!inside) {
+      setIsVisibleWrongPlace(true)
+      return;
+    }
+
     const result = await addCheckIn({
       userId: data.id,
       date,
@@ -116,6 +152,16 @@ export default function AttendanceScreen() {
       return setShowAlert(true);
     }
   
+    const inside = isUserInsideArea(
+      currentLocation?.latitude,
+      currentLocation?.longitude
+    )
+
+    if(!inside) {
+      setIsVisibleWrongPlace(true)
+      return;
+    }
+
     const result = await addCheckOut({
       userId: data.id,
       date,
@@ -182,7 +228,6 @@ export default function AttendanceScreen() {
         return;
       }
     }
-
 
     const resultAddLeave = await addLeave({ userId: data.id, date, note: leaveText });
     if ('error' in resultAddLeave) {
@@ -298,6 +343,17 @@ export default function AttendanceScreen() {
       onPressClose={() => setIsVisibleCheckInFailed(false)} 
       buttonTitle="Okay" 
       onPress={() => setIsVisibleCheckInFailed(false)} 
+    />
+    <ConfirmationPopup 
+      isVisible={isVisibleWrongPlace} 
+      title="Error" 
+      paragraph1={'Wrong Place'}
+      paragraph2="You have to be inside your work place"
+      icon={<Image style={{ width: 50, height: 50 }} 
+      source={require('../../../assets/icons/Cancel.png')} />} 
+      onPressClose={() => setIsVisibleWrongPlace(false)} 
+      buttonTitle="Okay" 
+      onPress={() => setIsVisibleWrongPlace(false)} 
     />
     <ConfirmationPopup 
       isVisible={isVisibleConfirmCheckOut} 
