@@ -1,4 +1,5 @@
 import notifee, { AndroidImportance } from '@notifee/react-native'
+import { getAuth } from '@react-native-firebase/auth'
 import firestore from '@react-native-firebase/firestore'
 import messaging from '@react-native-firebase/messaging'
 import { createStackNavigator } from "@react-navigation/stack"
@@ -6,9 +7,9 @@ import { useEffect, useState } from "react"
 import { Linking, PermissionsAndroid, Platform } from 'react-native'
 import { requestNotifications } from 'react-native-permissions'
 import Loading from '../components/Loading'
-import { useUserData } from '../hooks/useUserData'
 import ConfirmationPopup from '../Modals/ConfirmationPopup'
 import UpdatePlacePopup from '../Modals/UpdatePlacePopup'
+import { useUserDataRealTimeQuery } from '../redux/user'
 import CheckInOut from "../screens/calendar/CheckInOut"
 import DayDetails from "../screens/calendar/DayDetails"
 import LeaveDetails from "../screens/calendar/LeaveDetails"
@@ -22,10 +23,12 @@ import { sendSignInLink } from '../utils/sendEmailLink'
 import BottomNavigator from "./BottomTabNavigator"
 import { MainStackParamsList } from './params'
 
+const auth = getAuth();
 const Stack = createStackNavigator<MainStackParamsList>()
 
 const MainStack = () => { 
-    const { data, loading } = useUserData();
+    // const { data, loading } = useUserData();
+    const { data, isLoading, isError } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
     const [placeName, setPlaceName] = useState<string | undefined>('')
     const [placeId, setPlaceId] = useState<number | undefined>()
     const [isVisible, setIsvisible] = useState(false)
@@ -86,7 +89,7 @@ const MainStack = () => {
     },[data?.id])
 
     useEffect(() => {
-      if(data?.id && !data.profile?.verified && Platform.OS === 'android'){
+      if(data?.id && !data?.verified && Platform.OS === 'android'){
         setIsvisible(true)
       }
     
@@ -182,7 +185,7 @@ const MainStack = () => {
       }
     }
 
-    if(loading) return <Loading visible />
+    if(isLoading) return <Loading visible />
     return(
       <>
       <Stack.Navigator>

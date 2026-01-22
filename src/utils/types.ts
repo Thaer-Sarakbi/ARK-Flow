@@ -58,17 +58,14 @@ export interface User {
   accountCreated: string | undefined,
   email: string | null,
   id: string,
-  profile:{
-    admin: boolean,
-    email: string,
-    fullName: string,
-    password: string,
-    phoneNumber: string,
-    verified: boolean,
-    fcmToken: string,
-    placeName: string,
-    placeId: number
-   }
+  admin: boolean,
+  fullName: string,
+  password: string,
+  phoneNumber: string,
+  verified: boolean,
+  fcmToken: string,
+  placeName: string,
+  placeId: number
 }
 
 export interface Notifications {

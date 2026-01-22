@@ -3,14 +3,18 @@ import Container from '@/src/components/Container';
 import Loading from '@/src/components/Loading';
 import ErrorComponent from '@/src/components/molecule/ErrorComponent';
 import Notification from '@/src/components/Notification';
-import { useUserData } from '@/src/hooks/useUserData';
 import { useGetNotificationsRealtimeQuery } from '@/src/redux/notifications';
+import { useUserDataRealTimeQuery } from '@/src/redux/user';
+import { getAuth } from '@react-native-firebase/auth';
 import { FlatList, Image, StyleSheet, View } from 'react-native';
 
+const auth = getAuth();
+
 const NotificationsScreen = () => {
-    const { data: user, loading, isError: isErrorUserData } = useUserData();
+    // const { data: user, loading, isError: isErrorUserData } = useUserData();
+    const { data: user, isLoading, isError: isErrorUserData } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
     const {data: notificationsList, isLoading: isLoadingNots, isError} = useGetNotificationsRealtimeQuery({ userId: user?.id }, { skip: !user?.id })
-    if(loading || isLoadingNots) return <Loading visible={true} />
+    if(isLoading || isLoadingNots) return <Loading visible={true} />
     if(isErrorUserData || isError || !notificationsList) return <ErrorComponent />
 
     return (

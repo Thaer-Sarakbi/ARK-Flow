@@ -1,15 +1,20 @@
 import Icon from '@expo/vector-icons/Ionicons';
+import { getAuth } from '@react-native-firebase/auth';
 import { useNavigation } from '@react-navigation/native';
 import React, { useMemo } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { COLORS } from '../colors';
-import { useUserData } from '../hooks/useUserData';
 import { useGetNotificationsRealtimeQuery } from '../redux/notifications';
+import { useUserDataRealTimeQuery } from '../redux/user';
 import { RootStackNavigationProp } from './TaskCard';
+
+const auth = getAuth();
+const currentUser = auth.currentUser;
 
 const MainHeader = () => {
     const navigation = useNavigation<RootStackNavigationProp>();
-    const { data: user, loading, isError: isErrorUserData } = useUserData();
+    // const { data: user, loading, isError: isErrorUserData } = useUserData();
+    const { data: user, isLoading } = useUserDataRealTimeQuery(currentUser?.uid ?? null);
     const {data: notificationsList, isLoading: isLoadingNots, isError} = useGetNotificationsRealtimeQuery({ userId: user?.id }, { skip: !user?.id })
 
     const unreadCount = useMemo(

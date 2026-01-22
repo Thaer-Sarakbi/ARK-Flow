@@ -128,33 +128,30 @@ export const usersApi = createApi({
             },
         }),
 
-        userDataRealTime: builder.query<User | null, any>({
-          async queryFn() {
+        userDataRealTime: builder.query<User | null, string | null>({
+          async queryFn(userId) {
             // Initial cache value
             return { data: null };
           },
     
           async onCacheEntryAdded(
-            {},
+            userId,
             { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
           ) {
-          const currentUser = auth.currentUser;
-          if (!currentUser) return;
-
-          const uid = currentUser.uid;
+          if (!userId) return;
     
           await cacheDataLoaded;
     
           const userRef = await firestore()
           .collection('users')
-          .doc(uid)
+          .doc(userId)
     
           const unsubscribe = userRef.onSnapshot((docSnap) => {
           updateCachedData(() => {
             if (!docSnap.exists) return null;
     
             return {
-              id: uid,
+              id: userId,
               ...docSnap.data(),
             };
           });
@@ -167,4 +164,4 @@ export const usersApi = createApi({
   }),
 })
 
-export const { useGetUsersRealtimeQuery, useGetUsersQuery, useAddUserMutation, useDeleteUserMutation, useUserDataRealTimeQuery } = usersApi
+export const { useGetUsersRealtimeQuery, useGetUsersQuery, useLazyGetUsersQuery, useAddUserMutation, useDeleteUserMutation, useUserDataRealTimeQuery } = usersApi

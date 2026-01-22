@@ -8,7 +8,7 @@ import ErrorComponent from '@/src/components/molecule/ErrorComponent';
 import useShowPassword from '@/src/hooks/useShowPassword';
 import PopupModal from '@/src/Modals/PopupModal';
 import UpdatePlacePopup from '@/src/Modals/UpdatePlacePopup';
-import { useDeleteUserMutation, useUserDataRealTimeQuery } from '@/src/redux/user';
+import { useDeleteUserMutation, useLazyGetUsersQuery, useUserDataRealTimeQuery } from '@/src/redux/user';
 import Feather from '@expo/vector-icons/Feather';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
@@ -43,7 +43,8 @@ export default function ProfileScreen() {
   const { height } = useWindowDimensions();
   const { showPassword, toggleShowPassword } = useShowPassword() 
   const [deleteUser] = useDeleteUserMutation()
-  const { data, isLoading, isError } = useUserDataRealTimeQuery('')
+  const { data, isLoading, isError } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
+  const [getUsers] = useLazyGetUsersQuery()
 
   const  fields = [
     {id: 1, title: 'Email', value: data?.email},
@@ -192,7 +193,7 @@ export default function ProfileScreen() {
         <SubmitButton text='Confirm' onPress={ondeleteAccount} />
       </View>
     </PopupModal>
-    <UpdatePlacePopup isVisible={showPlaceAlert} id={data?.id} placeName={placeName} placeId={placeId} setPlaceName={setPlaceName} setPlaceId={setPlaceId} title="Your Place" paragraph1="Please choose your place" disable={() => setShowPlaceAlert(false)} buttonTitle="Submit"/>
+    <UpdatePlacePopup isVisible={showPlaceAlert} id={data?.id} placeName={placeName} placeId={placeId} setPlaceName={setPlaceName} setPlaceId={setPlaceId} title="Your Place" paragraph1="Please choose your place" disable={() => {setShowPlaceAlert(false); getUsers()}} buttonTitle="Submit"/>
     </>
   );
 }

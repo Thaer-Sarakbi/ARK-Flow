@@ -24,7 +24,7 @@ export const Places = [
   {value: 9, label: 'MELAWATHI H3'},
   {value: 10, label: 'N/W RAWANG'},
   {value: 11, label: 'NILAI BUDGET'},
-  {value: 12, label: 'NILAI H2', latitude: 2.8110566, longitude: 101.8067279},
+  {value: 12, label: 'NILAI H2', latitude: 2.8113741, longitude: 101.8073255},
   {value: 13, label: 'PUTRA HEIGHT'},
   {value: 14, label: 'SAMUDRA'},
   {value: 15, label: 'SHAH ALAM H1'},
@@ -50,5 +50,5 @@ export const Places = [
   {value: 35, label: 'ARK Porkdickson'},
   {value: 36, label: 'Avani sepang goldcost'},
   {value: 37, label: 'Ampang 3 tower Office', latitude: 3.1623508, longitude: 101.7415717 },
-  {value: 38, label: 'Batu Caves Office', latitude: 3.2358895, longitude: 101.6779609 }
+  {value: 38, label: 'Batu Caves Office', latitude: 3.2191202, longitude: 101.6756164 }
 ]

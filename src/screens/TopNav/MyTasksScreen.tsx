@@ -2,18 +2,22 @@ import Spacer from "@/src/components/atoms/Spacer";
 import Loading from "@/src/components/Loading";
 import ErrorComponent from "@/src/components/molecule/ErrorComponent";
 import TaskCard from "@/src/components/TaskCard";
-import { useUserData } from "@/src/hooks/useUserData";
 import { useGetTasksRealtimeQuery, useLazyGetTasksQuery } from "@/src/redux/tasks";
+import { useUserDataRealTimeQuery } from "@/src/redux/user";
 import { Task } from "@/src/utils/types";
+import { getAuth } from "@react-native-firebase/auth";
 import { useMemo, useState } from "react";
 import { FlatList, Image, StyleSheet, Text, View } from "react-native";
 
+const auth = getAuth();
+
 export default function MyTasksScreen() {
   const [isFetching, setIsFetching] = useState(false)
-  const { data: user, loading, isError: isErrorUserData } = useUserData();
+  const [isLoading, setIsLoading] = useState(true)
+  const { data: user, isLoading: isLoadingUserData, isError: isErrorUserData } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
   const [getTasks] = useLazyGetTasksQuery()
- const { data: listOfTasks, isLoading: isLoadingTasks, isError } =  useGetTasksRealtimeQuery({ userId: user?.id }, { skip: !user?.id })
-
+  const { data: listOfTasks, isLoading: isLoadingTasks, isError } =  useGetTasksRealtimeQuery({ userId: user?.id }, { skip: !user?.id })
+  
   const myTasks = useMemo(
     () => listOfTasks?.filter((t: Task) => t.assignedToId === user?.id || t.assignedById === user?.id) || [],
     [listOfTasks]
@@ -25,7 +29,11 @@ export default function MyTasksScreen() {
     setIsFetching(false)
   }
 
-  if(loading || isLoadingTasks) return <Loading visible={true} />
+  setTimeout(() => {
+    setIsLoading(false)
+  }, 1000);
+
+  if(isLoading || isLoadingUserData || isLoadingTasks) return <Loading visible={true} />
   if(isErrorUserData || isError) return <ErrorComponent />
   return (
     <>

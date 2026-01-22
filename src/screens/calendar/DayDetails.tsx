@@ -4,10 +4,11 @@ import Spacer from "@/src/components/atoms/Spacer";
 import Container from "@/src/components/Container";
 import Loading from "@/src/components/Loading";
 import ErrorComponent from "@/src/components/molecule/ErrorComponent";
-import { useUserData } from "@/src/hooks/useUserData";
 import { useGetCheckInQuery, useGetCheckOutQuery, useGetLeaveQuery, useGetReportQuery, useGetUpdatesQuery } from "@/src/redux/attendance";
+import { useUserDataRealTimeQuery } from "@/src/redux/user";
 import { MainStackParamsList } from "@/src/routes/params";
 import Entypo from '@expo/vector-icons/Entypo';
+import { getAuth } from "@react-native-firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import moment from "moment";
@@ -22,6 +23,7 @@ interface DayDetails {
     }
 }
   
+const auth = getAuth();
 type HomeScreenNavigationProp = StackNavigationProp<MainStackParamsList, 'DayDetails'>;
 
 export default function DayDetails({ route }: DayDetails) {
@@ -30,14 +32,15 @@ export default function DayDetails({ route }: DayDetails) {
   // const [isLoading, setIsLoading] = useState(false)
   const navigation = useNavigation<HomeScreenNavigationProp>()
   const isLoading = useSelector((state: any) => state.ui.loading);
-  const { data: user, loading, isError: isErrorUserData } = useUserData();
+  // const { data: user, loading, isError: isErrorUserData } = useUserData();
+  const { data: user, isLoading: isLoadingUser, isError: isErrorUserData } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
   const { data: checkIn, isLoading: isLoadingCheckIn, isError: isErrorCheckIn } = useGetCheckInQuery({ userId, date })
   const { data: checkOut, isLoading: isLoadingCheckOut, isError: isErrorCheckOut } = useGetCheckOutQuery({ userId, date })
   const { data: reportData, isLoading: isLoadingReport, isError: isErrorGetReport, } = useGetReportQuery({ userId, date });
   const { data: leaveData, isLoading: leaveIsLoading, isError: LeaveIsError } = useGetLeaveQuery({ userId, date })
   const { data: updates, isLoading: isLoadingUpdates, isError: isErrorUpdates } = useGetUpdatesQuery({ userId, date })
 
-  if (isLoadingReport || isLoadingCheckIn || isLoadingCheckOut || isLoading ||leaveIsLoading ) return <Loading visible />;
+  if (isLoadingReport || isLoadingCheckIn || isLoadingCheckOut || isLoading ||leaveIsLoading || isLoadingUser ) return <Loading visible />;
   if (isErrorCheckOut || isErrorCheckIn || isErrorGetReport || LeaveIsError) return <ErrorComponent />;
 
   return (
@@ -80,7 +83,7 @@ export default function DayDetails({ route }: DayDetails) {
       <Text style={styles.title}>Task Updates</Text>
       {
         (updates?.length ?? 0) > 0 ? updates.map((update: any) => (
-            <TouchableOpacity key={update.id} style={styles.updateComponent} onPress={() => navigation.navigate('UpdateDetails', { updateId: update.data().id, taskId: update.data().taskId, assignedToId: update.data().assignedToId, userName: user?.profile.fullName, assignedBy: update.data().assignedBy, assignedById: update.data().assignedById, userId: user?.id })}>
+            <TouchableOpacity key={update.id} style={styles.updateComponent} onPress={() => navigation.navigate('UpdateDetails', { updateId: update.data().id, taskId: update.data().taskId, assignedToId: update.data().assignedToId, userName: user?.fullName, assignedBy: update.data().assignedBy, assignedById: update.data().assignedById, userId: user?.id })}>
               <Text style={[styles.caption, { fontSize: 18, textAlign: 'left' }]}>{update.data().title}</Text>
               <Entypo name="chevron-small-right" size={24} color="black" />
             </TouchableOpacity>

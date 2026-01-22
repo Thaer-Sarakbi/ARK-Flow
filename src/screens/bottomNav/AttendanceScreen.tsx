@@ -12,15 +12,14 @@ import ConfirmationPopup from "@/src/Modals/ConfirmationPopup";
 import { useAddCheckInMutation, useAddCheckOutMutation, useAddLeaveMutation, useAddReportMutation, useLazyGetDaysWorkingQuery, useLazyGetLeaveDaysQuery } from "@/src/redux/attendance";
 import { useUserDataRealTimeQuery } from "@/src/redux/user";
 import { Places } from "@/src/utils/Constants";
+import { getAuth } from "@react-native-firebase/auth";
 import { getDistance } from 'geolib';
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
-import { Image, ImageProps, Linking, StyleSheet, View } from "react-native";
+import { Image, Linking, StyleSheet, View } from "react-native";
 import MapView from 'react-native-maps';
-interface BoxUploadProps extends ImageProps {
-  title: string;
-  onPress?: () => void;
-}
+
+const auth = getAuth();
 
 export default function AttendanceScreen() {
   const mapRef = useRef<MapView | null>(null);
@@ -53,7 +52,7 @@ export default function AttendanceScreen() {
   const [addCheckIn, { isLoading, error: checkInError }] = useAddCheckInMutation();
   const [addCheckOut] = useAddCheckOutMutation();
   // const { data, loading: userDataLoading } = useUserData();
-  const { data, isLoading: isLoadingUser, isError } = useUserDataRealTimeQuery({})
+  const { data, isLoading: isLoadingUser, isError } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
   const [getDaysWorking, resGetDaysWorking] = useLazyGetDaysWorkingQuery()
   const [getLeaveDays, resGetLeaveDays] = useLazyGetLeaveDaysQuery()
   
@@ -73,7 +72,7 @@ export default function AttendanceScreen() {
       longitude: Places.find(place => place.value === data?.placeId)?.longitude,
     }
 
-    const RADIUS_METERS = 125
+    const RADIUS_METERS = 300
     
     if (!TARGET_LOCATION.latitude || !TARGET_LOCATION.longitude) return true;
 

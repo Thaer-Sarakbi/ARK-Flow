@@ -13,7 +13,6 @@ import ErrorComponent from '@/src/components/molecule/ErrorComponent';
 import TaskInfo from '@/src/components/TaskInfo';
 import useCurrentLocation from '@/src/hooks/useCurrentLocation';
 import useDocumentPicker from '@/src/hooks/useDocumentPicker';
-import { useUserData } from '@/src/hooks/useUserData';
 import BottomSheet from '@/src/Modals/BottomSheet';
 import ConfirmationPopup from '@/src/Modals/ConfirmationPopup';
 import ErrorPopup from '@/src/Modals/ErrorPopup';
@@ -21,8 +20,10 @@ import ImageViewModal from '@/src/Modals/ImageViewModal';
 import { useAddNotificationMutation, useUpdateNotificationStatusMutation } from '@/src/redux/notifications';
 import { useAddTaskCommentMutation, useGetRealTaskCommentsQuery, useGetTaskRealtimeQuery, useUpdateTaskStatusMutation } from '@/src/redux/tasks';
 import { useGetUpdatesRealtimeQuery } from '@/src/redux/updates';
+import { useUserDataRealTimeQuery } from '@/src/redux/user';
 import { MainStackParamsList } from '@/src/routes/params';
 import { Update } from '@/src/utils/types';
+import { getAuth } from '@react-native-firebase/auth';
 import { getStorage, ref } from '@react-native-firebase/storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
@@ -44,6 +45,7 @@ interface TaskDetails {
   }
 }
 
+const auth = getAuth();
 const storage = getStorage();
 type RootStackNavigationProp = StackNavigationProp<MainStackParamsList, 'TaskDetails'>;
 
@@ -71,7 +73,8 @@ const TaskDetails = ({ route }: TaskDetails) => {
     const [index, setIndex] = useState(0);
     const [loadingVisible, setIsLoadingVisible] = useState<boolean>(false);
     const navigation = useNavigation<RootStackNavigationProp>()
-    const { data: user, loading, isError: isErrorUserData } = useUserData();
+    // const { data: user, loading, isError: isErrorUserData } = useUserData();
+    const { data: user, isLoading, isError: isErrorUserData } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
     const [addComment,  { isLoading: isLoadingAddComment }] = useAddTaskCommentMutation()
     const { data: comments } = useGetRealTaskCommentsQuery({ userId: assignedToId, taskId });
     // Only run task + updates queries when user.id exists
@@ -163,7 +166,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
         userId: assignedToId,
         taskId,
         comment,
-        commenter: user?.profile.fullName
+        commenter: user?.fullName
       } as any)
   
       if ('error' in result) {
@@ -191,7 +194,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
           screenName: 'TaskDetails',
           screenId: taskId,
           message: 'Commented on task by',
-          by: user?.profile.fullName,
+          by: user?.fullName,
           title: data?.title,
           assignedToId,
           assignedById: data.assignedById,
@@ -222,7 +225,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
     console.log('Status updated')
   }
 
-    if(loading || (isLoadingTask && !data)) return <Loading visible={true} />
+    if(isLoading || (isLoadingTask && !data)) return <Loading visible={true} />
     if(isErrorUserData || isErrorTask) return <ErrorComponent />
 
     return (
@@ -269,7 +272,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
               timeStyle={styles.time}
               onEventPress={(event: any) => {
                 const update = event.data || event;
-                navigation.navigate('UpdateDetails', { updateId: update.id, taskId: update.taskId, userName: user?.profile.fullName, assignedToId: update.assignedToId, assignedById: data.assignedById, assignedBy: data.assignedBy, userId: user?.id ?? '' })
+                navigation.navigate('UpdateDetails', { updateId: update.id, taskId: update.taskId, userName: user?.fullName, assignedToId: update.assignedToId, assignedById: data.assignedById, assignedBy: data.assignedBy, userId: user?.id ?? '' })
               }}                
               titleStyle={styles.titleStyle}
               descriptionStyle={styles.caption}

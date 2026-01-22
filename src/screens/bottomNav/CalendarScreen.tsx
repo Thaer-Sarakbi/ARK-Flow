@@ -3,12 +3,12 @@ import Spacer from "@/src/components/atoms/Spacer";
 import Container from "@/src/components/Container";
 import Loading from "@/src/components/Loading";
 import ErrorComponent from "@/src/components/molecule/ErrorComponent";
-import { useUserData } from "@/src/hooks/useUserData";
 import { useGetDaysWorkingQuery, useGetLeaveDaysQuery, useGetUpdatesDaysQuery } from "@/src/redux/attendance";
-import { useGetUsersQuery } from "@/src/redux/user";
+import { useGetUsersQuery, useUserDataRealTimeQuery } from "@/src/redux/user";
 import { MainStackParamsList } from "@/src/routes/params";
 import { Places } from "@/src/utils/Constants";
 import Ionicons from '@expo/vector-icons/Ionicons';
+import { getAuth } from "@react-native-firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import moment from "moment";
@@ -17,6 +17,7 @@ import { StyleSheet } from "react-native";
 import CalendarPicker from "react-native-calendar-picker";
 import { Dropdown } from 'react-native-element-dropdown';
 
+const auth = getAuth();
 export type RootStackNavigationProp = StackNavigationProp<MainStackParamsList>;
 
 export default function CalendarScreen() {
@@ -24,7 +25,8 @@ export default function CalendarScreen() {
   const [isFocus, setIsFocus] = useState(false);
   const [isFocus2, setIsFocus2] = useState(false);
   const [date,setDate] = useState(new Date());
-  const { data: user, loading, isError: isErrorUserData } = useUserData();
+  // const { data: user, loading, isError: isErrorUserData } = useUserData();
+  const { data: user, isLoading, isError: isErrorUserData } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
   const { data: listOfUsers, isLoading: isLoadingUsers, isError } = useGetUsersQuery()
   const [placeId, setPlaceId] = useState<number | undefined>();
   const [place, setPlace] = useState<string | undefined>();
@@ -54,8 +56,8 @@ export default function CalendarScreen() {
   useEffect(() => {
     if (user?.id) {
       setValue(user.id);
-      setPlace(user.profile.placeName);
-      setPlaceId(user.profile.placeId)
+      setPlace(user.placeName);
+      setPlaceId(user.placeId)
     }
   }, [user]); 
  
@@ -120,13 +122,13 @@ export default function CalendarScreen() {
     }
   }
 
-  if (isLoadingLeave || isLoadingReport || loading || isLoadingUsers || isLoadingUpdates) return <Loading visible={true} />
+  if (isLoadingLeave || isLoadingReport || isLoading || isLoadingUsers || isLoadingUpdates) return <Loading visible={true} />
   if (isError || isErrorReport || isErrorLeave || isErrorUserData || isErrorUpdates) return <ErrorComponent />
   
   return (
     <Container headerMiddle="Calendar">
        <Dropdown
-          disable={!user?.profile.admin ? true : false}
+          disable={!user?.admin ? true : false}
           style={[styles.dropdown, isFocus && { borderColor: COLORS.info }]}
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}
@@ -158,7 +160,7 @@ export default function CalendarScreen() {
       {
         dropdownData && (
           <Dropdown
-          disable={!user?.profile.admin ? true : false}
+          disable={!user?.admin ? true : false}
           style={[styles.dropdown, isFocus2 && { borderColor: COLORS.info }]}
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}

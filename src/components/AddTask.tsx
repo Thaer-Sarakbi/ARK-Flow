@@ -54,7 +54,7 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
     const result = await addTask({ 
         title, 
         description, 
-        assignedBy: user.profile.fullName, 
+        assignedBy: user.fullName, 
         assignedById: user.id,
         assignedTo: value, 
         assignedToId: assignedToId, 
@@ -80,7 +80,7 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
       screenName: 'TaskDetails',
       screenId: result.data,
       message: 'You have assigned a new task by ',
-      by: user.profile.fullName,
+      by: user.fullName,
       title,
       assignedToId,
       assignedById: user.id
@@ -93,7 +93,7 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
 
     console.log('Notification Added')
 
-    pushNotification(assignedToFcmToken, assignedToId, title, user.profile.fullName, 'TaskDetails')
+    pushNotification(assignedToFcmToken, assignedToId, title, user.fullName, 'TaskDetails')
   }
 
   const handleGallery = async () => {

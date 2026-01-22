@@ -1,3 +1,4 @@
+import { getAuth } from '@react-native-firebase/auth';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import React, { useEffect, useState } from 'react';
 import { COLORS } from '../colors';
@@ -6,19 +7,21 @@ import AddTaskButton from '../components/buttons/AddTaskButton';
 import LoadingComponent from '../components/LoadingComponent';
 import MainHeader from '../components/MainHeader';
 import ErrorComponent from '../components/molecule/ErrorComponent';
-import { useUserData } from '../hooks/useUserData';
 import BottomSheet from '../Modals/BottomSheet';
 import { useLazyGetTasksQuery } from '../redux/tasks';
-import { useGetUsersRealtimeQuery } from '../redux/user';
+import { useGetUsersRealtimeQuery, useUserDataRealTimeQuery } from '../redux/user';
 import CompletedTaskScreen from '../screens/TopNav/CompletedTaskScreen';
 import InProgressTasksScreen from '../screens/TopNav/InProgressTasksScreen';
 import MyTasksScreen from '../screens/TopNav/MyTasksScreen';
 import NotStartedListScreen from '../screens/TopNav/NotStartedListScreen';
 
+
+const auth = getAuth();
 const Tab = createMaterialTopTabNavigator();
 
 export default function TopTab() {
-  const { data: user, loading, isError: isErrorUserData } = useUserData();
+  // const { data: user, loading, isError: isErrorUserData } = useUserData();
+  const { data: user, isLoading: isLoadingUser, isError: isErrorUserData } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
   const { data: listOfUsers, isLoading: isLoadingUsers, isError }= useGetUsersRealtimeQuery()
   const [getTasks, {isLoading, isError: isErrorGetTasks}] = useLazyGetTasksQuery()
   const [isVisible, setIsVisible] = useState(false)
@@ -33,7 +36,7 @@ export default function TopTab() {
     fcmToken: item.fcmToken
   }));
 
-  if(loading || isLoadingUsers) return <LoadingComponent />
+  if(isLoadingUser || isLoadingUsers) return <LoadingComponent />
   if(isErrorUserData || isError) return <ErrorComponent />
 
   return (
@@ -63,7 +66,7 @@ export default function TopTab() {
           component={CompletedTaskScreen}
         />
       </Tab.Navigator>
-      {user?.profile.admin && <AddTaskButton onPress={() => setIsVisible(true)} />}
+      {user?.admin && <AddTaskButton onPress={() => setIsVisible(true)} />}
       <BottomSheet visible={isVisible} onPress={() => setIsVisible(false)}>
         <AddTask listOfUsers={dropdownData!} setIsVisible={setIsVisible} user={user!}/>
       </BottomSheet>
