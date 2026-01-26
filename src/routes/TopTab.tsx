@@ -1,6 +1,6 @@
 import { getAuth } from '@react-native-firebase/auth';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { COLORS } from '../colors';
 import AddTask from '../components/AddTask';
 import AddTaskButton from '../components/buttons/AddTaskButton';
@@ -30,11 +30,13 @@ export default function TopTab() {
     getTasks({ userId: user?.id })
   },[isVisible])
 
-  const dropdownData = listOfUsers?.map(item => ({
-    value: item.id,
-    label: item.name,
-    fcmToken: item.fcmToken
-  }));
+  const dropdownData = useMemo(() => {
+    return listOfUsers?.map(item => ({
+      value: item.id,
+      label: item.name,
+      fcmToken: item.fcmToken
+    }));
+  }, [listOfUsers]);
 
   if(isLoadingUser || isLoadingUsers) return <LoadingComponent />
   if(isErrorUserData || isError) return <ErrorComponent />

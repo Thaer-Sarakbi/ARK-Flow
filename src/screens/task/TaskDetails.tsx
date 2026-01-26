@@ -14,15 +14,17 @@ import TaskInfo from '@/src/components/TaskInfo';
 import useCurrentLocation from '@/src/hooks/useCurrentLocation';
 import useDocumentPicker from '@/src/hooks/useDocumentPicker';
 import BottomSheet from '@/src/Modals/BottomSheet';
+import ChangeAssignToPopup from '@/src/Modals/ChangeAssignToPopup';
 import ConfirmationPopup from '@/src/Modals/ConfirmationPopup';
 import ErrorPopup from '@/src/Modals/ErrorPopup';
 import ImageViewModal from '@/src/Modals/ImageViewModal';
 import { useAddNotificationMutation, useUpdateNotificationStatusMutation } from '@/src/redux/notifications';
-import { useAddTaskCommentMutation, useGetRealTaskCommentsQuery, useGetTaskRealtimeQuery, useUpdateTaskStatusMutation } from '@/src/redux/tasks';
+import { useAddTaskCommentMutation, useDeleteTaskMutation, useGetRealTaskCommentsQuery, useGetTaskRealtimeQuery, useUpdateTaskStatusMutation } from '@/src/redux/tasks';
 import { useGetUpdatesRealtimeQuery } from '@/src/redux/updates';
 import { useUserDataRealTimeQuery } from '@/src/redux/user';
 import { MainStackParamsList } from '@/src/routes/params';
 import { Update } from '@/src/utils/types';
+import Feather from '@expo/vector-icons/Feather';
 import { getAuth } from '@react-native-firebase/auth';
 import { getStorage, ref } from '@react-native-firebase/storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
@@ -64,8 +66,11 @@ const TaskDetails = ({ route }: TaskDetails) => {
     const [isVisibleConfirm, setIsVisibleConfirm] = useState(false)
     const [isVisible, setIsVisible] = useState(false)
     const [isVisibleStatus, setIsVisibleStatus] = useState(false)
+    const [isVisibleeDeleteError, setIsVisibleDeleteError] = useState(false)
     const [isVisibleStatusError, setIsVisibleStatusError] = useState(false)
+    const [isVisibleChange, setIsVisibleChange] = useState(false)
     const [uploadPopupVisible, setUploadPopupVisible] = useState(false)
+    const [isVisibleConfirmDelete, setIsVisibleConfirmDelete] = useState(false)
     const [comment, setComment] = useState('')
     const [imagesList, setImagesList] = useState<IImageInfo[]>([]);
     const [sliderimages, setSliderImages] = useState<string[]>([]);
@@ -86,6 +91,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
     const { handleDocumentSelection, handleSelectImage, handleSelectCamera, images, removeImage, documents, removeDocument, uploadAll, uploading } = useDocumentPicker()
     const  [updateTaskStatus]= useUpdateTaskStatusMutation()
     const  [updateNotificationStatus]= useUpdateNotificationStatusMutation()
+    const [deleteTask] = useDeleteTaskMutation()
     const [addNotification, { isLoading: isLoadingAddNot, isError: isErrorAddNot }] = useAddNotificationMutation()
     const { currentLocation, error: locationError, openSettings, getLocation } = useCurrentLocation(mapRef as any)
     const editUpdates = updatesData
@@ -225,19 +231,40 @@ const TaskDetails = ({ route }: TaskDetails) => {
     console.log('Status updated')
   }
 
+  const onDeleteTask = async () => {
+    const result = await deleteTask({
+      userId: assignedToId,
+      taskId,
+    })
+
+    if ('error' in result) {
+      console.log("delete status error:", result.error);
+      setIsVisibleDeleteError(true)
+      return;
+    }
+
+    navigation.goBack()
+    setIsVisibleConfirmDelete(false)
+    console.log('task deleted')
+  }
+
+    const onChange = () => {
+      setIsVisibleChange(true)
+    }
+
     if(isLoading || (isLoadingTask && !data)) return <Loading visible={true} />
     if(isErrorUserData || isErrorTask) return <ErrorComponent />
 
     return (
       <>
-      <Container hasInput allowBack headerMiddle='Task Details' backgroundColor={COLORS.neutral._100}>
+      <Container hasInput allowBack headerMiddle='Task Details' backgroundColor={COLORS.neutral._100} rightHeader={user?.id === data?.assignedById && <TouchableOpacity onPress={() => setIsVisibleConfirmDelete(true)}><Feather name="trash-2" size={24} color={COLORS.white} /></TouchableOpacity>}>
         <Text style={styles.title}>{data?.title}</Text>
         <Spacer height={14} />
         <TaskInfo title={'Description'} value={data?.description} sliderimages={sliderimages} setIsVisible={setIsImageViewVisible} index={index} setIndex={setIndex} loadingVisible={loadingVisible} hasCarousel={false} />
         <Spacer height={10} />
         <TaskInfo title={'Assigned By'} value={data?.assignedBy}/>
         <Spacer height={10} />
-        <TaskInfo title={'Assigned To'} value={data?.assignedTo}/>
+        <TaskInfo title={'Assigned To'} value={data?.assignedTo} pressable={user?.admin ? true: false} onPress={onChange} />
         <Spacer height={10} />
         <View style={{ flexDirection: 'row' }}>
           <TaskInfo title={'Creation Date'} value={moment(data?.creationDate?.seconds * 1000).format('MMM Do YYYY, h:ss a')}/>
@@ -315,6 +342,15 @@ const TaskDetails = ({ route }: TaskDetails) => {
       icon={<Image style={{ width: 50, height: 50 }} source={require('../../../assets/icons/Success.png')} />} 
       onPress={() => setIsVisibleConfirm(false)} 
     />
+    <ConfirmationPopup 
+      isVisible={isVisibleConfirmDelete} 
+      title="Confirm" 
+      paragraph1="Are you sure you want to delete this task"
+      onPressClose={() => setIsVisibleConfirmDelete(false)} 
+      buttonTitle="Yes" 
+      extraButton={<SubmitButton text="No" mode='outlined' onPress={() => setIsVisibleConfirmDelete(false)}/>} 
+      onPress={onDeleteTask} 
+    />
     <ErrorPopup 
       isVisible={isVisibleStatusError} 
       title="Error"
@@ -323,7 +359,16 @@ const TaskDetails = ({ route }: TaskDetails) => {
       onPress={() => setIsVisibleStatusError(false)}
       onPressClose={() => setIsVisibleStatusError(false)}
     />  
+    <ErrorPopup 
+      isVisible={isVisibleeDeleteError} 
+      title="Error"
+      icon={<Image style={{ width: 50, height: 50 }} source={require('../../../assets/icons/Cancel.png')} />}
+      description={"Smoething went wrong \n try again later"}
+      onPress={() => setIsVisibleDeleteError(false)}
+      onPressClose={() => setIsVisibleDeleteError(false)}
+    /> 
     <ImageViewModal index={index} visible={isImageViewVisible} images={imagesList} setIsVisible={setIsImageViewVisible} />
+    <ChangeAssignToPopup isVisible={isVisibleChange} task={data} title='Change To' assignedToId={assignedToId} taskId={taskId} buttonTitle={'Change'} onPressClose={() => setIsVisibleChange(false)} />
     </>
     )
 }

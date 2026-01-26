@@ -6,10 +6,10 @@ import { COLORS } from "../colors";
 interface Header {
     allowBack?: boolean,
     headerMiddle?: string,
-    EnableRight?: React.ReactNode;
+    rightHeader?: React.ReactNode;
 }
 
-export default function Header({ allowBack = false, headerMiddle }: Header) {
+export default function Header({ allowBack = false, headerMiddle, rightHeader }: Header) {
   const navigation = useNavigation();
   const navigationBack = () => {
     navigation.goBack()
@@ -25,7 +25,11 @@ export default function Header({ allowBack = false, headerMiddle }: Header) {
         ) : <View />
      }
      <Text style={styles.title}>{headerMiddle}</Text>
-     <View />
+     {
+      rightHeader ? (
+        rightHeader
+      ) : <View />
+     }
    </View>
   );
 }

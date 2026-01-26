@@ -17,14 +17,15 @@ export const Places = [
   {value: 2, label: 'AMPANG H2'},
   {value: 3, label: 'AMPANG TESCO'},
   {value: 4, label: 'BUKIT BERU'},
-  {value: 5, label: 'CAMERON'},
   {value: 6, label: 'DOLOMITE'},
   {value: 7, label: 'HARTAMAS H2'},
   {value: 8, label: 'KUALA SELANGOR'},
   {value: 9, label: 'MELAWATHI H3'},
   {value: 10, label: 'N/W RAWANG'},
   {value: 11, label: 'NILAI BUDGET'},
-  {value: 12, label: 'NILAI H2', latitude: 2.8113741, longitude: 101.8073255},
+  {value: 12, label: 'NILAI H2', 
+    //latitude: 2.8113741, longitude: 101.8073255
+  },
   {value: 13, label: 'PUTRA HEIGHT'},
   {value: 14, label: 'SAMUDRA'},
   {value: 15, label: 'SHAH ALAM H1'},
@@ -42,7 +43,9 @@ export const Places = [
   {value: 27, label: 'NEW KAJANG'},
   {value: 28, label: 'NEW RAWANG'},
   {value: 29, label: 'SUBANG'},
-  {value: 30, label: 'SG BESI H2'},
+  {value: 30, label: 'SG BESI H2', 
+    //latitude: 3.0356466, longitude: 101.7052028 
+  },
   {value: 31, label: 'SERANDAH'},
   {value: 32, label: 'PUCHONG'},
   {value: 33, label: 'ARK RAWANG'},
@@ -50,5 +53,7 @@ export const Places = [
   {value: 35, label: 'ARK Porkdickson'},
   {value: 36, label: 'Avani sepang goldcost'},
   {value: 37, label: 'Ampang 3 tower Office', latitude: 3.1623508, longitude: 101.7415717 },
-  {value: 38, label: 'Batu Caves Office', latitude: 3.2191202, longitude: 101.6756164 }
+  {value: 38, label: 'Batu Caves Office', 
+    //latitude: 3.2191202, longitude: 101.6756164 
+  }
 ]

@@ -12,21 +12,29 @@ platform :ios do
   
   desc "Build IOS App"
   lane :build_release_ios do
-    # match
+    match
     gym(
       workspace: "ios/arkflow.xcworkspace",
       configuration: "Release",
       scheme: "arkflow",
       export_options: {
-        method: "ad-hoc",
-        # method: "app-store",
+        # method: "ad-hoc",
+        method: "app-store",
         signingStyle: "automatic",
         provisioningProfiles: {
-          "com.ark.deglory.arkflow" => "match AdHoc com.ark.deglory.arkflow",
-          # "com.ark.deglory.arkflow" => "match AppStore com.ark.deglory.arkflow",
+          # "com.ark.deglory.arkflow" => "match AdHoc com.ark.deglory.arkflow",
+          "com.ark.deglory.arkflow" => "match AppStore com.ark.deglory.arkflow",
         }
       }
     )
+    desc "Build and Distribute to testflghit"
+    lane :testflight_release do |options|
+      build_development options
+      upload_to_testflight(
+        username: "newwavehotel@gmail.com",
+        app_identifier: "com.ark.deglory.arkflow"
+      )
+    end
     # deliver(
     #   verify_only: true,
     #   # submit_for_review: true,

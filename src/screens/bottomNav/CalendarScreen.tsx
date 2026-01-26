@@ -4,7 +4,7 @@ import Container from "@/src/components/Container";
 import Loading from "@/src/components/Loading";
 import ErrorComponent from "@/src/components/molecule/ErrorComponent";
 import { useGetDaysWorkingQuery, useGetLeaveDaysQuery, useGetUpdatesDaysQuery } from "@/src/redux/attendance";
-import { useGetUsersQuery, useUserDataRealTimeQuery } from "@/src/redux/user";
+import { useGetUsersRealtimeQuery, useUserDataRealTimeQuery } from "@/src/redux/user";
 import { MainStackParamsList } from "@/src/routes/params";
 import { Places } from "@/src/utils/Constants";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -25,9 +25,8 @@ export default function CalendarScreen() {
   const [isFocus, setIsFocus] = useState(false);
   const [isFocus2, setIsFocus2] = useState(false);
   const [date,setDate] = useState(new Date());
-  // const { data: user, loading, isError: isErrorUserData } = useUserData();
   const { data: user, isLoading, isError: isErrorUserData } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
-  const { data: listOfUsers, isLoading: isLoadingUsers, isError } = useGetUsersQuery()
+  const { data: listOfUsers, isLoading: isLoadingUsers, isError }= useGetUsersRealtimeQuery()
   const [placeId, setPlaceId] = useState<number | undefined>();
   const [place, setPlace] = useState<string | undefined>();
   const [value, setValue] = useState<string | undefined>();
@@ -46,6 +45,15 @@ export default function CalendarScreen() {
   //   value: item.id,
   //   label: item.name
   // }));
+
+  // const dropdownData = filteredUsers?.map(item => {
+  //   console.log('item ', item)
+  //   return {
+  //     value: item.id,
+  //     label: item.name
+  //   }
+  // });
+
   const dropdownData = useMemo(() => {
     return filteredUsers.map(item => ({
       value: item.id,

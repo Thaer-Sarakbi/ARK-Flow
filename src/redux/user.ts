@@ -65,7 +65,8 @@ export const usersApi = createApi({
             return {
               id: doc.id,
               name: data.fullName,
-              fcmToken: data.fcmToken
+              fcmToken: data.fcmToken,
+               placeName: data.placeName ? data.placeName : 'Not Spesific'
             };
           });
     

@@ -292,7 +292,30 @@ export const tasksApi = createApi({
                   };
               }
         }
-      })
+      }),
+
+      deleteTask: builder.mutation<any, { userId:string, taskId: string }>({
+        async queryFn({ userId, taskId }) {
+          try {
+            await firestore()
+                  .collection("users")
+                  .doc(userId)
+                  .collection("tasks")
+                  .doc(taskId)
+                  .delete()
+
+            return { data: true };
+          } catch (err: any) {
+            console.log(err)
+              return {
+                error: {
+                  status: err.code || "UNKNOWN",
+                  message: err.message || "Unexpected Firestore error",
+                },
+                };
+              }
+            },
+      }),
   }),
 });
 
@@ -308,5 +331,6 @@ export const {
   useAddTaskMutation,
   useAddTaskCommentMutation,
   useGetRealTaskCommentsQuery,
-  useUpdateTaskStatusMutation
+  useUpdateTaskStatusMutation,
+  useDeleteTaskMutation
 } = tasksApi;
