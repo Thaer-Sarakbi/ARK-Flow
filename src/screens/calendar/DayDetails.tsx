@@ -4,7 +4,7 @@ import Spacer from "@/src/components/atoms/Spacer";
 import Container from "@/src/components/Container";
 import Loading from "@/src/components/Loading";
 import ErrorComponent from "@/src/components/molecule/ErrorComponent";
-import { useGetCheckInQuery, useGetCheckOutQuery, useGetLeaveQuery, useGetReportQuery, useGetUpdatesQuery } from "@/src/redux/attendance";
+import { useGetCheckInQuery, useGetCheckOutQuery, useGetLeaveRealtimeQuery, useGetReportRealtimeQuery, useGetUpdatesQuery } from "@/src/redux/attendance";
 import { useUserDataRealTimeQuery } from "@/src/redux/user";
 import { MainStackParamsList } from "@/src/routes/params";
 import Entypo from '@expo/vector-icons/Entypo';
@@ -29,15 +29,14 @@ type HomeScreenNavigationProp = StackNavigationProp<MainStackParamsList, 'DayDet
 export default function DayDetails({ route }: DayDetails) {
   const date = moment(route.params.date).format("DD-MM-YYYY")
   const userId = route.params.userId
-  // const [isLoading, setIsLoading] = useState(false)
   const navigation = useNavigation<HomeScreenNavigationProp>()
   const isLoading = useSelector((state: any) => state.ui.loading);
-  // const { data: user, loading, isError: isErrorUserData } = useUserData();
   const { data: user, isLoading: isLoadingUser, isError: isErrorUserData } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
   const { data: checkIn, isLoading: isLoadingCheckIn, isError: isErrorCheckIn } = useGetCheckInQuery({ userId, date })
   const { data: checkOut, isLoading: isLoadingCheckOut, isError: isErrorCheckOut } = useGetCheckOutQuery({ userId, date })
-  const { data: reportData, isLoading: isLoadingReport, isError: isErrorGetReport, } = useGetReportQuery({ userId, date });
-  const { data: leaveData, isLoading: leaveIsLoading, isError: LeaveIsError } = useGetLeaveQuery({ userId, date })
+  const skipQueries = !userId || !date;
+  const { data: reportData, isLoading: isLoadingReport, isError: isErrorGetReport, } = useGetReportRealtimeQuery({ userId, date }, { skip: skipQueries })
+  const { data: leaveData, isLoading: leaveIsLoading, isError: LeaveIsError } = useGetLeaveRealtimeQuery({ userId, date })
   const { data: updates, isLoading: isLoadingUpdates, isError: isErrorUpdates } = useGetUpdatesQuery({ userId, date })
 
   if (isLoadingReport || isLoadingCheckIn || isLoadingCheckOut || isLoading ||leaveIsLoading || isLoadingUser ) return <Loading visible />;
@@ -45,6 +44,8 @@ export default function DayDetails({ route }: DayDetails) {
 
   return (
     <Container allowBack={true} headerMiddle='Day Details' backgroundColor={COLORS.neutral._100}>
+      <Text style={styles.date}>{date}</Text>
+      <Spacer height={10} />
       <Text style={styles.title}>Attendance</Text>
       {
         (checkIn?.time || checkOut?.time) ? (
@@ -67,8 +68,8 @@ export default function DayDetails({ route }: DayDetails) {
       <Spacer height={8}/>
       <Text style={styles.title}>Report</Text>
       {
-        (reportData?.length ?? 0) > 0 ? (
-          <TouchableOpacity onPress={() => navigation.navigate('ReportDetails', { date, report: reportData[0], userId })} style={styles.container}>
+        reportData?.note ? (
+          <TouchableOpacity onPress={() => navigation.navigate('ReportDetails', { date, report: reportData, userId })} style={styles.container}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.caption}>{moment(new Date(route.params.date)).format('MMMM Do')}  </Text>
               <Text>Report</Text>
@@ -95,8 +96,8 @@ export default function DayDetails({ route }: DayDetails) {
       <Spacer height={8}/>
       <Text style={styles.title}>Leave Report</Text>
       {
-        (leaveData?.length ?? 0) > 0 ? (
-          <TouchableOpacity onPress={() => navigation.navigate('LeaveDetails', { date, leave: leaveData[0], userId })} style={styles.container}>
+        leaveData?.note ? (
+          <TouchableOpacity onPress={() => navigation.navigate('LeaveDetails', { date, leave: leaveData, userId })} style={styles.container}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.caption}>{moment(new Date(route.params.date)).format('MMMM Do')}  </Text>
               <Text>Leave Report</Text>
@@ -138,5 +139,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 10,  
     marginBottom: 10
-  }
+  },
+  date: { textAlign: 'center', fontWeight: 'bold', fontSize: 20 }
 });

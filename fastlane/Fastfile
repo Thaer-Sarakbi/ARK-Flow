@@ -11,8 +11,7 @@
 platform :ios do
   
   desc "Build IOS App"
-  lane :build_release_ios do
-    match
+  lane :archive_ios do
     gym(
       workspace: "ios/arkflow.xcworkspace",
       configuration: "Release",
@@ -27,25 +26,40 @@ platform :ios do
         }
       }
     )
-    desc "Build and Distribute to testflghit"
-    lane :testflight_release do |options|
-      build_development options
-      upload_to_testflight(
-        username: "newwavehotel@gmail.com",
-        app_identifier: "com.ark.deglory.arkflow"
-      )
-    end
-    # deliver(
-    #   verify_only: true,
-    #   # submit_for_review: true,
-    #   force: true,  # Skip HTMl report verification
-    #   username: "newwavehotel@gmail.com",
-    #   app_identifier: "com.ark.deglory.arkflow",
-    #   ipa: "arkflow.ipa",
-    #   #skip_binary_upload: true, # upload ipa
-    #   skip_screenshots: true,
-    #   skip_metadata: true
-    # )
+  end
+
+  desc "Upload to testflghit"
+  lane :upload_to_testflight do |options|
+    upload_to_testflight(
+      username: "newwavehotel@gmail.com",
+      app_identifier: "com.ark.deglory.arkflow"
+    )
+  end
+
+  desc "Submit_for review"
+  lane :submit_for_review do |options|
+    deliver(
+      # verify_only: true,  #Verifies archive without uploading
+      submit_for_review: true,
+      automatic_release: true,
+      force: true,  # Skip HTMl report verification
+      username: "newwavehotel@gmail.com",
+      app_identifier: "com.ark.deglory.arkflow",
+      ipa: "arkflow.ipa",
+      #skip_binary_upload: true, # if only upload screenshot or metadata without ipa
+      skip_screenshots: true,
+      skip_metadata: true,
+      # metadata_path: "./metadata"
+      # reject_if_possible: true, #Rejects the previously submitted build if it's in a state where it's possible (before it was approved)
+    )
+  end
+
+  desc "Build and Distribute to testflghit"
+  lane :release_new_version do |options|
+    # match
+    # archive_ios options
+    upload_to_testflight
+    # submit_for_review
   end
 end
 
@@ -67,5 +81,17 @@ platform :android do
       build_type: 'Release',
       project_dir: 'android/'
     )
+  end
+
+  lane :upload_to_playstore do
+    upload_to_play_store(
+      aab: "android/app/build/outputs/bundle/release/app-release.aab",
+      track: 'internal', # production
+    )
+  end
+
+  lane :release_new_version_play_store do |options|
+    # build_bundle_android
+    upload_to_playstore
   end
 end

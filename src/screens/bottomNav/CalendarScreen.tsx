@@ -3,7 +3,7 @@ import Spacer from "@/src/components/atoms/Spacer";
 import Container from "@/src/components/Container";
 import Loading from "@/src/components/Loading";
 import ErrorComponent from "@/src/components/molecule/ErrorComponent";
-import { useGetDaysWorkingQuery, useGetLeaveDaysQuery, useGetUpdatesDaysQuery } from "@/src/redux/attendance";
+import { useGetDaysWorkingRealTimeQuery, useGetLeaveDaysRealTimeQuery, useGetUpdatesDaysQuery } from "@/src/redux/attendance";
 import { useGetUsersRealtimeQuery, useUserDataRealTimeQuery } from "@/src/redux/user";
 import { MainStackParamsList } from "@/src/routes/params";
 import { Places } from "@/src/utils/Constants";
@@ -31,8 +31,8 @@ export default function CalendarScreen() {
   const [place, setPlace] = useState<string | undefined>();
   const [value, setValue] = useState<string | undefined>();
   const skip = !value;
-  const { data: workingDays, isLoading: isLoadingReport, isError: isErrorReport } = useGetDaysWorkingQuery({ userId: value }, { skip })
-  const { data: leaves, isLoading: isLoadingLeave, isError: isErrorLeave } = useGetLeaveDaysQuery({ userId: value }, { skip })
+  const { data: workingDays, isLoading: isLoadingReport, isError: isErrorReport } = useGetDaysWorkingRealTimeQuery({ userId: value }, { skip })
+  const { data: leaves, isLoading: isLoadingLeave, isError: isErrorLeave } = useGetLeaveDaysRealTimeQuery({ userId: value }, { skip })
   const { data: updates, isLoading: isLoadingUpdates, isError: isErrorUpdates } = useGetUpdatesDaysQuery({ userId: value }, { skip })
 
   // const filteredUsers = listOfUsers?.filter((user) => {return user.placeName === place})
@@ -72,16 +72,16 @@ export default function CalendarScreen() {
   let workDays: string[] = []
   if(workingDays){
     workingDays.forEach((day: any) => {
-      if(new Date(day.data().time.seconds * 1000).getMonth() + 1 === new Date(date).getMonth() + 1){
-        workDays.push(moment(new Date(day.data().time.seconds * 1000)).format('L'))
+      if(new Date(day.time.seconds * 1000).getMonth() + 1 === new Date(date).getMonth() + 1){
+        workDays.push(moment(new Date(day.time.seconds * 1000)).format('L'))
       }
     })
   }
 
   let leaveDays: string[] = []
   leaves?.forEach((leaveDay: any) => {
-    if(new Date(leaveDay.data().time.seconds * 1000).getMonth() + 1 === new Date(date).getMonth() + 1){
-      leaveDays.push(moment(new Date(leaveDay.data().time.seconds * 1000)).format('L'))
+    if(new Date(leaveDay.time.seconds * 1000).getMonth() + 1 === new Date(date).getMonth() + 1){
+      leaveDays.push(moment(new Date(leaveDay.time.seconds * 1000)).format('L'))
     }
   })
 

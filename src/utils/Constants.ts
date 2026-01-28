@@ -23,9 +23,7 @@ export const Places = [
   {value: 9, label: 'MELAWATHI H3'},
   {value: 10, label: 'N/W RAWANG'},
   {value: 11, label: 'NILAI BUDGET'},
-  {value: 12, label: 'NILAI H2', 
-    //latitude: 2.8113741, longitude: 101.8073255
-  },
+  {value: 12, label: 'NILAI H2', latitude: 2.8113741, longitude: 101.8073255},
   {value: 13, label: 'PUTRA HEIGHT'},
   {value: 14, label: 'SAMUDRA'},
   {value: 15, label: 'SHAH ALAM H1'},

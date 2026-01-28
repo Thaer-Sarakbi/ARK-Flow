@@ -169,76 +169,115 @@ export const attendanceApi = createApi({
       },
     }),
 
-    getReport: builder.query<any, { userId: string | undefined; date: string }>({
-      async queryFn({ userId, date }) {
-        try {
-          const snapshot = await attendanceRef(userId, date)
+    getReportRealtime: builder.query<any, { userId?: string | undefined; date?: string }>({
+      async queryFn() {
+            // Initial cache value
+            return { data: null };
+          },
+    
+          async onCacheEntryAdded(
+            { userId, date },
+            { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+          ) {
+          if (!userId || !date) return;
+    
+          await cacheDataLoaded;
+    
+          const reportRef = await attendanceRef(userId, date)
             .collection("report")
-            .get();
+            .doc("today")
     
-          const reports = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
+          const unsubscribe = reportRef.onSnapshot((docSnap) => {
+          updateCachedData(() => {
+            if (!docSnap.exists) {
+              return null; // 🔥 clear cache properly
+            }
+        
+            return {
+              id: docSnap.id,
+              ...docSnap.data(),
+            };
+          });
+        });
     
-          return { data: reports };
-        } catch (err: any) {
-          return {
-            error: {
-              status: err.code || "UNKNOWN",
-              message: err.message || "Unexpected Firestore error",
-            },
-          };
-        }
+        await cacheEntryRemoved;
+        unsubscribe();
       },
     }),
 
-    getLeave: builder.query<any, { userId: string | undefined; date: string }>({
-      async queryFn({ userId, date }) {
-        try {
-          const snapshot = await attendanceRef(userId, date)
+    getLeaveRealtime: builder.query<any, { userId: string | undefined; date: string }>({
+      async queryFn() {
+            // Initial cache value
+            return { data: null };
+          },
+    
+          async onCacheEntryAdded(
+            { userId, date },
+            { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+          ) {
+          if (!userId || !date) return;
+    
+          await cacheDataLoaded;
+    
+          const leaveRef = await attendanceRef(userId, date)
             .collection("leave")
-            .get();
+            .doc("today")
     
-          const leave = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-          }));
+          const unsubscribe = leaveRef.onSnapshot((docSnap) => {
+          updateCachedData(() => {
+            if (!docSnap.exists) {
+              return null; // 🔥 clear cache properly
+            }
+        
+            return {
+              id: docSnap.id,
+              ...docSnap.data(),
+            };
+          });
+        });
     
-          return { data: leave };
-        } catch (err: any) {
-          return {
-            error: {
-              status: err.code || "UNKNOWN",
-              message: err.message || "Unexpected Firestore error",
-            },
-          };
-        }
+        await cacheEntryRemoved;
+        unsubscribe();
       },
     }),
 
-    getDaysWorking: builder.query<any, { userId: string | undefined }>({
-      async queryFn({ userId }) {
-    try {
-      const snapshot = await firestore()
-      .collectionGroup("report")
-      .get();
-
-      const userReports = snapshot.docs.filter(doc => 
-        doc.ref.path.includes(`users/${userId}/`)
-      );
-
-      return { data: userReports };   // ✅ IMPORTANT!
-    } catch (err: any) {
-      return {
-        error: {
-          status: err.code || "UNKNOWN",
-          message: err.message || "Unexpected Firestore error",
-        },
-      };
-    }
-  },
-    }),
+    getDaysWorkingRealTime: builder.query<any[], { userId?: string }>({
+      async queryFn() {
+        // Initial empty cache
+        return { data: [] };
+      },
+    
+      async onCacheEntryAdded(
+        { userId },
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) {
+        if (!userId) return;
+    
+        await cacheDataLoaded;
+    
+        const reportRef = firestore().collectionGroup("report");
+    
+        const unsubscribe = reportRef.onSnapshot((snapshot) => {
+          updateCachedData((draft) => {
+            // clear safely (immer-friendly)
+            draft.splice(0, draft.length);
+    
+            snapshot.docs.forEach((doc) => {
+              // Filter only this user's reports
+              if (doc.ref.path.includes(`users/${userId}/`)) {
+                draft.push({
+                  id: doc.id,
+                  ...doc.data(),
+                });
+              }
+            });
+          });
+        });
+    
+        await cacheEntryRemoved;
+        unsubscribe();
+      },
+    }),    
 
     getLeaveDays: builder.query<any, { userId: string | undefined }>({
       async queryFn({ userId }) {
@@ -261,6 +300,44 @@ export const attendanceApi = createApi({
           };
         }
       }
+    }),
+
+    getLeaveDaysRealTime: builder.query<any[], { userId?: string }>({
+      async queryFn() {
+        // Initial empty cache
+        return { data: [] };
+      },
+    
+      async onCacheEntryAdded(
+        { userId },
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) {
+        if (!userId) return;
+    
+        await cacheDataLoaded;
+    
+        const reportRef = firestore().collectionGroup("leave");
+    
+        const unsubscribe = reportRef.onSnapshot((snapshot) => {
+          updateCachedData((draft) => {
+            // clear safely (immer-friendly)
+            draft.splice(0, draft.length);
+    
+            snapshot.docs.forEach((doc) => {
+              // Filter only this user's reports
+              if (doc.ref.path.includes(`users/${userId}/`)) {
+                draft.push({
+                  id: doc.id,
+                  ...doc.data(),
+                });
+              }
+            });
+          });
+        });
+    
+        await cacheEntryRemoved;
+        unsubscribe();
+      },
     }),
 
     getUpdatesDays: builder.query<any, { userId: string | undefined }>({
@@ -307,7 +384,57 @@ export const attendanceApi = createApi({
           };
         }
       }
-    })
+    }),
+
+    deleteReport: builder.mutation<any, { userId: string, date: string }>({
+      async queryFn({ userId, date }) {
+        try {
+          await firestore()
+                .collection("users")
+                .doc(userId)
+                .collection("attendance")
+                .doc(date)
+                .collection("report")
+                .doc("today")
+                .delete()
+
+          return { data: true };
+        } catch (err: any) {
+          console.log(err)
+            return {
+              error: {
+                status: err.code || "UNKNOWN",
+                message: err.message || "Unexpected Firestore error",
+              },
+              };
+            }
+          },
+    }),
+
+    deleteLeave: builder.mutation<any, { userId: string, date: string }>({
+      async queryFn({ userId, date }) {
+        try {
+          await firestore()
+                .collection("users")
+                .doc(userId)
+                .collection("attendance")
+                .doc(date)
+                .collection("leave")
+                .doc("today")
+                .delete()
+
+          return { data: true };
+        } catch (err: any) {
+          console.log(err)
+            return {
+              error: {
+                status: err.code || "UNKNOWN",
+                message: err.message || "Unexpected Firestore error",
+              },
+              };
+            }
+          },
+    }),
   }),
 });
 
@@ -318,13 +445,14 @@ export const {
   useAddLeaveMutation,
   useGetCheckInQuery,
   useGetCheckOutQuery,
-  useGetReportQuery,
-  useLazyGetDaysWorkingQuery,
-  useGetLeaveQuery,
-  useGetDaysWorkingQuery,
-  useGetLeaveDaysQuery,
+  useGetReportRealtimeQuery,
+  useGetDaysWorkingRealTimeQuery,
+  useGetLeaveRealtimeQuery,
+  useGetLeaveDaysRealTimeQuery,
   useLazyGetLeaveDaysQuery,
   useGetUpdatesDaysQuery,
   useLazyGetUpdatesDaysQuery,
-  useGetUpdatesQuery
+  useGetUpdatesQuery,
+  useDeleteReportMutation,
+  useDeleteLeaveMutation
 } = attendanceApi;

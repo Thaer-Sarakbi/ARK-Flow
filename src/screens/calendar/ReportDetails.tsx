@@ -1,17 +1,25 @@
 import { COLORS } from '@/src/colors';
 import Spacer from '@/src/components/atoms/Spacer';
+import SubmitButton from '@/src/components/buttons/SubmitButton';
 import CarouselSlider from '@/src/components/CarouselSlider';
 import Container from '@/src/components/Container';
 import LoadingComponent from '@/src/components/LoadingComponent';
+import ConfirmationPopup from '@/src/Modals/ConfirmationPopup';
+import ErrorPopup from '@/src/Modals/ErrorPopup';
 import ImageViewModal from '@/src/Modals/ImageViewModal';
+import { useDeleteReportMutation } from '@/src/redux/attendance';
 import { Report } from '@/src/utils/types';
 import Entypo from '@expo/vector-icons/Entypo';
+import Feather from '@expo/vector-icons/Feather';
+import { getAuth } from '@react-native-firebase/auth';
 import { getStorage, ref } from '@react-native-firebase/storage';
+import { useNavigation } from '@react-navigation/native';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
+import { Image, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
 import FileViewer from "react-native-file-viewer";
 import RNFS from 'react-native-fs';
 import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type';
+import { RootStackNavigationProp } from '../bottomNav/CalendarScreen';
 
 interface ReportDetails {
   route: {
@@ -23,19 +31,24 @@ interface ReportDetails {
   }
 }
 
+const auth = getAuth();
 const storage = getStorage();
 
 export default function ReportDetails({ route }: ReportDetails) {
   const date = route.params.date
   const reportData = route.params.report
   const userId = route.params.userId
+  const [isVisibleConfirmDelete, setIsVisibleConfirmDelete] = useState(false)
   const [visible, setIsVisible] = useState<boolean>(false);
   const [loadingVisible, setIsLoadingVisible] = useState<boolean>(false);
+  const [isVisibleeDeleteError, setIsVisibleDeleteError] = useState(false)
   const [sliderimages, setSliderImages] = useState<string[]>([]);
   const [images, setImages] = useState<IImageInfo[]>([]);
   const [pdf, setPdf] = useState<{uri: string}[]>([]);
   const [index, setIndex] = useState(0);
-
+  const [deleteReport] = useDeleteReportMutation()
+  const navigation = useNavigation<RootStackNavigationProp>()
+  
   const folderPath = `users/${userId}/attendance/${date}/report/today/files`;
 
   // async function getSliderFiles(userId: string, date: string) {
@@ -146,8 +159,26 @@ export default function ReportDetails({ route }: ReportDetails) {
     }
   };
 
+  const onDeleteTask = async () => {
+    const result = await deleteReport({
+      userId,
+      date,
+    })
+
+    if ('error' in result) {
+      console.log("delete status error:", result.error);
+      setIsVisibleDeleteError(true)
+      return;
+    }
+
+    navigation.goBack()
+    setIsVisibleConfirmDelete(false)
+    console.log('report deleted')
+  }
+
   return (
-    <Container allowBack headerMiddle='Report Details' backgroundColor={COLORS.neutral._100}>
+    <>
+    <Container allowBack headerMiddle='Report Details' backgroundColor={COLORS.neutral._100} rightHeader={auth.currentUser?.uid === userId && <TouchableOpacity onPress={() => setIsVisibleConfirmDelete(true)}><Feather name="trash-2" size={24} color={COLORS.white} /></TouchableOpacity>}>
       <Text style={styles.title}>Description:</Text>
       <Spacer height={4} />
       <Text style={styles.caption}>{reportData.note}</Text>
@@ -179,6 +210,24 @@ export default function ReportDetails({ route }: ReportDetails) {
       <Spacer height={30} /></>)}
       <ImageViewModal index={index} visible={visible} images={images} setIsVisible={setIsVisible} />
     </Container>
+    <ConfirmationPopup 
+      isVisible={isVisibleConfirmDelete} 
+      title="Confirm" 
+      paragraph1="Are you sure you want to delete this report"
+      onPressClose={() => setIsVisibleConfirmDelete(false)} 
+      buttonTitle="Yes" 
+      extraButton={<SubmitButton text="No" mode='outlined' onPress={() => setIsVisibleConfirmDelete(false)}/>} 
+      onPress={onDeleteTask} 
+    />
+    <ErrorPopup 
+      isVisible={isVisibleeDeleteError} 
+      title="Error"
+      icon={<Image style={{ width: 50, height: 50 }} source={require('../../../assets/icons/Cancel.png')} />}
+      description={"Smoething went wrong \n try again later"}
+      onPress={() => setIsVisibleDeleteError(false)}
+      onPressClose={() => setIsVisibleDeleteError(false)}
+    /> 
+    </>
   );
 }
 
