@@ -86,7 +86,7 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
       assignedById: user.id
     } as any)
 
-    if ('error' in result) {
+    if ('error' in addNotResult) {
       console.log("Adding notification error:", addNotResult.error);
       return;
     }

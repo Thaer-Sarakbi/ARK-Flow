@@ -1,5 +1,6 @@
 import { COLORS } from '@/src/colors';
 import Spacer from '@/src/components/atoms/Spacer';
+import SubmitButton from '@/src/components/buttons/SubmitButton';
 import CarouselSlider from '@/src/components/CarouselSlider';
 import CommentsBox from '@/src/components/CommentsBox';
 import Container from '@/src/components/Container';
@@ -8,20 +9,24 @@ import LoadingComponent from '@/src/components/LoadingComponent';
 import ErrorComponent from '@/src/components/molecule/ErrorComponent';
 import MapViewComponent from '@/src/components/molecule/MapViewComponent';
 import TaskCard from '@/src/components/TaskCard';
+import ConfirmationPopup from '@/src/Modals/ConfirmationPopup';
 import ImageViewModal from '@/src/Modals/ImageViewModal';
 import { useAddNotificationMutation, useUpdateNotificationStatusMutation } from '@/src/redux/notifications';
 import { setLoading } from '@/src/redux/slices/uiSlice';
 import { useGetTaskQuery } from '@/src/redux/tasks';
-import { useAddUpdateCommentMutation, useGetRealUpdateCommentsQuery, useGetUpdateQuery } from '@/src/redux/updates';
+import { useAddUpdateCommentMutation, useDeleteUpdateMutation, useGetRealUpdateCommentsQuery, useGetUpdateQuery } from '@/src/redux/updates';
 import Entypo from '@expo/vector-icons/Entypo';
+import Feather from '@expo/vector-icons/Feather';
+import { getAuth } from '@react-native-firebase/auth';
 import { getStorage, ref } from '@react-native-firebase/storage';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { useCallback, useEffect, useState } from 'react';
 import { Keyboard, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from "react-native";
 import FileViewer from "react-native-file-viewer";
 import RNFS from 'react-native-fs';
 import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type';
 import { useDispatch } from 'react-redux';
+import { RootStackNavigationProp } from '../bottomNav/CalendarScreen';
 
 interface UpdateDetails {
   route: {
@@ -37,6 +42,7 @@ interface UpdateDetails {
     }
   }
 }
+const auth = getAuth();
 const storage = getStorage();
 
 export default function UpdateDetails({ route }: UpdateDetails) {
@@ -49,6 +55,7 @@ export default function UpdateDetails({ route }: UpdateDetails) {
   const notificationId = route.params.notificationId
   const notificationStatus = route.params.notificationStatus
 
+  const navigation = useNavigation<RootStackNavigationProp>()
   const dispatch = useDispatch();
   const skipQueries = !assignedToId || !taskId || !updateId;
   const { data: update, isLoading: isLoadingUpdate, isError: isErrorUpdate  } = useGetUpdateQuery({ userId: assignedToId, taskId, updateId }, { skip: skipQueries })
@@ -56,9 +63,12 @@ export default function UpdateDetails({ route }: UpdateDetails) {
   const {data} = useGetRealUpdateCommentsQuery({  userId: assignedToId, taskId, updateId }, { skip: skipQueries })
   const [addComment, { isLoading: isLoadingAddComment }] = useAddUpdateCommentMutation()
   const  [updateNotificationStatus]= useUpdateNotificationStatusMutation()
+  const [deleteUpdate] = useDeleteUpdateMutation()
   const [addNotification, { isLoading: isLoadingAddNot, isError: isErrorAddNot }] = useAddNotificationMutation()
   const [sliderimages, setSliderImages] = useState<string[]>([]);
   const [visible, setIsVisible] = useState<boolean>(false);
+  const [isVisibleConfirmDelete, setIsVisibleConfirmDelete] = useState(false)
+  const [isVisibleeDeleteError, setIsVisibleDeleteError] = useState(false)
   const [loadingVisible, setIsLoadingVisible] = useState<boolean>(false);
   const [index, setIndex] = useState(0);
   const [images, setImages] = useState<IImageInfo[]>([]);
@@ -193,11 +203,30 @@ export default function UpdateDetails({ route }: UpdateDetails) {
     Keyboard.dismiss()
   }
 
+  const onDeleteUpdate = async () => {
+    const result = await deleteUpdate({
+      userId: assignedToId,
+      taskId,
+      updateId
+    })
+
+    if ('error' in result) {
+      console.log("delete status error:", result.error);
+      setIsVisibleDeleteError(true)
+      return;
+    }
+
+    navigation.goBack()
+    setIsVisibleConfirmDelete(false)
+    console.log('update deleted')
+  }
+
   if (isLoadingUpdate || isLoadingTask) return <Loading visible={true} />
   if (isErrorUpdate || isErrorTask) return <ErrorComponent />
   
   return (
-   <Container hasInput headerMiddle='Update Details' backgroundColor={COLORS.neutral._100} allowBack>
+   <>
+   <Container hasInput headerMiddle='Update Details' backgroundColor={COLORS.neutral._100} allowBack rightHeader={auth.currentUser?.uid === assignedToId && <TouchableOpacity onPress={() => setIsVisibleConfirmDelete(true)}><Feather name="trash-2" size={24} color={COLORS.white} /></TouchableOpacity>}>
       <Text style={styles.title}>{update.title}</Text>
       <Text style={styles.caption}>{update.description}</Text>
       {loadingVisible && <LoadingComponent />}
@@ -234,6 +263,16 @@ export default function UpdateDetails({ route }: UpdateDetails) {
       <CommentsBox comment={comment} comments={data} setComment={setComment} onSubmitComment={onSubmitComment}/>
      <ImageViewModal index={index} visible={visible} images={images} setIsVisible={setIsVisible} />
     </Container>
+    <ConfirmationPopup 
+      isVisible={isVisibleConfirmDelete} 
+      title="Confirm" 
+      paragraph1="Are you sure you want to delete this update"
+      onPressClose={() => setIsVisibleConfirmDelete(false)} 
+      buttonTitle="Yes" 
+      extraButton={<SubmitButton text="No" mode='outlined' onPress={() => setIsVisibleConfirmDelete(false)}/>} 
+      onPress={onDeleteUpdate} 
+    />
+    </>
   )
 }
 

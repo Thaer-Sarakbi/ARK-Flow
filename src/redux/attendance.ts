@@ -279,28 +279,28 @@ export const attendanceApi = createApi({
       },
     }),    
 
-    getLeaveDays: builder.query<any, { userId: string | undefined }>({
-      async queryFn({ userId }) {
-        try{
-          const snapshot = await firestore()
-          .collectionGroup("leave")
-          .get();
+    // getLeaveDays: builder.query<any, { userId: string | undefined }>({
+    //   async queryFn({ userId }) {
+    //     try{
+    //       const snapshot = await firestore()
+    //       .collectionGroup("leave")
+    //       .get();
     
-          const userLeaves = snapshot.docs.filter(doc => 
-            doc.ref.path.includes(`users/${userId}/`)
-          );
+    //       const userLeaves = snapshot.docs.filter(doc => 
+    //         doc.ref.path.includes(`users/${userId}/`)
+    //       );
 
-          return { data: userLeaves };   // ✅ IMPORTANT!
-        } catch(err: any){
-          return {
-            error: {
-              status: err.code || "UNKNOWN",
-              message: err.message || "Unexpected Firestore error",
-            },
-          };
-        }
-      }
-    }),
+    //       return { data: userLeaves };   // ✅ IMPORTANT!
+    //     } catch(err: any){
+    //       return {
+    //         error: {
+    //           status: err.code || "UNKNOWN",
+    //           message: err.message || "Unexpected Firestore error",
+    //         },
+    //       };
+    //     }
+    //   }
+    // }),
 
     getLeaveDaysRealTime: builder.query<any[], { userId?: string }>({
       async queryFn() {
@@ -449,7 +449,6 @@ export const {
   useGetDaysWorkingRealTimeQuery,
   useGetLeaveRealtimeQuery,
   useGetLeaveDaysRealTimeQuery,
-  useLazyGetLeaveDaysQuery,
   useGetUpdatesDaysQuery,
   useLazyGetUpdatesDaysQuery,
   useGetUpdatesQuery,

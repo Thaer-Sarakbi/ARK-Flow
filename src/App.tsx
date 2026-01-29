@@ -50,7 +50,6 @@ export default function App() {
     } else if(Platform.OS === 'ios'){
       Linking.openURL("https://apps.apple.com/my/app/ark-flow/id6756696175");
     }
-   
   }
 
   return (

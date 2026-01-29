@@ -9,7 +9,7 @@ import useCurrentLocation from "@/src/hooks/useCurrentLocation";
 import useDocumentPicker from "@/src/hooks/useDocumentPicker";
 import BottomSheet from "@/src/Modals/BottomSheet";
 import ConfirmationPopup from "@/src/Modals/ConfirmationPopup";
-import { useAddCheckInMutation, useAddCheckOutMutation, useAddLeaveMutation, useAddReportMutation, useLazyGetLeaveDaysQuery } from "@/src/redux/attendance";
+import { useAddCheckInMutation, useAddCheckOutMutation, useAddLeaveMutation, useAddReportMutation } from "@/src/redux/attendance";
 import { useUserDataRealTimeQuery } from "@/src/redux/user";
 import { Places } from "@/src/utils/Constants";
 import { getAuth } from "@react-native-firebase/auth";
@@ -51,9 +51,7 @@ export default function AttendanceScreen() {
   const { location, currentLocation, loading, error, openSettings, getLocation } = useCurrentLocation(mapRef as any)
   const [addCheckIn, { isLoading, error: checkInError }] = useAddCheckInMutation();
   const [addCheckOut] = useAddCheckOutMutation();
-  // const { data, loading: userDataLoading } = useUserData();
   const { data, isLoading: isLoadingUser, isError } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
-  const [getLeaveDays, resGetLeaveDays] = useLazyGetLeaveDaysQuery()
   
   const [addReport] = useAddReportMutation()
   const [addLeave] =   useAddLeaveMutation()
@@ -237,7 +235,6 @@ export default function AttendanceScreen() {
     setIsVisibleLeaveSuccess(true)
     setLeaveText('')
     console.log("Leave success");
-    getLeaveDays({ userId: data.id })
   };
 
   const handleDocument = async () => {
