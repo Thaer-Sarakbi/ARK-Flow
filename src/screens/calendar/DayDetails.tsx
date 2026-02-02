@@ -4,7 +4,7 @@ import Spacer from "@/src/components/atoms/Spacer";
 import Container from "@/src/components/Container";
 import Loading from "@/src/components/Loading";
 import ErrorComponent from "@/src/components/molecule/ErrorComponent";
-import { useGetCheckInQuery, useGetCheckOutQuery, useGetLeaveRealtimeQuery, useGetReportRealtimeQuery, useGetUpdatesQuery } from "@/src/redux/attendance";
+import { useGetCheckInQuery, useGetCheckOutQuery, useGetLeaveRealtimeQuery, useGetReportRealtimeQuery, useGetUpdatesRealtimeQuery } from "@/src/redux/attendance";
 import { useUserDataRealTimeQuery } from "@/src/redux/user";
 import { MainStackParamsList } from "@/src/routes/params";
 import Entypo from '@expo/vector-icons/Entypo';
@@ -37,10 +37,10 @@ export default function DayDetails({ route }: DayDetails) {
   const skipQueries = !userId || !date;
   const { data: reportData, isLoading: isLoadingReport, isError: isErrorGetReport, } = useGetReportRealtimeQuery({ userId, date }, { skip: skipQueries })
   const { data: leaveData, isLoading: leaveIsLoading, isError: LeaveIsError } = useGetLeaveRealtimeQuery({ userId, date })
-  const { data: updates, isLoading: isLoadingUpdates, isError: isErrorUpdates } = useGetUpdatesQuery({ userId, date })
+  const { data: updates, isLoading: isLoadingUpdates, isError: isErrorUpdates } = useGetUpdatesRealtimeQuery({ userId, date })
 
-  if (isLoadingReport || isLoadingCheckIn || isLoadingCheckOut || isLoading ||leaveIsLoading || isLoadingUser ) return <Loading visible />;
-  if (isErrorCheckOut || isErrorCheckIn || isErrorGetReport || LeaveIsError) return <ErrorComponent />;
+  if (isLoadingReport || isLoadingCheckIn || isLoadingCheckOut || isLoading ||leaveIsLoading || isLoadingUser || isLoadingUpdates ) return <Loading visible />;
+  if (isErrorCheckOut || isErrorCheckIn || isErrorGetReport || LeaveIsError || isErrorUpdates) return <ErrorComponent />;
 
   return (
     <Container allowBack={true} headerMiddle='Day Details' backgroundColor={COLORS.neutral._100}>
@@ -83,9 +83,9 @@ export default function DayDetails({ route }: DayDetails) {
       <Spacer height={8}/>
       <Text style={styles.title}>Task Updates</Text>
       {
-        (updates?.length ?? 0) > 0 ? updates.map((update: any) => (
-            <TouchableOpacity key={update.id} style={styles.updateComponent} onPress={() => navigation.navigate('UpdateDetails', { updateId: update.data().id, taskId: update.data().taskId, assignedToId: update.data().assignedToId, userName: user?.fullName, assignedBy: update.data().assignedBy, assignedById: update.data().assignedById, userId: user?.id })}>
-              <Text style={[styles.caption, { fontSize: 18, textAlign: 'left' }]}>{update.data().title}</Text>
+        (updates?.length ?? 0) > 0 ? updates?.map((update: any) => (
+            <TouchableOpacity key={update.id} style={styles.updateComponent} onPress={() => navigation.navigate('UpdateDetails', { updateId: update.id, taskId: update.taskId, assignedToId: update.assignedToId, userName: user?.fullName, assignedBy: update.assignedBy, assignedById: update.assignedById, userId: user?.id })}>
+              <Text style={[styles.caption, { fontSize: 18, textAlign: 'left' }]}>{update.title}</Text>
               <Entypo name="chevron-small-right" size={24} color="black" />
             </TouchableOpacity>
         ))  

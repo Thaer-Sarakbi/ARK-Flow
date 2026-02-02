@@ -1,4 +1,4 @@
-import firestore, { collection, collectionGroup, getDocs, getFirestore, onSnapshot } from '@react-native-firebase/firestore';
+import firestore, { collection, collectionGroup, getFirestore, onSnapshot } from '@react-native-firebase/firestore';
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 import { attendanceRef } from '../utils/firestoreRefs';
 import { Comment, Update } from '../utils/types';
@@ -9,47 +9,6 @@ export const updatesApi = createApi({
   reducerPath: "updatesApi",
   baseQuery: fakeBaseQuery(),
   endpoints: (builder) => ({
-    getUpdates: builder.query<any, { userId: string | undefined, taskId: string }>({
-      async queryFn({ userId, taskId }) {
-        try {
-            if (!userId || !taskId) {
-              return { data: [] }; // prevents invalid Firestore paths
-            }
-
-            const updatesRef = collection(db, `users/${userId}/tasks/${taskId}/updates`);
-            const snapshot = await getDocs(updatesRef);
-
-            const updates = snapshot.docs.map((doc: any) => ({
-              id: doc.id,
-              ...doc.data(),
-            }));
-
-           return { data: updates };
-          //   const docSnap = await firestore()
-          //     .collection("users")
-          //     .doc(userId)
-          //     .collection("tasks")
-          //     .doc(taskId)
-          //     .collection("updates")
-          //     .get()
-          
-          //   const updates = docSnap.docs.map((doc: any) => ({
-          //     id: doc.id,
-          //     ...doc.data(),
-          //   }));
-
-          //  return { data: updates };   // ✅ IMPORTANT!
-        } catch (err: any) {
-          return {
-            error: {
-              status: err.code || "UNKNOWN",
-              message: err.message || "Unexpected Firestore error",
-            },
-          };
-        }
-      },
-    }),
-
     getUpdatesRealtime: builder.query<any[], { userId?: string; taskId: string; admin?: boolean }>({
           async queryFn() {
             // Required initial cache value
@@ -248,27 +207,41 @@ export const updatesApi = createApi({
                       }
                     },
                 }),
-        deleteUpdate: builder.mutation<any, { userId:string, taskId: string, updateId: string }>({
-          async queryFn({ userId, taskId, updateId }) {
+        deleteUpdate: builder.mutation<any, { userId:string, taskId: string, updateId: string, date: string }>({
+          async queryFn({ userId, taskId, updateId, date }) {
             try {
-              await firestore()
-                    .collection("users")
-                    .doc(userId)
-                    .collection("tasks")
-                    .doc(taskId)
-                    .collection("updates")
-                    .doc(updateId)
-                    .delete()
-          
-                    return { data: true };
+              const batch = firestore().batch();
+
+              // Task update ref
+              const taskUpdateRef = firestore()
+                .collection('users')
+                .doc(userId)
+                .collection('tasks')
+                .doc(taskId)
+                .collection('updates')
+                .doc(updateId);
+
+                // Attendance update ref
+                const attendUpdateRef = attendanceRef(userId, date)
+                  .collection('updates')
+                  .doc(updateId);
+
+                // Delete both
+                batch.delete(taskUpdateRef);
+                batch.delete(attendUpdateRef);
+
+                // Commit batch
+                await batch.commit();
+
+                return { data: true };
                 } catch (err: any) {
-                      console.log(err)
-                        return {
-                          error: {
-                            status: err.code || "UNKNOWN",
-                            message: err.message || "Unexpected Firestore error",
-                          },
-                        };
+                  console.log(err)
+                  return {
+                    error: {
+                      status: err.code || "UNKNOWN",
+                      message: err.message || "Unexpected Firestore error",
+                    },
+                  };
                 }
             },
           }),
@@ -276,8 +249,6 @@ export const updatesApi = createApi({
 });
 
 export const {
-  useGetUpdatesQuery,
-  useLazyGetUpdatesQuery,
   useGetUpdatesRealtimeQuery,
   useGetUpdateQuery,
   useAddUpdateMutation,

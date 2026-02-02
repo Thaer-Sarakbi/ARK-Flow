@@ -3,7 +3,7 @@ import Spacer from "@/src/components/atoms/Spacer";
 import Container from "@/src/components/Container";
 import Loading from "@/src/components/Loading";
 import ErrorComponent from "@/src/components/molecule/ErrorComponent";
-import { useGetDaysWorkingRealTimeQuery, useGetLeaveDaysRealTimeQuery, useGetUpdatesDaysQuery } from "@/src/redux/attendance";
+import { useGetDaysWorkingRealTimeQuery, useGetLeaveDaysRealTimeQuery, useGetUpdatesDaysRealTimeQuery } from "@/src/redux/attendance";
 import { useGetUsersRealtimeQuery, useUserDataRealTimeQuery } from "@/src/redux/user";
 import { MainStackParamsList } from "@/src/routes/params";
 import { Places } from "@/src/utils/Constants";
@@ -33,7 +33,7 @@ export default function CalendarScreen() {
   const skip = !value;
   const { data: workingDays, isLoading: isLoadingReport, isError: isErrorReport } = useGetDaysWorkingRealTimeQuery({ userId: value }, { skip })
   const { data: leaves, isLoading: isLoadingLeave, isError: isErrorLeave } = useGetLeaveDaysRealTimeQuery({ userId: value }, { skip })
-  const { data: updates, isLoading: isLoadingUpdates, isError: isErrorUpdates } = useGetUpdatesDaysQuery({ userId: value }, { skip })
+  const { data: updates, isLoading: isLoadingUpdates, isError: isErrorUpdates } = useGetUpdatesDaysRealTimeQuery({ userId: value }, { skip })
 
   // const filteredUsers = listOfUsers?.filter((user) => {return user.placeName === place})
   const filteredUsers = useMemo(() => {
@@ -87,8 +87,8 @@ export default function CalendarScreen() {
 
   let updatesDays: string[] = []
   updates?.forEach((updatesDay: any) => {
-    if(new Date(updatesDay.data().creationDate.seconds * 1000).getMonth() + 1 === new Date(date).getMonth() + 1){
-      updatesDays.push(moment(new Date(updatesDay.data().creationDate.seconds * 1000)).format('L'))
+    if(new Date(updatesDay.creationDate.seconds * 1000).getMonth() + 1 === new Date(date).getMonth() + 1){
+      updatesDays.push(moment(new Date(updatesDay.creationDate.seconds * 1000)).format('L'))
     }
   })
 

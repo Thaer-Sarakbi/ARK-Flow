@@ -51,7 +51,5 @@ export const Places = [
   {value: 35, label: 'ARK Porkdickson'},
   {value: 36, label: 'Avani sepang goldcost'},
   {value: 37, label: 'Ampang 3 tower Office', latitude: 3.1623508, longitude: 101.7415717 },
-  {value: 38, label: 'Batu Caves Office', 
-    //latitude: 3.2191202, longitude: 101.6756164 
-  }
+  {value: 38, label: 'Batu Caves Office', latitude: 3.2325874, longitude: 101.6752059 }
 ]

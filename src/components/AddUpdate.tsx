@@ -10,7 +10,6 @@ import uuid from 'react-native-uuid';
 import ConfirmationPopup from "../Modals/ConfirmationPopup";
 import { COLORS } from "../colors";
 import useCurrentLocation from "../hooks/useCurrentLocation";
-import { useLazyGetUpdatesDaysQuery } from "../redux/attendance";
 import { useAddUpdateMutation } from "../redux/updates";
 import Input from "./Input";
 import Loading from "./Loading";
@@ -41,7 +40,6 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
   const [addUpdate, { isSuccess, isError }] = useAddUpdateMutation()
   const { currentLocation, error: locationError, openSettings, getLocation } = useCurrentLocation(mapRef as any)
   // const [AddUpdateAttend, { isLoading: isLoadingAddUpdateAttend }] = useAddUpdateAttendMutation()
-  const [getUpdatesDays] = useLazyGetUpdatesDaysQuery()
 
   const date = moment().format("DD-MM-YYYY");
   const id = uuid.v4();
@@ -124,7 +122,6 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
     setIsLoading(false)
     setIsVisible(false)
     console.log("Adding update success");
-    getUpdatesDays({ userId })
   })
 
   //don't add any loading here

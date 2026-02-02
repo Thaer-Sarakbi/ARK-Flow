@@ -20,6 +20,7 @@ import Feather from '@expo/vector-icons/Feather';
 import { getAuth } from '@react-native-firebase/auth';
 import { getStorage, ref } from '@react-native-firebase/storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import moment from 'moment';
 import { useCallback, useEffect, useState } from 'react';
 import { Keyboard, StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from "react-native";
 import FileViewer from "react-native-file-viewer";
@@ -207,7 +208,8 @@ export default function UpdateDetails({ route }: UpdateDetails) {
     const result = await deleteUpdate({
       userId: assignedToId,
       taskId,
-      updateId
+      updateId,
+      date: moment(update.creationDate).format("DD-MM-YYYY")
     })
 
     if ('error' in result) {
