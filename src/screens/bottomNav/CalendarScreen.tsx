@@ -1,21 +1,24 @@
 import { COLORS } from "@/src/colors";
 import Spacer from "@/src/components/atoms/Spacer";
+import SubmitButton from "@/src/components/buttons/SubmitButton";
 import Container from "@/src/components/Container";
 import Loading from "@/src/components/Loading";
 import ErrorComponent from "@/src/components/molecule/ErrorComponent";
-import { useGetDaysWorkingRealTimeQuery, useGetLeaveDaysRealTimeQuery, useGetUpdatesDaysRealTimeQuery } from "@/src/redux/attendance";
+import { useGetAttendanceRealtimeQuery, useGetDaysWorkingRealTimeQuery, useGetLeaveDaysRealTimeQuery, useGetUpdatesDaysRealTimeQuery } from "@/src/redux/attendance";
 import { useGetUsersRealtimeQuery, useUserDataRealTimeQuery } from "@/src/redux/user";
 import { MainStackParamsList } from "@/src/routes/params";
-import { Places } from "@/src/utils/Constants";
+import { monthRange, PdfTemplate, Places } from "@/src/utils/Constants";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { getAuth } from "@react-native-firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 import moment from "moment";
 import { useEffect, useMemo, useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import CalendarPicker from "react-native-calendar-picker";
 import { Dropdown } from 'react-native-element-dropdown';
+import FileViewer from "react-native-file-viewer";
+import { generatePDF } from 'react-native-html-to-pdf';
 
 const auth = getAuth();
 export type RootStackNavigationProp = StackNavigationProp<MainStackParamsList>;
@@ -30,10 +33,12 @@ export default function CalendarScreen() {
   const [placeId, setPlaceId] = useState<number | undefined>();
   const [place, setPlace] = useState<string | undefined>();
   const [value, setValue] = useState<string | undefined>();
+  const [label, setLabel] = useState<string | undefined>();
   const skip = !value;
   const { data: workingDays, isLoading: isLoadingReport, isError: isErrorReport } = useGetDaysWorkingRealTimeQuery({ userId: value }, { skip })
   const { data: leaves, isLoading: isLoadingLeave, isError: isErrorLeave } = useGetLeaveDaysRealTimeQuery({ userId: value }, { skip })
   const { data: updates, isLoading: isLoadingUpdates, isError: isErrorUpdates } = useGetUpdatesDaysRealTimeQuery({ userId: value }, { skip })
+  const { data: attendanceList } = useGetAttendanceRealtimeQuery({ userId: value, date: moment(date).format("DD-MM-YYYY") }, { skip: !value || !date })
 
   // const filteredUsers = listOfUsers?.filter((user) => {return user.placeName === place})
   const filteredUsers = useMemo(() => {
@@ -64,6 +69,7 @@ export default function CalendarScreen() {
   useEffect(() => {
     if (user?.id) {
       setValue(user.id);
+      setLabel(user.fullName);
       setPlace(user.placeName);
       setPlaceId(user.placeId)
     }
@@ -130,10 +136,42 @@ export default function CalendarScreen() {
     }
   }
 
+  const createPdf = async () => {
+    const [, month, year ] = moment(date).format("DD-MM-YYYY").split('-').map(Number);
+    const days = monthRange(month, year)
+
+    const mapById = new Map(attendanceList?.map((item: any) => [item.id, item])) as any;
+
+    const rows = days.map(day => {
+     const currentDay = day.split('-').reverse().join("-")
+     return(
+      `
+      <tr>
+        <td>${currentDay}</td>
+        <td>${mapById.get(currentDay)?.checkIn ? moment(new Date(mapById.get(currentDay)?.checkIn.seconds * 1000)).format('hh:mm a') : '-' }</td>
+        <td class="note">${mapById.get(currentDay)?.checkInNote ? mapById.get(currentDay)?.checkInNote : '-'}</td>
+        <td>${mapById.get(currentDay)?.checkOut ? moment(new Date(mapById.get(currentDay)?.checkOut?.seconds * 1000)).format('hh:mm a') : '-'}</td>
+        <td class="note">${mapById.get(currentDay)?.checkOutNote ? mapById.get(currentDay)?.checkOutNote : '-'}</td>
+      </tr>
+    `
+     )
+    }).join('')
+
+    let options = {
+      html: PdfTemplate(rows, label, moment(date).format('MMMM')),
+      fileName: `${label} Attendance`,
+      directory: 'Documents',
+    };
+
+    let results = await generatePDF(options);
+    FileViewer.open(results.filePath)
+  };
+
   if (isLoadingLeave || isLoadingReport || isLoading || isLoadingUsers || isLoadingUpdates) return <Loading visible={true} />
   if (isError || isErrorReport || isErrorLeave || isErrorUserData || isErrorUpdates) return <ErrorComponent />
   
   return (
+    <>
     <Container headerMiddle="Calendar">
        <Dropdown
           disable={!user?.admin ? true : false}
@@ -184,6 +222,7 @@ export default function CalendarScreen() {
           onBlur={() => setIsFocus2(false)}
           onChange={item => {
             setValue(item.value);
+            setLabel(item.label)
             setIsFocus2(false);
           }}
           renderLeftIcon={() => (
@@ -211,6 +250,10 @@ export default function CalendarScreen() {
           headingLevel={8}
         />
     </Container>
+    <View style={{ position: 'absolute', width: '100%', bottom: 10, paddingHorizontal: 24, paddingVertical: 10 }}>
+      <SubmitButton text="Export" onPress={createPdf} />
+    </View>
+    </>
   );
 }
 

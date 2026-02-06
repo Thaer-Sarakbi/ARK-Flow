@@ -18,16 +18,36 @@ export const attendanceApi = createApi({
     addCheckIn: builder.mutation<any, CheckInOut>({
       async queryFn({ userId, date, latitude, longitude, note }) {
         try {
-          await attendanceRef(userId, date)
+          const [, month, year ] = date.split('-').map(Number);
+
+          const dateObj = new Date(year, month - 1); // day not needed
+    
+          const docRef = attendanceRef(userId, date);
+    
+          // Check-in
+          await docRef
             .collection("checkIn")
             .doc("today")
             .set({
-              time: new Date(),
+              time: firestore.FieldValue.serverTimestamp(),
               latitude,
               longitude,
               note,
             });
-
+    
+          // Attendance metadata
+          await docRef.set(
+            {
+              date: firestore.Timestamp.fromDate(dateObj),
+              year,
+              month,
+              placeholder: true,
+              checkIn: firestore.FieldValue.serverTimestamp(),
+              checkInNote: note
+            },
+            { merge: true }
+          );
+    
           return { data: true };
         } catch (err: any) {
           return {
@@ -43,16 +63,36 @@ export const attendanceApi = createApi({
     addCheckOut: builder.mutation<any, CheckInOut>({
       async queryFn({ userId, date, latitude, longitude, note }) {
         try {
-          await attendanceRef(userId, date)
+          const [, month, year ] = date.split('-').map(Number);
+
+          const dateObj = new Date(year, month - 1); // day not needed
+    
+          const docRef = attendanceRef(userId, date);
+    
+          // Check-in
+          await docRef
             .collection("checkOut")
             .doc("today")
             .set({
-              time: new Date(),
+              time: firestore.FieldValue.serverTimestamp(),
               latitude,
               longitude,
               note,
             });
-
+    
+          // Attendance metadata
+          await docRef.set(
+            {
+              date: firestore.Timestamp.fromDate(dateObj),
+              year,
+              month,
+              placeholder: true,
+              checkOut: firestore.FieldValue.serverTimestamp(),
+              checkOutNote: note
+            },
+            { merge: true }
+          );
+    
           return { data: true };
         } catch (err: any) {
           return {
@@ -111,63 +151,120 @@ export const attendanceApi = createApi({
       },
     }),
 
-    getCheckIn: builder.query<any, { userId: string | undefined; date: string }>({
-      async queryFn({ userId, date }) {
-        try {
-          const docSnap = await attendanceRef(userId, date)
-            .collection("checkIn")
-            .doc("today")
-            .get();
-
-          if (!docSnap.exists) {
+    getCheckOutRealtime: builder.query<any, { userId: string | undefined; date: string }>({
+      async queryFn() {
+            // Initial cache value
             return { data: null };
-          }
+          },
     
-          return {
-            data: {
-              id: docSnap.id,
-              ...docSnap.data(),
-            }
-          };
-        } catch (err: any) {
-          return {
-            error: {
-              status: err.code || "UNKNOWN",
-              message: err.message || "Unexpected Firestore error",
-            },
-          };
-        }
-      },
-    }),
-
-    getCheckOut: builder.query<any, { userId: string | undefined; date: string }>({
-      async queryFn({ userId, date }) {
-        try {
-          const docSnap = await attendanceRef(userId, date)
+          async onCacheEntryAdded(
+            { userId, date },
+            { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+          ) {
+          if (!userId || !date) return;
+    
+          await cacheDataLoaded;
+    
+          const checkOutRef = await attendanceRef(userId, date)
             .collection("checkOut")
             .doc("today")
-            .get();
-
-          if (!docSnap.exists) {
-            return { data: null };
-          }
     
-          return {
-            data: {
+          const unsubscribe = checkOutRef.onSnapshot((docSnap) => {
+          updateCachedData(() => {
+            if (!docSnap.exists) {
+              return null; // 🔥 clear cache properly
+            }
+        
+            return {
               id: docSnap.id,
               ...docSnap.data(),
-            }
-          };
-        } catch (err: any) {
-          return {
-            error: {
-              status: err.code || "UNKNOWN",
-              message: err.message || "Unexpected Firestore error",
-            },
-          };
-        }
+            };
+          });
+        });
+    
+        await cacheEntryRemoved;
+        unsubscribe();
       },
     }),
+
+    getCheckInRealtime: builder.query<any, { userId: string | undefined; date: string }>({
+      async queryFn() {
+            // Initial cache value
+            return { data: null };
+          },
+    
+          async onCacheEntryAdded(
+            { userId, date },
+            { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+          ) {
+          if (!userId || !date) return;
+    
+          await cacheDataLoaded;
+    
+          const checkIn = await attendanceRef(userId, date)
+            .collection("checkIn")
+            .doc("today")
+    
+          const unsubscribe = checkIn.onSnapshot((docSnap) => {
+          updateCachedData(() => {
+            if (!docSnap.exists) {
+              return null; // 🔥 clear cache properly
+            }
+        
+            return {
+              id: docSnap.id,
+              ...docSnap.data(),
+            };
+          });
+        });
+    
+        await cacheEntryRemoved;
+        unsubscribe();
+      },
+    }),
+
+    getAttendanceRealtime: builder.query<any[],  { userId: string | undefined; date: string }>({
+    // Initial cache value (required)
+    async queryFn() {
+      return { data: [] };
+    },
+  
+    async onCacheEntryAdded(
+      { userId, date },
+      { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+    ) {
+        if (!userId || !date) return;
+    
+        const [, month, year] = date.split('-').map(Number);
+    
+        await cacheDataLoaded;
+    
+        const attendanceRef = firestore()
+          .collection('users')
+          .doc(userId)
+          .collection('attendance')
+          .where('year', '==', year)
+          .where('month', '==', month);
+    
+        const unsubscribe = attendanceRef.onSnapshot((snapshot) => {
+          updateCachedData((draft) => {
+            // Clear safely
+            draft.splice(0, draft.length);
+    
+            snapshot.docs.forEach((doc) => {
+              draft.push({
+                id: doc.id,
+                ...doc.data(),
+              });
+            });
+          });
+        });
+    
+        await cacheEntryRemoved;
+        unsubscribe();
+      },
+    }),
+  
 
     getReportRealtime: builder.query<any, { userId?: string | undefined; date?: string }>({
       async queryFn() {
@@ -449,8 +546,9 @@ export const {
   useAddCheckOutMutation,
   useAddReportMutation,
   useAddLeaveMutation,
-  useGetCheckInQuery,
-  useGetCheckOutQuery,
+  useGetCheckInRealtimeQuery,
+  useGetCheckOutRealtimeQuery,
+  useGetAttendanceRealtimeQuery,
   useGetReportRealtimeQuery,
   useGetDaysWorkingRealTimeQuery,
   useGetLeaveRealtimeQuery,

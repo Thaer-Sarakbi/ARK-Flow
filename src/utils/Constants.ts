@@ -41,15 +41,116 @@ export const Places = [
   {value: 27, label: 'NEW KAJANG'},
   {value: 28, label: 'NEW RAWANG'},
   {value: 29, label: 'SUBANG'},
-  {value: 30, label: 'SG BESI H2', 
-    //latitude: 3.0356466, longitude: 101.7052028 
-  },
+  {value: 30, label: 'SG BESI H2', latitude: 3.0356466, longitude: 101.7052028 },
   {value: 31, label: 'SERANDAH'},
   {value: 32, label: 'PUCHONG'},
-  {value: 33, label: 'ARK RAWANG'},
+  {value: 33, label: 'ARK RAWANG', latitude: 3.3176836, longitude: 101.5320457 },
   {value: 34, label: 'BANTING'},
   {value: 35, label: 'ARK Porkdickson'},
   {value: 36, label: 'Avani sepang goldcost'},
   {value: 37, label: 'Ampang 3 tower Office', latitude: 3.1623508, longitude: 101.7415717 },
   {value: 38, label: 'Batu Caves Office', latitude: 3.2325874, longitude: 101.6752059 }
 ]
+
+export const PdfTemplate = (rows: any, name: string | undefined, month: string) => (
+  `<!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="UTF-8" />
+        <title>Attendance Table</title>
+        <style>
+          body {
+            font-family: Arial, sans-serif;
+            padding: 24px;
+            color: #333;
+            }
+
+          h2 {
+            text-align: center;
+            margin-bottom: 24px;
+          }
+
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 16px;
+          }
+
+          th, td {
+            border: 1px solid #ccc;
+            padding: 12px;
+            text-align: center;
+          }
+
+          th {
+            background-color: #f4f4f4;
+            font-weight: bold;
+          }
+
+          tr:nth-child(even) {
+            background-color: #fafafa;
+          }
+
+          .note {
+            max-width: 160px;
+            width: 160px;
+            word-wrap: break-word;
+            white-space: normal;
+          }
+          .footer {
+            margin-top: 40px;
+            text-align: right;
+            font-size: 12px;
+            color: #777;
+          }
+        </style>
+      </head>
+      <body>
+          <h2>${name} - ${month}</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Check In</th>
+                <th class="note">Note</th>
+                <th>Check Out</th>
+                <th class="note">Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rows}
+            </tbody>
+          </table>
+      </body>
+    </html>`
+)
+
+export const monthRange = (month: number, year: number) => {
+  
+  let startDate = new Date()
+  let endDate = new Date()
+  const dateArray = [];
+
+  if([1, 3, 5, 7, 8, 10, 12].includes(month)){
+    startDate = new Date(`${year}-${month}-01`);
+    endDate = new Date(`${year}-${month}-31`);
+  } else if([4, 6, 9, 11].includes(month)){
+    startDate = new Date(`${year}-${month}-01`);
+    endDate = new Date(`${year}-${month}-30`);
+  } else if(month === 2){
+    startDate = new Date(`${year}-${month}-01`);
+    endDate = new Date(`${year}-${month}-28`);
+  }
+
+  let currentDate = new Date(startDate);
+
+  while (currentDate <= endDate) {
+    // We create a new Date instance so we don't just store references to the same object
+    dateArray.push(new Date(currentDate).toISOString().split('T')[0]);
+    
+    // Increment the day by 1
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+
+  return dateArray;
+}
