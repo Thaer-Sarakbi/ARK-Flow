@@ -40,7 +40,7 @@ export const Places = [
   {value: 26, label: 'MELAWATHI H2'},
   {value: 27, label: 'NEW KAJANG'},
   {value: 28, label: 'NEW RAWANG'},
-  {value: 29, label: 'SUBANG'},
+  {value: 29, label: 'SUBANG', latitude: 3.1519610, longitude: 101.5525850 },
   {value: 30, label: 'SG BESI H2', latitude: 3.0356466, longitude: 101.7052028 },
   {value: 31, label: 'SERANDAH'},
   {value: 32, label: 'PUCHONG'},

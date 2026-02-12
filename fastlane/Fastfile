@@ -29,7 +29,7 @@ platform :ios do
   end
 
   desc "Upload to testflghit"
-  lane :upload_to_testflight do |options|
+  lane :upload_ipa_to_testflight do |options|
     upload_to_testflight(
       username: "newwavehotel@gmail.com",
       app_identifier: "com.ark.deglory.arkflow"
@@ -57,8 +57,8 @@ platform :ios do
   desc "Build and Distribute to testflghit"
   lane :release_new_version do |options|
     # match
-    # archive_ios options
-    upload_to_testflight
+    archive_ios options
+    upload_ipa_to_testflight
     # submit_for_review
   end
 end

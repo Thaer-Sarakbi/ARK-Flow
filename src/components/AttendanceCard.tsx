@@ -1,11 +1,12 @@
 import Feather from '@expo/vector-icons/Feather';
 import { DocumentPickerResponse } from '@react-native-documents/picker';
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Asset } from 'react-native-image-picker';
 import { COLORS } from "../colors";
 import { shadow } from '../utils/shadows';
 import Spacer from "./atoms/Spacer";
 import SubmitButton from "./buttons/SubmitButton";
+import ImagesList from './ImagesList';
 import Input from "./Input";
 
 interface AttendanceCard {
@@ -44,16 +45,15 @@ export default function AttendanceCard({ value, title, caption, buttonText, labe
         </View>
       ))
      }
-     {
-      imagesList?.map((image: Asset, i: number) => (
-        <View key={i} style={styles.uploadButton}>
-          <Text>{image.fileName}</Text>
-          {removeImage && <TouchableOpacity onPress={() => removeImage(image.uri as string)}>
-            <Feather name="x" size={20} color={'black'} />
-          </TouchableOpacity>}
-        </View>
-      ))
-     }
+      <FlatList 
+        data={imagesList}
+        horizontal
+        nestedScrollEnabled={true}
+        keyExtractor={(item, index) => item.id ?? index.toString()}
+        renderItem={({ item }) => (
+          <ImagesList removeImage={removeImage as any} imageUri={item.uri} />
+        )}
+      />
      </View>
      {uploadButton && (
         <>

@@ -3,7 +3,7 @@ import { DocumentPickerResponse } from "@react-native-documents/picker";
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { Image, KeyboardAvoidingView, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Image, KeyboardAvoidingView, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Asset } from "react-native-image-picker";
 import MapView from "react-native-maps";
 import uuid from 'react-native-uuid';
@@ -11,6 +11,7 @@ import ConfirmationPopup from "../Modals/ConfirmationPopup";
 import { COLORS } from "../colors";
 import useCurrentLocation from "../hooks/useCurrentLocation";
 import { useAddUpdateMutation } from "../redux/updates";
+import ImagesList from "./ImagesList";
 import Input from "./Input";
 import Loading from "./Loading";
 import Spacer from "./atoms/Spacer";
@@ -197,17 +198,18 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
           </View>
         ))
       }
-      {
-        images?.map((image: Asset, i: number) => (
-          <View key={i} style={styles.uploadButton}>
-            <Text>{image.fileName}</Text>
-            {removeImage && <TouchableOpacity onPress={() => removeImage(image.uri as string)}>
-              <Feather name="x" size={20} color={'black'} />
-            </TouchableOpacity>}
-        </View>
-      ))
-      }
-      <Spacer height={20} />
+      <Spacer height={8} />
+      <FlatList 
+        data={images}
+        horizontal
+        nestedScrollEnabled={true}
+        keyExtractor={(item, index) => item.id ?? index.toString()}
+        renderItem={({ item }) => (
+          <ImagesList removeImage={removeImage} imageUri={item.uri} />
+        )}
+      />
+      {/* </>} */}
+      <Spacer height={10} />
       <SubmitButton text='Upload' mode='outlined' onPress={() => setUploadPopupVisible(true)}/>
       <Spacer height={6} />
       <SubmitButton text="Add Update" onPress={() => {

@@ -15,13 +15,37 @@ For _fastlane_ installation instructions, see [Installing _fastlane_](https://do
 
 ## iOS
 
-### ios build_release_ios
+### ios archive_ios
 
 ```sh
-[bundle exec] fastlane ios build_release_ios
+[bundle exec] fastlane ios archive_ios
 ```
 
 Build IOS App
+
+### ios upload_ipa_to_testflight
+
+```sh
+[bundle exec] fastlane ios upload_ipa_to_testflight
+```
+
+Upload to testflghit
+
+### ios submit_for_review
+
+```sh
+[bundle exec] fastlane ios submit_for_review
+```
+
+Submit_for review
+
+### ios release_new_version
+
+```sh
+[bundle exec] fastlane ios release_new_version
+```
+
+Build and Distribute to testflghit
 
 ----
 
@@ -43,6 +67,22 @@ Build android apk
 ```
 
 Build android aab
+
+### android upload_to_playstore
+
+```sh
+[bundle exec] fastlane android upload_to_playstore
+```
+
+
+
+### android release_new_version_play_store
+
+```sh
+[bundle exec] fastlane android release_new_version_play_store
+```
+
+
 
 ----
 

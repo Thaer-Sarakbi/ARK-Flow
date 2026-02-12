@@ -1,10 +1,9 @@
-import Feather from "@expo/vector-icons/Feather";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
-import { Asset } from "react-native-image-picker";
+import { FlatList } from "react-native-gesture-handler";
 import { COLORS } from "../colors";
 import useDocumentPicker from "../hooks/useDocumentPicker";
 import { useAddNotificationMutation } from "../redux/notifications";
@@ -12,9 +11,10 @@ import { useAddTaskMutation } from "../redux/tasks";
 import { Places } from "../utils/Constants";
 import { pushNotification } from "../utils/PushNotificationService";
 import { User } from "../utils/types";
-import Input from "./Input";
 import Spacer from "./atoms/Spacer";
 import SubmitButton from "./buttons/SubmitButton";
+import ImagesList from "./ImagesList";
+import Input from "./Input";
 
 interface AddTask {
   user: User,
@@ -285,16 +285,16 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
         <Text style={styles.title}>Days</Text>
       </View>
       <Spacer height={20} />
-      {
-        images?.map((image: Asset, i: number) => (
-          <View key={i} style={styles.uploadButton}>
-            <Text>{image.fileName}</Text>
-            {removeImage && <TouchableOpacity onPress={() => removeImage(image.uri as string)}>
-              <Feather name="x" size={20} color={'black'} />
-            </TouchableOpacity>}
-          </View>
-        ))
-      }
+      <FlatList 
+        data={images}
+        horizontal
+        nestedScrollEnabled={true}
+        keyExtractor={(item, index) => item.id ?? index.toString()}
+        renderItem={({ item }) => (
+          <ImagesList removeImage={removeImage} imageUri={item.uri} />
+        )}
+      />
+      <Spacer height={10} />
       <SubmitButton text='Upload' mode='outlined' onPress={handleGallery}/>
       <Spacer height={8} />
       <SubmitButton text="Assign" onPress={handleSubmit(handleSubmitLogin)}/>
