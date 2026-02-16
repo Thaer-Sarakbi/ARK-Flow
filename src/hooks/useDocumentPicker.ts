@@ -142,6 +142,30 @@ const useDocumentPicker = () => {
     });
   }
 
+    const handleChangeTaskImage = async (images: any) => {
+      let imageUrls: any[] = [];
+
+      await Promise.all(
+        images.map(async(url: string) => {
+          const localPath = `${RNFS.DocumentDirectoryPath}/${Date.now()}.jpg`;
+          const result = await RNFS.downloadFile({
+            fromUrl: url,
+            toFile: localPath,
+          }).promise;
+    
+          if (result.statusCode === 200) {
+            imageUrls.push({uri: localPath})
+            console.log('Download success:', localPath);
+            //return localPath;
+        } else {
+          throw new Error('Download failed');
+        }
+        })
+      )
+
+      setImages(imageUrls)
+    }
+
     const removeImage = (uri: string) => {
       setImages(prev => prev.filter(img => img.uri !== uri));
     };
@@ -163,7 +187,7 @@ const useDocumentPicker = () => {
       const folderRef = ref(storage, path);
       const list = await folderRef.listAll(); // list all files and prefixes
     
-      console.log(path)
+      console.log('path ', path)
       console.log(list)
       // delete all files
       for (const fileRef of list.items) {
@@ -218,6 +242,7 @@ const useDocumentPicker = () => {
         type: img.type || "image/jpeg",
       };
 
+      console.log(file)
       const url = await uploadFile(file, path);
       if (url) urls.push(url);
     }
@@ -275,7 +300,9 @@ const useDocumentPicker = () => {
     removeImage,
     removeLeaveImage,
     uploadAll,
-    uploadLeaveAll
+    uploadLeaveAll,
+    deleteAllFilesInFolder,
+    handleChangeTaskImage
   }
 };
 

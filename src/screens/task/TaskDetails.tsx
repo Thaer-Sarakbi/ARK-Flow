@@ -77,6 +77,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
     const [isImageViewVisible, setIsImageViewVisible] = useState<boolean>(false);
     const [index, setIndex] = useState(0);
     const [loadingVisible, setIsLoadingVisible] = useState<boolean>(false);
+    const [changeTaskloading, setChangeTaskLoading] = useState<boolean>(false);
     const navigation = useNavigation<RootStackNavigationProp>()
     // const { data: user, loading, isError: isErrorUserData } = useUserData();
     const { data: user, isLoading, isError: isErrorUserData } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
@@ -88,7 +89,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
     const currentStatus = data?.status;
     const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
     const { data: updatesData, isLoading: isLoadingUpdates , isError: isErrorUpdates } = useGetUpdatesRealtimeQuery({ userId: assignedToId, taskId: taskId }, { skip: skipQueries })
-    const { handleDocumentSelection, handleSelectImage, handleSelectCamera, images, removeImage, documents, removeDocument, uploadAll, uploading } = useDocumentPicker()
+    const { handleDocumentSelection, handleSelectImage, handleSelectCamera, images, removeImage, documents, removeDocument, uploadAll, uploading, deleteAllFilesInFolder } = useDocumentPicker()
     const  [updateTaskStatus]= useUpdateTaskStatusMutation()
     const  [updateNotificationStatus]= useUpdateNotificationStatusMutation()
     const [deleteTask] = useDeleteTaskMutation()
@@ -232,6 +233,10 @@ const TaskDetails = ({ route }: TaskDetails) => {
   }
 
   const onDeleteTask = async () => {
+    if(sliderimages.length > 0){
+      await deleteAllFilesInFolder(`users/${assignedToId}/tasks/${taskId}/files`)
+    }
+
     const result = await deleteTask({
       userId: assignedToId,
       taskId,
@@ -252,7 +257,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
       setIsVisibleChange(true)
     }
 
-    if(isLoading || (isLoadingTask && !data)) return <Loading visible={true} />
+    if(changeTaskloading || isLoading || (isLoadingTask && !data)) return <Loading visible={true} />
     if(isErrorUserData || isErrorTask) return <ErrorComponent />
 
     return (
@@ -368,7 +373,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
       onPressClose={() => setIsVisibleDeleteError(false)}
     /> 
     <ImageViewModal index={index} visible={isImageViewVisible} images={imagesList} setIsVisible={setIsImageViewVisible} />
-    <ChangeAssignToPopup isVisible={isVisibleChange} task={data} title='Change To' assignedToId={assignedToId} taskId={taskId} buttonTitle={'Change'} onPressClose={() => setIsVisibleChange(false)} />
+    <ChangeAssignToPopup isVisible={isVisibleChange} setChangeTaskLoading={setChangeTaskLoading} task={data} title='Change To' assignedToId={assignedToId} taskId={taskId} sliderimages={sliderimages} buttonTitle={'Change'} onPressClose={() => setIsVisibleChange(false)} />
     </>
     )
 }

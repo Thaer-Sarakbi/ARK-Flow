@@ -9,6 +9,7 @@ import LoadingComponent from '@/src/components/LoadingComponent';
 import ErrorComponent from '@/src/components/molecule/ErrorComponent';
 import MapViewComponent from '@/src/components/molecule/MapViewComponent';
 import TaskCard from '@/src/components/TaskCard';
+import useDocumentPicker from '@/src/hooks/useDocumentPicker';
 import ConfirmationPopup from '@/src/Modals/ConfirmationPopup';
 import ImageViewModal from '@/src/Modals/ImageViewModal';
 import { useAddNotificationMutation, useUpdateNotificationStatusMutation } from '@/src/redux/notifications';
@@ -75,6 +76,7 @@ export default function UpdateDetails({ route }: UpdateDetails) {
   const [images, setImages] = useState<IImageInfo[]>([]);
   const [pdf, setPdf] = useState<{uri: string}[]>([]);
   const [comment, setComment] = useState('')
+  const { deleteAllFilesInFolder } = useDocumentPicker()
 
   const folderPath = `users/${assignedToId}/tasks/${taskId}/updates/${updateId}/files`;
 
@@ -205,6 +207,8 @@ export default function UpdateDetails({ route }: UpdateDetails) {
   }
 
   const onDeleteUpdate = async () => {
+    await deleteAllFilesInFolder(`users/${assignedToId}/tasks/${taskId}/updates/${updateId}/files`)
+    
     const result = await deleteUpdate({
       userId: assignedToId,
       taskId,

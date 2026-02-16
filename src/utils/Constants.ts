@@ -35,7 +35,7 @@ export const Places = [
   {value: 21, label: 'HARTAMAS H1'},
   {value: 22, label: 'KAJANG STAR'},
   {value: 23, label: 'KDH 1'},
-  {value: 24, label: 'KDH 2'},
+  {value: 24, label: 'KDH 2', latitude: 3.1510098, longitude: 101.5757008},
   {value: 25, label: 'MELAKKA'},
   {value: 26, label: 'MELAWATHI H2'},
   {value: 27, label: 'NEW KAJANG'},

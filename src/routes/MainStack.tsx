@@ -81,7 +81,14 @@ const MainStack = () => {
     }, []);
 
     useEffect(() => {
-      getFcmToken();
+      setTimeout(() => {
+        if(data?.fcmToken === '' && auth.currentUser){
+          getFcmToken();
+        }
+      }, 2000);
+    },[data?.fcmToken])
+
+    useEffect(() => {
       requestNotificationPermission() ;
       if(data?.id){
         checkPlace()

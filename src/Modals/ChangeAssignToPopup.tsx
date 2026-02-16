@@ -7,6 +7,7 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { COLORS } from '../colors';
 import Spacer from '../components/atoms/Spacer';
 import SubmitButton from '../components/buttons/SubmitButton';
+import useDocumentPicker from '../hooks/useDocumentPicker';
 import { useAddNotificationMutation } from '../redux/notifications';
 import { useAddTaskMutation, useDeleteTaskMutation } from '../redux/tasks';
 import { useGetUsersRealtimeQuery } from '../redux/user';
@@ -30,9 +31,11 @@ export interface ChangeAssignToPopup {
   assignedToId: string;
   taskId: string
   task: Task
+  sliderimages: string[]
+  setChangeTaskLoading:(visible: boolean) => void
 }
 
-const ChangeAssignToPopup = ({isVisible = false, assignedToId, taskId, gapBetween = 16, buttonTitle = 'Done', icon, title, paragraph1, padding = 16, task, onPressClose }: ChangeAssignToPopup) => {
+const ChangeAssignToPopup = ({isVisible = false, setChangeTaskLoading, assignedToId, taskId, gapBetween = 16, sliderimages, buttonTitle = 'Done', icon, title, paragraph1, padding = 16, task, onPressClose }: ChangeAssignToPopup) => {
   const { width } = useWindowDimensions();
   const navigation = useNavigation()
   const [newAssignedToId, setNewAssignedToId] = useState<string>('');
@@ -42,6 +45,7 @@ const ChangeAssignToPopup = ({isVisible = false, assignedToId, taskId, gapBetwee
   const [isVisibleeDeleteError, setIsVisibleDeleteError] = useState(false)
   const { data: listOfUsers, isLoading: isLoadingUsers, isError }= useGetUsersRealtimeQuery()
   const [addNotification, { isLoading: isLoadingAddNot, isError: isErrorAddNot }] = useAddNotificationMutation()
+  const { handleChangeTaskImage, deleteAllFilesInFolder, uploadAll, images } = useDocumentPicker()
   const [deleteTask] = useDeleteTaskMutation()
   const [addTask] = useAddTaskMutation()
 
@@ -50,6 +54,12 @@ const ChangeAssignToPopup = ({isVisible = false, assignedToId, taskId, gapBetwee
       setNewAssignedToId(assignedToId)
     }
   }, [isVisible])
+
+  useEffect(() => {
+    if(images.length > 0) {
+      handleChangeTask()
+    }
+  },[images])
 
   const dropdownData = useMemo(() => {
     if (!listOfUsers) return [];
@@ -64,59 +74,76 @@ const ChangeAssignToPopup = ({isVisible = false, assignedToId, taskId, gapBetwee
     if(assignedToId === newAssignedToId){
       onPressClose()
     } else {
-    const result = await deleteTask({
-      userId: assignedToId,
-      taskId,
-    })
-
-    if ('error' in result) {
-      console.log("delete status error:", result.error);
-      setIsVisibleDeleteError(true)
-      return;
+    await handleChangeTaskImage(sliderimages)
     }
-
-    console.log('Deleted Successfully')
-
-    const addTaskResult = await addTask({ 
-      title: task?.title, 
-      description: task?.description, 
-      assignedBy: task.assignedBy, 
-      assignedById:  task.assignedById,
-      assignedTo: newAssignedToName, 
-      assignedToId: newAssignedToId, 
-      duration: task?.duration, 
-      location : task?.location
-    } as any)
-
-    console.log('Added successfully')
-
-    const addNotResult = await addNotification({
-      userId: newAssignedToId,
-      taskId: addTaskResult.data,
-      screenName: 'TaskDetails',
-      screenId: addTaskResult.data,
-      message: 'You have assigned a new task by ',
-      by: task.assignedBy, 
-      title,
-      assignedToId: newAssignedToId,
-      assignedById: task.assignedById
-    } as any)
-
-    if ('error' in addNotResult) {
-      console.log("Adding notification error:", addNotResult.error);
-      return;
-    }
-
-    console.log('Notification Added')
-    if (assignedToFcmToken) {
-      pushNotification(assignedToFcmToken, newAssignedToId, title, task.assignedBy, 'TaskDetails')
-    }
-
-    navigation.goBack()
-    onPressClose()
-   }
   }
   
+  const handleChangeTask = async () => {
+    try {
+      setChangeTaskLoading(true)
+
+      const addTaskResult = await addTask({ 
+        title: task?.title, 
+        description: task?.description, 
+        assignedBy: task.assignedBy, 
+        assignedById:  task.assignedById,
+        assignedTo: newAssignedToName, 
+        assignedToId: newAssignedToId, 
+        duration: task?.duration, 
+        location : task?.location
+      } as any)
+  
+      console.log('Added successfully')
+  
+      await uploadAll(`users/${newAssignedToId}/tasks/${addTaskResult.data}/files`)
+  
+      const addNotResult = await addNotification({
+        userId: newAssignedToId,
+        taskId: addTaskResult.data,
+        screenName: 'TaskDetails',
+        screenId: addTaskResult.data,
+        message: 'You have assigned a new task by ',
+        by: task.assignedBy, 
+        title,
+        assignedToId: newAssignedToId,
+        assignedById: task.assignedById
+      } as any)
+  
+      if ('error' in addNotResult) {
+        console.log("Adding notification error:", addNotResult.error);
+        return;
+      }
+  
+      console.log('Notification Added')
+      if (assignedToFcmToken) {
+        pushNotification(assignedToFcmToken, newAssignedToId, title, task.assignedBy, 'TaskDetails')
+      }
+  
+      await deleteAllFilesInFolder(`users/${assignedToId}/tasks/${taskId}/files`)
+  
+      const result = await deleteTask({
+        userId: assignedToId,
+        taskId,
+      })
+  
+      if ('error' in result) {
+        console.log("delete status error:", result.error);
+        setIsVisibleDeleteError(true)
+        return;
+      }
+  
+      console.log('Deleted Successfully')
+  
+      navigation.goBack()
+      onPressClose()
+    } catch (error) {
+      console.log('Change task error:', error)
+      setIsVisibleDeleteError(true)
+    } finally {
+      setChangeTaskLoading(false)
+    }
+  }
+
   return (
     <PopupModal isVisible={isVisible} width={width - 32} padding={padding}>
         <View style={{ width: '100%'}}>

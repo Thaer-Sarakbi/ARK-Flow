@@ -10,6 +10,7 @@ import uuid from 'react-native-uuid';
 import ConfirmationPopup from "../Modals/ConfirmationPopup";
 import { COLORS } from "../colors";
 import useCurrentLocation from "../hooks/useCurrentLocation";
+import { useAddNotificationMutation } from "../redux/notifications";
 import { useAddUpdateMutation } from "../redux/updates";
 import ImagesList from "./ImagesList";
 import Input from "./Input";
@@ -24,6 +25,8 @@ interface AddUpdate {
   assignedById: string
   images: Asset[],
   userId: string | undefined,
+  userName?: string | undefined
+  taskTitle?: string | undefined
   documents: DocumentPickerResponse[]
   uploadAll:(path: string) => any
   removeDocument:(url: string) => void
@@ -31,7 +34,7 @@ interface AddUpdate {
   uploading: boolean
 }
 
-export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId, assignedToId, assignedById, images, documents, removeDocument, removeImage, uploadAll, userId, uploading }: AddUpdate) {
+export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId, assignedToId, assignedById, images, documents, removeDocument, removeImage, uploadAll, userId, taskTitle, userName, uploading }: AddUpdate) {
   const mapRef = useRef<MapView | null>(null);
   const [isVisibleConfirm, setIsVisibleConfirm] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -39,6 +42,7 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
   const [isVisibleFailed, setIsVisibleFailed] = useState(false)
   const [showLocationAndroid, setShowLocationAndroid] = useState(false)
   const [addUpdate, { isSuccess, isError }] = useAddUpdateMutation()
+  const [addNotification, { isLoading: isLoadingAddNot, isError: isErrorAddNot }] = useAddNotificationMutation()
   const { currentLocation, error: locationError, openSettings, getLocation } = useCurrentLocation(mapRef as any)
   // const [AddUpdateAttend, { isLoading: isLoadingAddUpdateAttend }] = useAddUpdateAttendMutation()
 
@@ -123,10 +127,30 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
     setIsLoading(false)
     setIsVisible(false)
     console.log("Adding update success");
+
+    const addNotResult = await addNotification({
+      userId: assignedById,
+      taskId,
+      updateId: id,
+      screenName: 'UpdateDetails',
+      screenId: id,
+      message: 'A new update added by ',
+      by: userName,
+      title: taskTitle,
+      assignedToId,
+      assignedById
+    } as any)
+
+    if ('error' in addNotResult) {
+      console.log("Adding notification error:", addNotResult.error);
+      return;
+    }
+
+    console.log('Notification Added')
   })
 
   //don't add any loading here
-  // if(isLoading || uploading) return <Loading visible={true} />
+  if(isLoading || uploading) return <Loading visible={true} />
   if(uploading) return <Loading visible={true} />
 
   return (
