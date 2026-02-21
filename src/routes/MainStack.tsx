@@ -19,6 +19,7 @@ import NotificationsScreen from '../screens/mainHeader/NotificationsScreen'
 import SearchScreen from '../screens/mainHeader/SearchScreen'
 import TaskDetails from '../screens/task/TaskDetails'
 import UpdateDetails from '../screens/task/UpdateDetails'
+import { Places } from '../utils/Constants'
 import { sendSignInLink } from '../utils/sendEmailLink'
 import BottomNavigator from "./BottomTabNavigator"
 import { MainStackParamsList } from './params'
@@ -34,6 +35,13 @@ const MainStack = () => {
     const [isVisible, setIsvisible] = useState(false)
     const [showAlert, setShowAlert] = useState(false)
     const [showPlaceAlert, setShowPlaceAlert] = useState(false)
+    const [removedAccount, setRemovedAccount] = useState(false)
+   
+    useEffect(() => {
+      if(data && Places.filter(place => place.label === data?.placeName).length < 1) {
+        setRemovedAccount(true)
+      }
+    },[data])
 
     useEffect(() => {
       notifee.createChannel({
@@ -253,6 +261,7 @@ const MainStack = () => {
         
         setShowAlert(false)
       }} onPressClose={() => setShowAlert(false)} buttonTitle="Enable"/>
+      <ConfirmationPopup isVisible={removedAccount} title="Removed Account" paragraph1="Your account has been deleted from database" buttonTitle="Okay"/>
       <UpdatePlacePopup isVisible={showPlaceAlert} id={data?.id} placeName={placeName} placeId={placeId} setPlaceName={setPlaceName} setPlaceId={setPlaceId} title="Your Place" paragraph1="Please choose your place" disable={() => setShowPlaceAlert(false)} buttonTitle="Submit"/>
       </>
     )

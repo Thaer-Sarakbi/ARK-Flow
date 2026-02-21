@@ -142,23 +142,38 @@ export default function CalendarScreen() {
 
     const mapById = new Map(attendanceList?.map((item: any) => [item.id, item])) as any;
 
-    const rows = days.map(day => {
+    const rowsMorning = days.map(day => {
      const currentDay = day.split('-').reverse().join("-")
      return(
       `
       <tr>
         <td>${currentDay}</td>
-        <td>${mapById.get(currentDay)?.checkIn ? moment(new Date(mapById.get(currentDay)?.checkIn.seconds * 1000)).format('hh:mm a') : '-' }</td>
-        <td class="note">${mapById.get(currentDay)?.checkInNote ? mapById.get(currentDay)?.checkInNote : '-'}</td>
-        <td>${mapById.get(currentDay)?.checkOut ? moment(new Date(mapById.get(currentDay)?.checkOut?.seconds * 1000)).format('hh:mm a') : '-'}</td>
-        <td class="note">${mapById.get(currentDay)?.checkOutNote ? mapById.get(currentDay)?.checkOutNote : '-'}</td>
+        <td>${mapById.get(currentDay)?.checkInMorning ? moment(new Date(mapById.get(currentDay)?.checkInMorning.seconds * 1000)).format('hh:mm a') : '-' }</td>
+        <td class="note">${mapById.get(currentDay)?.checkInNoteMorning ? mapById.get(currentDay)?.checkInNoteMorning : '-'}</td>
+        <td>${mapById.get(currentDay)?.checkOutMorning ? moment(new Date(mapById.get(currentDay)?.checkOutMorning?.seconds * 1000)).format('hh:mm a') : '-'}</td>
+        <td class="note">${mapById.get(currentDay)?.checkOutNoteMorning ? mapById.get(currentDay)?.checkOutNoteMorning : '-'}</td>
       </tr>
     `
      )
     }).join('')
 
+    const rowsNight = days.map(day => {
+      const currentDay = day.split('-').reverse().join("-")
+      return(
+       `
+       <tr>
+         <td>${currentDay}</td>
+         <td>${mapById.get(currentDay)?.checkInNight ? moment(new Date(mapById.get(currentDay)?.checkInNight.seconds * 1000)).format('hh:mm a') : '-' }</td>
+         <td class="note">${mapById.get(currentDay)?.checkInNoteNight ? mapById.get(currentDay)?.checkInNoteNight : '-'}</td>
+         <td>${mapById.get(currentDay)?.checkOutNight ? moment(new Date(mapById.get(currentDay)?.checkOutNight?.seconds * 1000)).format('hh:mm a') : '-'}</td>
+         <td class="note">${mapById.get(currentDay)?.checkOutNoteNight ? mapById.get(currentDay)?.checkOutNoteNight : '-'}</td>
+       </tr>
+     `
+      )
+     }).join('')
+
     let options = {
-      html: PdfTemplate(rows, label, moment(date).format('MMMM')),
+      html: PdfTemplate(rowsMorning, rowsNight, label, moment(date).format('MMMM')),
       fileName: `${label} Attendance`,
       directory: 'Documents',
     };

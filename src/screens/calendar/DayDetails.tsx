@@ -4,7 +4,7 @@ import Spacer from "@/src/components/atoms/Spacer";
 import Container from "@/src/components/Container";
 import Loading from "@/src/components/Loading";
 import ErrorComponent from "@/src/components/molecule/ErrorComponent";
-import { useGetCheckInRealtimeQuery, useGetCheckOutRealtimeQuery, useGetLeaveRealtimeQuery, useGetReportRealtimeQuery, useGetUpdatesRealtimeQuery } from "@/src/redux/attendance";
+import { useGetCheckInMorningRealtimeQuery, useGetCheckInNightRealtimeQuery, useGetCheckInRealtimeQuery, useGetCheckOutMorningRealtimeQuery, useGetCheckOutNightRealtimeQuery, useGetCheckOutRealtimeQuery, useGetLeaveRealtimeQuery, useGetReportRealtimeQuery, useGetUpdatesRealtimeQuery } from "@/src/redux/attendance";
 import { useUserDataRealTimeQuery } from "@/src/redux/user";
 import { MainStackParamsList } from "@/src/routes/params";
 import Entypo from '@expo/vector-icons/Entypo';
@@ -33,37 +33,90 @@ export default function DayDetails({ route }: DayDetails) {
   const isLoading = useSelector((state: any) => state.ui.loading);
   const { data: user, isLoading: isLoadingUser, isError: isErrorUserData } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
   const { data: checkIn, isLoading: isLoadingCheckIn, isError: isErrorCheckIn } = useGetCheckInRealtimeQuery({ userId, date })
+  const { data: checkInMorning, isLoading: isLoadingCheckInMorning, isError: isErrorCheckInMorning } = useGetCheckInMorningRealtimeQuery({ userId, date })
+  const { data: checkInNight, isLoading: isLoadingCheckInNghit, isError: isErrorCheckInNight} = useGetCheckInNightRealtimeQuery({ userId, date })
   const { data: checkOut, isLoading: isLoadingCheckOut, isError: isErrorCheckOut } = useGetCheckOutRealtimeQuery({ userId, date })
+  const { data: checkOutMorning, isLoading: isLoadingCheckOutMorning, isError: isErrorCheckOutMorning } = useGetCheckOutMorningRealtimeQuery({ userId, date })
+  const { data: checkOutNight, isLoading: isLoadingCheckOutNghit, isError: isErrorCheckOutNight} = useGetCheckOutNightRealtimeQuery({ userId, date })
   const skipQueries = !userId || !date;
   const { data: reportData, isLoading: isLoadingReport, isError: isErrorGetReport, } = useGetReportRealtimeQuery({ userId, date }, { skip: skipQueries })
   const { data: leaveData, isLoading: leaveIsLoading, isError: LeaveIsError } = useGetLeaveRealtimeQuery({ userId, date })
   const { data: updates, isLoading: isLoadingUpdates, isError: isErrorUpdates } = useGetUpdatesRealtimeQuery({ userId, date })
 
-  if (isLoadingReport || isLoadingCheckIn || isLoadingCheckOut || isLoading ||leaveIsLoading || isLoadingUser || isLoadingUpdates ) return <Loading visible />;
-  if (isErrorCheckOut || isErrorCheckIn || isErrorGetReport || LeaveIsError || isErrorUpdates) return <ErrorComponent />;
+  if (isLoadingReport || isLoadingCheckInMorning || isLoadingCheckInNghit || isLoadingCheckOutMorning || isLoadingCheckOutNghit  || isLoading ||leaveIsLoading || isLoadingUser || isLoadingUpdates ) return <Loading visible />;
+  if (isErrorCheckOutMorning || isErrorCheckOutNight || isErrorCheckInMorning || isErrorCheckInNight || isErrorGetReport || LeaveIsError || isErrorUpdates) return <ErrorComponent />;
 
   return (
     <Container allowBack={true} headerMiddle='Day Details' backgroundColor={COLORS.neutral._100}>
       <Text style={styles.date}>{date}</Text>
       <Spacer height={10} />
       <Text style={styles.title}>Attendance</Text>
-      {
+      { 
+        // first
         (checkIn?.time || checkOut?.time) ? (
-        <TouchableOpacity style={styles.container} onPress={() => navigation.navigate('CheckInOut', { checkIn, checkOut })}>
-          <View style={{ flex: 1, alignItems: 'flex-start' }}>
-            {
-              checkIn?.time ? <Text><Text style={styles.caption}>Check In:</Text> {moment(checkIn?.time.seconds * 1000 + checkIn?.time.nanoseconds / 1_000_000).format('h:mm a')}</Text> : undefined
-            }
-            <Separator marginVertical={6}/>
-            {
-              checkOut?.time ? <Text><Text style={styles.caption}>Check Out:</Text> {moment(checkOut?.time.seconds * 1000 + checkOut?.time.nanoseconds / 1_000_000).format('h:mm a')}</Text> : undefined
-            }      
-          </View>
-          <Entypo name="chevron-small-right" size={24} color="black" />
-        </TouchableOpacity>
-        ) : (
-          <Text style={styles.caption}>No Attendance data for today</Text>
-        )
+          <>
+            <Spacer height={6} />
+            <TouchableOpacity style={styles.container} onPress={() => navigation.navigate('CheckInOut', { checkIn, checkOut })}>
+              <View style={{ flex: 1, alignItems: 'flex-start' }}>
+                {
+                  checkIn?.time ? <Text><Text style={styles.caption}>Check In:</Text> {moment(checkIn?.time.seconds * 1000 + checkIn?.time.nanoseconds / 1_000_000).format('h:mm a')}</Text> : undefined
+                }
+                <Separator marginVertical={6}/>
+                {
+                  checkOut?.time ? <Text><Text style={styles.caption}>Check Out:</Text> {moment(checkOut?.time.seconds * 1000 + checkOut?.time.nanoseconds / 1_000_000).format('h:mm a')}</Text> : undefined
+                }      
+              </View>
+              <Entypo name="chevron-small-right" size={24} color="black" />
+            </TouchableOpacity>
+          </>
+          ) : 
+          
+          // second
+          (checkInMorning?.time || checkOutMorning?.time || checkInNight?.time || checkOutNight?.time) ? (
+          <>
+            {(checkInMorning?.time || checkOutMorning?.time) && (
+            <>
+              <Spacer height={10} />
+              <Text>Morning</Text>
+              <Spacer height={4} />
+              <TouchableOpacity style={styles.container} onPress={() => navigation.navigate('CheckInOut', { checkIn: checkInMorning, checkOut: checkOutMorning })}>
+                <View style={{ flex: 1, alignItems: 'flex-start' }}>
+                {
+                  checkInMorning?.time ? <Text><Text style={styles.caption}>Check In:</Text> {moment(checkInMorning?.time.seconds * 1000 + checkInMorning?.time.nanoseconds / 1_000_000).format('h:mm a')}</Text> : undefined
+                }
+                <Separator marginVertical={6}/>
+                {
+                  checkOutMorning?.time ? <Text><Text style={styles.caption}>Check Out:</Text> {moment(checkOutMorning?.time.seconds * 1000 + checkOutMorning?.time.nanoseconds / 1_000_000).format('h:mm a')}</Text> : undefined
+                }      
+                </View>
+                <Entypo name="chevron-small-right" size={24} color="black" />
+              </TouchableOpacity>
+            </>
+          )}
+
+          {(checkInNight?.time || checkOutNight?.time) && (
+            <>
+              <Spacer height={12} />
+              <Text>Night</Text>
+              <Spacer height={4} />
+              <TouchableOpacity style={styles.container} onPress={() => navigation.navigate('CheckInOut', { checkIn: checkInNight, checkOut: checkOutNight })}>
+                <View style={{ flex: 1, alignItems: 'flex-start' }}>
+                  {
+                    checkInNight?.time ? <Text><Text style={styles.caption}>Check In:</Text> {moment(checkInNight?.time.seconds * 1000 + checkInNight?.time.nanoseconds / 1_000_000).format('h:mm a')}</Text> : undefined
+                  }
+                  <Separator marginVertical={6}/>
+                  {
+                    checkOutNight?.time ? <Text><Text style={styles.caption}>Check Out:</Text> {moment(checkOutNight?.time.seconds * 1000 + checkOutNight?.time.nanoseconds / 1_000_000).format('h:mm a')}</Text> : undefined
+                  }      
+                </View>
+                <Entypo name="chevron-small-right" size={24} color="black" />
+              </TouchableOpacity> 
+            </>
+          )}
+          </>
+          ) : (
+            <Text style={styles.caption}>No Attendance data for today</Text>
+          )
       }
       <Spacer height={8}/>
       <Text style={styles.title}>Report</Text>

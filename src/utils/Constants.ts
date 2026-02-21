@@ -14,24 +14,24 @@ export enum DeviceInformation {
 
 export const Places = [
   {value: 1, label: 'Not Spesific'},
-  {value: 2, label: 'AMPANG H2'},
-  {value: 3, label: 'AMPANG TESCO'},
-  {value: 4, label: 'BUKIT BERU'},
-  {value: 6, label: 'DOLOMITE'},
-  {value: 7, label: 'HARTAMAS H2'},
-  {value: 8, label: 'KUALA SELANGOR'},
+  // {value: 2, label: 'AMPANG H2'},
+  // {value: 3, label: 'AMPANG TESCO'},
+  // {value: 4, label: 'BUKIT BERU'},
+  // {value: 5, label: 'CAMERON'},
+  // {value: 6, label: 'DOLOMITE'},
+  // {value: 7, label: 'HARTAMAS H2'},
+  // {value: 8, label: 'KUALA SELANGOR'},
   {value: 9, label: 'MELAWATHI H3'},
   {value: 10, label: 'N/W RAWANG'},
-  {value: 11, label: 'NILAI BUDGET'},
-  {value: 12, label: 'NILAI H2', latitude: 2.8113741, longitude: 101.8073255},
-  {value: 13, label: 'PUTRA HEIGHT'},
-  {value: 14, label: 'SAMUDRA'},
-  {value: 15, label: 'SHAH ALAM H1'},
-  {value: 16, label: 'SHAH ALAM H2'},
-  {value: 17, label: 'SUNGAI BESI H1'},
-  {value: 18, label: 'DD'},
-  {value: 19, label: 'AMPANG Н1'},
-  {value: 20, label: 'DE GLORY'},
+  // {value: 11, label: 'NILAI BUDGET'},
+  // {value: 12, label: 'NILAI H2', latitude: 2.8113741, longitude: 101.8073255},
+  // {value: 13, label: 'PUTRA HEIGHT'},
+  // {value: 14, label: 'SAMUDRA'},
+  // {value: 15, label: 'SHAH ALAM H1'},
+  // {value: 16, label: 'SHAH ALAM H2'},
+  // {value: 17, label: 'SUNGAI BESI H1'},
+  {value: 19, label: 'AMPANG H1', latitude: 3.1584280, longitude: 101.7500843},
+  {value: 20, label: 'DE GLORY', latitude: 3.0252123, longitude: 101.5819822},
   {value: 21, label: 'HARTAMAS H1'},
   {value: 22, label: 'KAJANG STAR'},
   {value: 23, label: 'KDH 1'},
@@ -39,7 +39,7 @@ export const Places = [
   {value: 25, label: 'MELAKKA'},
   {value: 26, label: 'MELAWATHI H2'},
   {value: 27, label: 'NEW KAJANG'},
-  {value: 28, label: 'NEW RAWANG'},
+  // {value: 28, label: 'NEW RAWANG'},
   {value: 29, label: 'SUBANG', latitude: 3.1519610, longitude: 101.5525850 },
   {value: 30, label: 'SG BESI H2', latitude: 3.0356466, longitude: 101.7052028 },
   {value: 31, label: 'SERANDAH'},
@@ -49,10 +49,10 @@ export const Places = [
   {value: 35, label: 'ARK Porkdickson'},
   {value: 36, label: 'Avani sepang goldcost'},
   {value: 37, label: 'Ampang 3 tower Office', latitude: 3.1623508, longitude: 101.7415717 },
-  {value: 38, label: 'Batu Caves Office', latitude: 3.2325874, longitude: 101.6752059 }
+  // {value: 38, label: 'Batu Caves Office', latitude: 3.2325874, longitude: 101.6752059 }
 ]
 
-export const PdfTemplate = (rows: any, name: string | undefined, month: string) => (
+export const PdfTemplate = (rowsMorning: any, rowsNight: any, name: string | undefined, month: string) => (
   `<!DOCTYPE html>
     <html lang="en">
       <head>
@@ -103,10 +103,13 @@ export const PdfTemplate = (rows: any, name: string | undefined, month: string) 
             font-size: 12px;
             color: #777;
           }
+          thead {
+            display: table-row-group;
+          }
         </style>
       </head>
       <body>
-          <h2>${name} - ${month}</h2>
+          <h2>${name} - ${month} (Morning)</h2>
           <table>
             <thead>
               <tr>
@@ -118,7 +121,25 @@ export const PdfTemplate = (rows: any, name: string | undefined, month: string) 
               </tr>
             </thead>
             <tbody>
-              ${rows}
+              ${rowsMorning}
+            </tbody>
+          </table>
+
+          <br/>
+          <br/>
+          <h2>${name} - ${month} (Night)</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Check In</th>
+                <th class="note">Note</th>
+                <th>Check Out</th>
+                <th class="note">Note</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsNight}
             </tbody>
           </table>
       </body>

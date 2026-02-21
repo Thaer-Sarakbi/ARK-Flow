@@ -9,7 +9,7 @@ import useCurrentLocation from "@/src/hooks/useCurrentLocation";
 import useDocumentPicker from "@/src/hooks/useDocumentPicker";
 import BottomSheet from "@/src/Modals/BottomSheet";
 import ConfirmationPopup from "@/src/Modals/ConfirmationPopup";
-import { useAddCheckInMutation, useAddCheckOutMutation, useAddLeaveMutation, useAddReportMutation } from "@/src/redux/attendance";
+import { useAddCheckInMorningMutation, useAddCheckInNightMutation, useAddCheckOutMorningMutation, useAddCheckOutNightMutation, useAddLeaveMutation, useAddReportMutation } from "@/src/redux/attendance";
 import { useUserDataRealTimeQuery } from "@/src/redux/user";
 import { Places } from "@/src/utils/Constants";
 import { getAuth } from "@react-native-firebase/auth";
@@ -30,7 +30,6 @@ export default function AttendanceScreen() {
   const [uploadPopupLeaveVisible, setUploadPopupLeaveVisible] = useState(false)
   const [isVisibleReportSuccess, setIsVisibleReportSuccess] = useState(false)
   const [isVisibleReportFailed, setIsVisibleReportFailed] = useState(false)
-  const [isVisibleFailed, setIsVisibleFailed] = useState(false)
   const [isVisibleLeaveSuccess, setIsVisibleLeaveSuccess] = useState(false)
   const [isVisibleLeaveFailed, setIsVisibleLeaveFailed] = useState(false)
   const [isVisibleWrongPlace, setIsVisibleWrongPlace] = useState(false)
@@ -42,15 +41,17 @@ export default function AttendanceScreen() {
   const [isVisibleCheckOutFailed, setIsVisibleCheckOutFailed] = useState(false)
   const [isVisibleEmptyReport, setIsVisibleEmptyReport] = useState(false)
   const [isVisibleEmptyLeave, setIsVisibleEmptyLeave] = useState(false)
-  const [errorMessage, setErrorMessage] = useState("")
-  const [errorSecondMessage, setSecondErrorMessage] = useState("")
   const [checkInNote, setCheckInNote] = useState("")
+  const [checkInShift, setCheckInShift] = useState<'Morning' | 'Night'>("Morning")
   const [checkOutNote, setCheckOutNote] = useState("")
+  const [checkOutShift, setCheckOutShift] = useState<'Morning' | 'Night'>("Morning")
   const [report, setReport] = useState("")
   const [leaveText, setLeaveText] = useState("")
   const { location, currentLocation, loading, error, openSettings, getLocation } = useCurrentLocation(mapRef as any)
-  const [addCheckIn, { isLoading, error: checkInError }] = useAddCheckInMutation();
-  const [addCheckOut] = useAddCheckOutMutation();
+  const [addCheckInMorning] = useAddCheckInMorningMutation();
+  const [addCheckInNight] = useAddCheckInNightMutation()
+  const [addCheckOutMorning] = useAddCheckOutMorningMutation();
+  const [addCheckOutNight] = useAddCheckOutNightMutation();
   const { data, isLoading: isLoadingUser, isError } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
   
   const [addReport] = useAddReportMutation()
@@ -110,18 +111,34 @@ export default function AttendanceScreen() {
       return;
     }
 
-    const result = await addCheckIn({
-      userId: data.id,
-      date,
-      latitude: currentLocation?.latitude,
-      longitude: currentLocation?.longitude,
-      note: checkInNote,
-    });
-  
-    if ('error' in result) {
-      console.log("Check-in error:", result.error);
-      setIsVisibleCheckInFailed(true);
-      return;
+    if(checkInShift === 'Morning'){
+      const result = await addCheckInMorning({
+        userId: data.id,
+        date,
+        latitude: currentLocation?.latitude,
+        longitude: currentLocation?.longitude,
+        note: checkInNote,
+      });
+
+      if ('error' in result) {
+        console.log("Check-in error:", result.error);
+        setIsVisibleCheckInFailed(true);
+        return;
+      }
+    } else {
+      const result = await addCheckInNight({
+        userId: data.id,
+        date,
+        latitude: currentLocation?.latitude,
+        longitude: currentLocation?.longitude,
+        note: checkInNote
+      });
+
+      if ('error' in result) {
+        console.log("Check-in error:", result.error);
+        setIsVisibleCheckInFailed(true);
+        return;
+      }
     }
   
     setIsVisibleCheckInSuccess(true)
@@ -158,18 +175,34 @@ export default function AttendanceScreen() {
       return;
     }
 
-    const result = await addCheckOut({
-      userId: data.id,
-      date,
-      latitude: currentLocation?.latitude,
-      longitude: currentLocation?.longitude,
-      note: checkOutNote,
-    });
-  
-    if ('error' in result) {
-      console.log("Check-out error:", result.error);
-      setIsVisibleCheckOutFailed(true);
-      return;
+    if(checkOutShift === 'Morning'){
+      const result = await addCheckOutMorning({
+        userId: data.id,
+        date,
+        latitude: currentLocation?.latitude,
+        longitude: currentLocation?.longitude,
+        note: checkOutNote,
+      });
+    
+      if ('error' in result) {
+        console.log("Check-out error:", result.error);
+        setIsVisibleCheckOutFailed(true);
+        return;
+      }
+    } else {
+      const result = await addCheckOutNight({
+        userId: data.id,
+        date,
+        latitude: currentLocation?.latitude,
+        longitude: currentLocation?.longitude,
+        note: checkOutNote,
+      });
+    
+      if ('error' in result) {
+        console.log("Check-out error:", result.error);
+        setIsVisibleCheckOutFailed(true);
+        return;
+      }
     }
   
     setIsVisibleCheckOutSuccess(true)
@@ -277,12 +310,12 @@ export default function AttendanceScreen() {
     <>
     <Container headerMiddle="Attendance" hasInput>
       <Loading visible={uploading ? true : false}/>
-      <AttendanceCard value={checkInNote} onChangeText={setCheckInNote} label='Your Note' title="Check In" caption="Notes" buttonText="Register" onPress={() => {
+      <AttendanceCard value={checkInNote} shift={checkInShift} onChangeText={setCheckInNote} setShift={setCheckInShift} label='Your Note' title="Check In" caption="Notes" buttonText="Register" onPress={() => {
         getLocation()
         setIsVisibleConfirmCheckIn(true)
       }} />
       <Spacer height={18}/>
-      <AttendanceCard value={checkOutNote} onChangeText={setCheckOutNote} label="Your Note" title="Check Out" caption="Notes" buttonText="Register" onPress={() => {
+      <AttendanceCard value={checkOutNote} shift={checkOutShift} onChangeText={setCheckOutNote} setShift={setCheckOutShift} label="Your Note" title="Check Out" caption="Notes" buttonText="Register" onPress={() => {
         getLocation()
         setIsVisibleConfirmCheckOut(true)
       }} />
