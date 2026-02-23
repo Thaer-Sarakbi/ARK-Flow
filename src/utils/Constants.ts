@@ -22,7 +22,7 @@ export const Places = [
   // {value: 7, label: 'HARTAMAS H2'},
   // {value: 8, label: 'KUALA SELANGOR'},
   {value: 9, label: 'MELAWATHI H3'},
-  {value: 10, label: 'N/W RAWANG'},
+  {value: 10, label: 'NEW RAWANG'},
   // {value: 11, label: 'NILAI BUDGET'},
   // {value: 12, label: 'NILAI H2', latitude: 2.8113741, longitude: 101.8073255},
   // {value: 13, label: 'PUTRA HEIGHT'},

@@ -7,6 +7,7 @@ import Loading from '@/src/components/Loading';
 import ErrorComponent from '@/src/components/molecule/ErrorComponent';
 import useShowPassword from '@/src/hooks/useShowPassword';
 import PopupModal from '@/src/Modals/PopupModal';
+import UpdateNamePopup from '@/src/Modals/UpdateNamePopup';
 import UpdatePlacePopup from '@/src/Modals/UpdatePlacePopup';
 import { useDeleteUserMutation, useLazyGetUsersQuery, useUserDataRealTimeQuery } from '@/src/redux/user';
 import Feather from '@expo/vector-icons/Feather';
@@ -37,8 +38,10 @@ export default function ProfileScreen() {
   const [text, setText] = useState('')
   const [isVisible, setIsVisible] = useState(false)
   const [showPlaceAlert, setShowPlaceAlert] = useState(false)
+  const [showNameAlert, setShowNameAlert] = useState(false)
   const [placeName, setPlaceName] = useState<string | undefined>('')
   const [placeId, setPlaceId] = useState<number | undefined>()
+  const [updatedName, setUpdatedName] = useState<string | undefined>('')
   const [error, setError] = useState('')
   const { height } = useWindowDimensions();
   const { showPassword, toggleShowPassword } = useShowPassword() 
@@ -56,6 +59,7 @@ export default function ProfileScreen() {
   useEffect(() => {
     setPlaceName(data?.placeName)
     setPlaceId(data?.placeId)
+    setUpdatedName(data?.fullName)
   },[data])
 
   const onLogOut = async () => {
@@ -111,7 +115,14 @@ export default function ProfileScreen() {
       <View>
         <ImageBackground style={[styles.background, { height: height / 3 }]} source={require('@/assets/profile.jpg')} >
           <MaterialCommunityIcons name="account-outline" color={COLORS.neutral._400} size={60} />
-          <Text style = {styles.name}>{data?.fullName}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <Text style = {styles.name}>{data?.fullName}</Text>
+            <Spacer width={6} />
+            <TouchableOpacity onPress={() => setShowNameAlert(true)}>
+              <Text style={{ textDecorationLine: 'underline', textDecorationColor: COLORS.white, color: COLORS.white, fontSize: 16 }}>edit</Text>
+            </TouchableOpacity>
+          </View>
+          
           {/* <Text style = {styles.joined}>Joined in {moment(user?.creationDate).format('MMMM YYYY')}</Text> */}
           <Text style={styles.joined}>Joined in {moment(data?.accountCreated).format('MMMM YYYY')}</Text>
         </ImageBackground>
@@ -194,6 +205,7 @@ export default function ProfileScreen() {
       </View>
     </PopupModal>
     <UpdatePlacePopup isVisible={showPlaceAlert} id={data?.id} placeName={placeName} placeId={placeId} setPlaceName={setPlaceName} setPlaceId={setPlaceId} title="Your Place" paragraph1="Please choose your place" disable={() => {setShowPlaceAlert(false); getUsers()}} buttonTitle="Submit"/>
+    <UpdateNamePopup isVisible={showNameAlert} id={data?.id} updatedName={updatedName} setUpdatedName={setUpdatedName} title="Edit Name" paragraph1="Please type your updated name" disable={() => {setShowNameAlert(false)}} buttonTitle="Submit"/>
     </>
   );
 }
