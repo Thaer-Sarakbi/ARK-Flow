@@ -43,7 +43,7 @@ const CarouselSlider = ({ index, images, setIndex }: CarouselSliderProps) => {
           defaultIndex={index}
           ref={ref}
 		      loop={true}
-		      width={width}
+		      width={width - 50}
           height={400}
 		      snapEnabled={true}
 		      pagingEnabled={true}

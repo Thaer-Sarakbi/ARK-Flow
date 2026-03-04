@@ -132,9 +132,9 @@ export const PdfTemplate = (rowsMorning: any, rowsNight: any, name: string | und
             <thead>
               <tr>
                 <th>Date</th>
-                <th>Check In</th>
-                <th class="note">Note</th>
                 <th>Check Out</th>
+                <th class="note">Note</th>
+                <th>Check In</th>
                 <th class="note">Note</th>
               </tr>
             </thead>

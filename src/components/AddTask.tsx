@@ -1,7 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { FlatList } from "react-native-gesture-handler";
 import { COLORS } from "../colors";
@@ -101,7 +101,7 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
   };
 
   return (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} >
+    <KeyboardAvoidingView behavior={'height'} keyboardVerticalOffset={160}>
     <ScrollView style={{ maxHeight: 600 }}>
       <Text style={{ fontSize: 25, fontWeight: 'bold', color: COLORS.title }}>Assign Task</Text>
       <Spacer height={14} />

@@ -163,10 +163,10 @@ export default function CalendarScreen() {
        `
        <tr>
          <td>${currentDay}</td>
-         <td>${mapById.get(currentDay)?.checkInNight ? moment(new Date(mapById.get(currentDay)?.checkInNight.seconds * 1000)).format('hh:mm a') : '-' }</td>
-         <td class="note">${mapById.get(currentDay)?.checkInNoteNight ? mapById.get(currentDay)?.checkInNoteNight : '-'}</td>
          <td>${mapById.get(currentDay)?.checkOutNight ? moment(new Date(mapById.get(currentDay)?.checkOutNight?.seconds * 1000)).format('hh:mm a') : '-'}</td>
          <td class="note">${mapById.get(currentDay)?.checkOutNoteNight ? mapById.get(currentDay)?.checkOutNoteNight : '-'}</td>
+          <td>${mapById.get(currentDay)?.checkInNight ? moment(new Date(mapById.get(currentDay)?.checkInNight.seconds * 1000)).format('hh:mm a') : '-' }</td>
+         <td class="note">${mapById.get(currentDay)?.checkInNoteNight ? mapById.get(currentDay)?.checkInNoteNight : '-'}</td>
        </tr>
      `
       )

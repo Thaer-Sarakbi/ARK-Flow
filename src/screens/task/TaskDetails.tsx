@@ -86,6 +86,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
     // Only run task + updates queries when user.id exists
     const skipQueries = !assignedToId || !taskId;
     const { data, isLoading: isLoadingTask, isError: isErrorTask } = useGetTaskRealtimeQuery({ userId: assignedToId, taskId }, { skip: skipQueries })
+    // const { data: assignedByData } = useGetUserRealtimeQuery({ userId: data?.assignedById }, { skip: data });
     const currentStatus = data?.status;
     const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
     const { data: updatesData, isLoading: isLoadingUpdates , isError: isErrorUpdates } = useGetUpdatesRealtimeQuery({ userId: assignedToId, taskId: taskId }, { skip: skipQueries })
@@ -259,6 +260,11 @@ const TaskDetails = ({ route }: TaskDetails) => {
 
     if(changeTaskloading || isLoading || (isLoadingTask && !data)) return <Loading visible={true} />
     if(isErrorUserData || isErrorTask) return <ErrorComponent />
+    if(!data?.assignedById) return <Container hasInput allowBack headerMiddle='Task Details' backgroundColor={COLORS.neutral._100}>
+        <View style={styles.notFoundContainer}>
+          <Image style={styles.image} source={require('../../../assets/notFound.png')} />
+        </View>
+      </Container>
 
     return (
       <>
@@ -399,6 +405,11 @@ const styles = StyleSheet.create({
       color:'white', 
       padding: 6, 
       borderRadius:13
+    },
+    notFoundContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+    image: {
+      width: 250, 
+      height: 250
     }
 });
 

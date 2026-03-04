@@ -74,7 +74,11 @@ const ChangeAssignToPopup = ({isVisible = false, setChangeTaskLoading, assignedT
     if(assignedToId === newAssignedToId){
       onPressClose()
     } else {
-    await handleChangeTaskImage(sliderimages)
+      if(sliderimages.length > 0) {
+        await handleChangeTaskImage(sliderimages)
+      } else {
+        handleChangeTask()
+      }
     }
   }
   

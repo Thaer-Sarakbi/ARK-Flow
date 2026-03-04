@@ -9,6 +9,13 @@ import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";
 const MAX_FILE_SIZE = 3 * 1024 * 1024;
 const storage = getStorage();
 
+function getRandomNumberByLength(length: number) {
+  const min = Math.pow(10, length - 1);
+  const max = Math.pow(10, length) - 1;
+  // The range formula ensures the number is always 'length' digits long
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 const useDocumentPicker = () => {
   const [documents, setDocuments] = React.useState<DocumentPickerResponse[] | any>([]);
   const [leaveDocuments, setLeaveDocuments] = React.useState<DocumentPickerResponse[] | any>([]);
@@ -147,7 +154,7 @@ const useDocumentPicker = () => {
 
       await Promise.all(
         images.map(async(url: string) => {
-          const localPath = `${RNFS.DocumentDirectoryPath}/${Date.now()}.jpg`;
+          const localPath = `${RNFS.DocumentDirectoryPath}/${getRandomNumberByLength(12)}.jpg`;
           const result = await RNFS.downloadFile({
             fromUrl: url,
             toFile: localPath,

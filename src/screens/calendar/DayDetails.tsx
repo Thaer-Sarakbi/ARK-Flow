@@ -102,12 +102,12 @@ export default function DayDetails({ route }: DayDetails) {
               <TouchableOpacity style={styles.container} onPress={() => navigation.navigate('CheckInOut', { checkIn: checkInNight, checkOut: checkOutNight })}>
                 <View style={{ flex: 1, alignItems: 'flex-start' }}>
                   {
-                    checkInNight?.time ? <Text><Text style={styles.caption}>Check In:</Text> {moment(checkInNight?.time.seconds * 1000 + checkInNight?.time.nanoseconds / 1_000_000).format('h:mm a')}</Text> : undefined
-                  }
-                  <Separator marginVertical={6}/>
-                  {
                     checkOutNight?.time ? <Text><Text style={styles.caption}>Check Out:</Text> {moment(checkOutNight?.time.seconds * 1000 + checkOutNight?.time.nanoseconds / 1_000_000).format('h:mm a')}</Text> : undefined
-                  }      
+                  }                  
+                  <Separator marginVertical={6}/>    
+                  {
+                    checkInNight?.time ? <Text><Text style={styles.caption}>Check In:</Text> {moment(checkInNight?.time.seconds * 1000 + checkInNight?.time.nanoseconds / 1_000_000).format('h:mm a')}</Text> : undefined
+                  } 
                 </View>
                 <Entypo name="chevron-small-right" size={24} color="black" />
               </TouchableOpacity> 
