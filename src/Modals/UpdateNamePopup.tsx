@@ -10,10 +10,11 @@ import PopupModal from './PopupModal';
 /**
  * Popup modal props
  */
-export interface ConfirmationPopupProps {
+export interface UpdateProfilePopupProps {
   isVisible: boolean;
   title: string;
   paragraph1?: string;
+  paragraph2?: string;
   buttonTitle?: string;
   onPress?: () => void;
   onPressClose?: () => void;
@@ -21,43 +22,51 @@ export interface ConfirmationPopupProps {
   padding?: number;
   id: string | undefined; 
   disable: any;
-  updatedName: string | undefined;
-  setUpdatedName: (name: string) => void
+  enableCloseIcone?: boolean;
+  data: string;
+  value: string | undefined;
+  setUpdate: (data: string) => void;
+  placeholder: string
 }
 
-const UpdateNamePopup = ({isVisible = false, id, updatedName, setUpdatedName, disable, gapBetween = 16, buttonTitle = 'Done', title, paragraph1, padding = 16 }: ConfirmationPopupProps) => {
+const UpdateProfilePopup = ({isVisible = false, id, data, value, setUpdate, disable, enableCloseIcone = true, gapBetween = 16, buttonTitle = 'Done', title, paragraph1, paragraph2, padding = 16, placeholder }: UpdateProfilePopupProps) => {
   const { width } = useWindowDimensions();
 
   const onPress = async () => {
-    await firestore()
-    .collection('users')
-    .doc(id)
-    .update({
-      fullName: updatedName
-    }).finally(
-      disable()
-    )
+    if(value){
+      await firestore()
+      .collection('users')
+      .doc(id)
+      .update({
+        [data]: value
+      }).finally(
+        disable()
+      )
+    }
+   
   }
   
   return (
     <PopupModal isVisible={isVisible} width={width - 32} padding={padding}>
       <View style={styles.body}>
-      <View style={{ width: '100%'}}>
+      {enableCloseIcone && <View style={{ width: '100%'}}>
           <TouchableOpacity style={styles.closeBox} onPress={() => disable()} >
               <Feather name="x" size={24} color={'black'} />
           </TouchableOpacity>
-        </View>
+        </View>}
         <Text style={styles.title}>{title}</Text>
         {paragraph1 && <Spacer height={16} />}
         {paragraph1 && <Text style={styles.caption}>{paragraph1}</Text>}
+        {paragraph2 && <Spacer height={2} />}
+        {paragraph2 && <Text style={styles.caption}>{paragraph2}</Text>}
         <Spacer height={6} />
         <Input 
-          label="Full Name" 
+          label={!value ? placeholder : ''} 
           borderColor={COLORS.neutral._300} 
           inputColor={COLORS.title} 
           labelColor={COLORS.neutral._400} 
-          value={updatedName}
-          onChangeText={setUpdatedName}
+          value={value}
+          onChangeText={setUpdate}
         />
         <Spacer height={gapBetween} />
       </View>
@@ -68,7 +77,7 @@ const UpdateNamePopup = ({isVisible = false, id, updatedName, setUpdatedName, di
   )
 }
 
-export default UpdateNamePopup
+export default UpdateProfilePopup
 
 const styles = StyleSheet.create({
   closeBox: { justifyContent: 'center', alignItems: 'flex-end' },

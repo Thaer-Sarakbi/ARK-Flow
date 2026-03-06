@@ -7,7 +7,7 @@ import Loading from '@/src/components/Loading';
 import ErrorComponent from '@/src/components/molecule/ErrorComponent';
 import useShowPassword from '@/src/hooks/useShowPassword';
 import PopupModal from '@/src/Modals/PopupModal';
-import UpdateNamePopup from '@/src/Modals/UpdateNamePopup';
+import UpdateProfilePopup from '@/src/Modals/UpdateNamePopup';
 import UpdatePlacePopup from '@/src/Modals/UpdatePlacePopup';
 import { useDeleteUserMutation, useLazyGetUsersQuery, useUserDataRealTimeQuery } from '@/src/redux/user';
 import Feather from '@expo/vector-icons/Feather';
@@ -39,7 +39,9 @@ export default function ProfileScreen() {
   const [isVisible, setIsVisible] = useState(false)
   const [showPlaceAlert, setShowPlaceAlert] = useState(false)
   const [showNameAlert, setShowNameAlert] = useState(false)
+  const [showRoleAlert, setShowRoleAlert] = useState(false)
   const [placeName, setPlaceName] = useState<string | undefined>('')
+  const [role, setRole] = useState<string | undefined>('')
   const [placeId, setPlaceId] = useState<number | undefined>()
   const [updatedName, setUpdatedName] = useState<string | undefined>('')
   const [error, setError] = useState('')
@@ -53,14 +55,16 @@ export default function ProfileScreen() {
     {id: 1, title: 'Email', value: data?.email},
     {id: 2, title: 'Mobile Number', value: data?.phoneNumber},
     {id: 3, title: 'Password', value: showPassword ? data?.password : '*******'},
-    {id: 4, title: 'Place', value: placeName}
+    {id: 4, title: 'Role', value: data?.role},
+    {id: 5, title: 'Place', value: placeName}
   ]
 
   useEffect(() => {
     setPlaceName(data?.placeName)
     setPlaceId(data?.placeId)
     setUpdatedName(data?.fullName)
-  },[data])
+    setRole(data?.role)
+  },[data, showNameAlert, showRoleAlert])
 
   const onLogOut = async () => {
     try {
@@ -147,6 +151,11 @@ export default function ProfileScreen() {
                   onPress={toggleShowPassword} 
                  />)} 
 
+                {field.title === 'Role' && (
+                  <TouchableOpacity onPress={() => setShowRoleAlert(true)}>
+                    <Text style={{ textDecorationLine: 'underline', textDecorationColor: COLORS.info, color: COLORS.info, fontSize: 16 }}>Edit</Text>
+                  </TouchableOpacity>)} 
+
                 {field.title === 'Place' && (
                   <TouchableOpacity onPress={() => setShowPlaceAlert(true)}>
                     <Text style={{ textDecorationLine: 'underline', textDecorationColor: COLORS.info, color: COLORS.info, fontSize: 16 }}>change</Text>
@@ -205,7 +214,8 @@ export default function ProfileScreen() {
       </View>
     </PopupModal>
     <UpdatePlacePopup isVisible={showPlaceAlert} id={data?.id} placeName={placeName} placeId={placeId} setPlaceName={setPlaceName} setPlaceId={setPlaceId} title="Your Place" paragraph1="Please choose your place" disable={() => {setShowPlaceAlert(false); getUsers()}} buttonTitle="Submit"/>
-    <UpdateNamePopup isVisible={showNameAlert} id={data?.id} updatedName={updatedName} setUpdatedName={setUpdatedName} title="Edit Name" paragraph1="Please type your updated name" disable={() => {setShowNameAlert(false)}} buttonTitle="Submit"/>
+    <UpdateProfilePopup isVisible={showNameAlert} id={data?.id} value={updatedName} data={'fullName'} setUpdate={setUpdatedName} title="Edit Name" paragraph1="Please type your updated name" disable={() => {setShowNameAlert(false)}} buttonTitle="Submit" placeholder="Full Name"/>
+    <UpdateProfilePopup isVisible={showRoleAlert} id={data?.id} value={role} data={'role'} setUpdate={setRole} title="Edit Role" paragraph1="Please type your role" paragraph2="For Example: Counter, Cleaner....." disable={() => {setShowRoleAlert(false)}} buttonTitle="Submit" placeholder="Role"/>
     </>
   );
 }

@@ -15,7 +15,7 @@ import { Places } from "@/src/utils/Constants";
 import { getAuth } from "@react-native-firebase/auth";
 import { getDistance } from 'geolib';
 import moment from "moment";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { Image, Linking, StyleSheet, View } from "react-native";
 import MapView from 'react-native-maps';
 
@@ -59,9 +59,6 @@ export default function AttendanceScreen() {
   const { documents, leaveDocuments, images, uploading, leaveImages, handleDocumentSelection, handleLeaveDocumentSelection, handleSelectImage, handleSelectCamera, handleSelectLeaveImage, handleSelectLeaveCamera, removeDocument, removeLeaveDocument, removeImage, removeLeaveImage, uploadAll, uploadLeaveAll } = useDocumentPicker()
   const date = moment().format("DD-MM-YYYY");
 
-  useEffect(() => {
-    getLocation(); // fetch when screen opens
-  },[])
 
   function isUserInsideArea(userLat: number, userLng: number): boolean {
 

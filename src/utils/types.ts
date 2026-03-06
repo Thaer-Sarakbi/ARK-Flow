@@ -66,6 +66,7 @@ export interface User {
   fcmToken: string,
   placeName: string,
   placeId: number
+  role: string
 }
 
 export interface Notifications {

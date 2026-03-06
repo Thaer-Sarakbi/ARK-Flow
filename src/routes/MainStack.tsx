@@ -3,11 +3,14 @@ import { getAuth } from '@react-native-firebase/auth'
 import firestore from '@react-native-firebase/firestore'
 import messaging from '@react-native-firebase/messaging'
 import { createStackNavigator } from "@react-navigation/stack"
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { Linking, PermissionsAndroid, Platform } from 'react-native'
+import MapView from 'react-native-maps'
 import { requestNotifications } from 'react-native-permissions'
 import Loading from '../components/Loading'
+import useCurrentLocation from '../hooks/useCurrentLocation'
 import ConfirmationPopup from '../Modals/ConfirmationPopup'
+import UpdateProfilePopup from '../Modals/UpdateNamePopup'
 import UpdatePlacePopup from '../Modals/UpdatePlacePopup'
 import { useUserDataRealTimeQuery } from '../redux/user'
 import CheckInOut from "../screens/calendar/CheckInOut"
@@ -29,12 +32,16 @@ const Stack = createStackNavigator<MainStackParamsList>()
 
 const MainStack = () => { 
     // const { data, loading } = useUserData();
+    const mapRef = useRef<MapView | null>(null);
+    const { getLocation } = useCurrentLocation(mapRef as any)
     const { data, isLoading, isError } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
     const [placeName, setPlaceName] = useState<string | undefined>('')
+    const [role, setRole] = useState<string | undefined>('')
     const [placeId, setPlaceId] = useState<number | undefined>()
     const [isVisible, setIsvisible] = useState(false)
     const [showAlert, setShowAlert] = useState(false)
     const [showPlaceAlert, setShowPlaceAlert] = useState(false)
+    const [showRoleAlert, setShowRoleAlert] = useState(false)
     const [removedAccount, setRemovedAccount] = useState(false)
    
     useEffect(() => {
@@ -98,6 +105,7 @@ const MainStack = () => {
 
     useEffect(() => {
       requestNotificationPermission() ;
+      getLocation();
       if(data?.id){
         checkPlace()
       }
@@ -190,6 +198,10 @@ const MainStack = () => {
       if(!result.data()?.placeName){
         setShowPlaceAlert(true)
       }
+
+      if(!result.data()?.role){
+        setShowRoleAlert(true)
+      }
     }
 
     const openSettings = () => {
@@ -263,6 +275,7 @@ const MainStack = () => {
       }} onPressClose={() => setShowAlert(false)} buttonTitle="Enable"/>
       <ConfirmationPopup isVisible={removedAccount} title="Removed Account" paragraph1="Your account has been deleted from database" buttonTitle="Okay"/>
       <UpdatePlacePopup isVisible={showPlaceAlert} id={data?.id} placeName={placeName} placeId={placeId} setPlaceName={setPlaceName} setPlaceId={setPlaceId} title="Your Place" paragraph1="Please choose your place" disable={() => setShowPlaceAlert(false)} buttonTitle="Submit"/>
+      <UpdateProfilePopup isVisible={showRoleAlert} enableCloseIcone={false} id={data?.id} value={role} data={'role'} setUpdate={setRole} title="Your Role" paragraph1="Please type your role" paragraph2="For Example: Counter, Cleaner....." disable={() => {setShowRoleAlert(false)}} buttonTitle="Submit" placeholder='Role'/>
       </>
     )
   }
