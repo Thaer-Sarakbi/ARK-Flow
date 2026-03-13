@@ -6,23 +6,31 @@ import Input from '@/src/components/Input';
 import Loading from '@/src/components/Loading';
 import ErrorComponent from '@/src/components/molecule/ErrorComponent';
 import useShowPassword from '@/src/hooks/useShowPassword';
+import ImageViewModal from '@/src/Modals/ImageViewModal';
 import PopupModal from '@/src/Modals/PopupModal';
 import UpdateProfilePopup from '@/src/Modals/UpdateNamePopup';
 import UpdatePlacePopup from '@/src/Modals/UpdatePlacePopup';
+import UploadPhotoPopup from '@/src/Modals/UploadPhotoPopup';
 import { useDeleteUserMutation, useLazyGetUsersQuery, useUserDataRealTimeQuery } from '@/src/redux/user';
+import { DrawerNavigation } from '@/src/routes/DrawerNavigator';
 import Feather from '@expo/vector-icons/Feather';
+import Icon from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import notifee from '@notifee/react-native';
 import { getAuth, signOut } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
+import { getStorage, ref } from '@react-native-firebase/storage';
+import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 import { useEffect, useState } from 'react';
-import { ImageBackground, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
+import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type';
 import packageJson from '../../../package.json';
 import Separator from '../../components/atoms/Separator';
 
 const auth = getAuth();
+const storage = getStorage();
 
 const UploadFile = ({ text }: { text: string }) => (
   <View style = {{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
@@ -35,21 +43,28 @@ const UploadFile = ({ text }: { text: string }) => (
 )
 
 export default function ProfileScreen() {
+  const navigation = useNavigation<DrawerNavigation>()
   const [text, setText] = useState('')
   const [isVisible, setIsVisible] = useState(false)
   const [showPlaceAlert, setShowPlaceAlert] = useState(false)
   const [showNameAlert, setShowNameAlert] = useState(false)
   const [showRoleAlert, setShowRoleAlert] = useState(false)
+  const [showPhotoAlert, setShowPhotoAlert] = useState(false)
   const [placeName, setPlaceName] = useState<string | undefined>('')
   const [role, setRole] = useState<string | undefined>('')
   const [placeId, setPlaceId] = useState<number | undefined>()
   const [updatedName, setUpdatedName] = useState<string | undefined>('')
+  const [profileImage, setProfileImage] = useState<IImageInfo[]>([])
+  const [isImageViewVisible, setIsImageViewVisible] = useState<boolean>(false);
+  const [loadingVisible, setIsLoadingVisible] = useState<boolean>(false);
   const [error, setError] = useState('')
   const { height } = useWindowDimensions();
   const { showPassword, toggleShowPassword } = useShowPassword() 
   const [deleteUser] = useDeleteUserMutation()
   const { data, isLoading, isError } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
   const [getUsers] = useLazyGetUsersQuery()
+
+  const folderPath = `users/${data?.id}/profile/files`;
 
   const  fields = [
     {id: 1, title: 'Email', value: data?.email},
@@ -65,6 +80,15 @@ export default function ProfileScreen() {
     setUpdatedName(data?.fullName)
     setRole(data?.role)
   },[data, showNameAlert, showRoleAlert])
+
+  useEffect(() => {
+    const loadFiles = async () => {
+      setIsLoadingVisible(true)
+      loadAllFiles()
+    };
+
+    loadFiles()
+  },[])
 
   const onLogOut = async () => {
     try {
@@ -111,14 +135,38 @@ export default function ProfileScreen() {
     setError('')
   }
 
-  if(isLoading) return <Loading visible={true} />
+  async function loadAllFiles() {
+    const folderRef = ref(storage, folderPath);
+    const result = await folderRef.listAll();
+    if(result.items.length < 1){
+      setIsLoadingVisible(false)
+    }
+    const url = await result.items[0].getDownloadURL();
+    setProfileImage([{url}])
+    setIsLoadingVisible(false)
+  }
+
+  if(isLoading || loadingVisible) return <Loading visible={true} />
   if(isError) return <ErrorComponent />
   return (
     <>
     <Container edges={{ bottom: 'additive' }} noPadding={true} noHeader>
-      <View>
         <ImageBackground style={[styles.background, { height: height / 3 }]} source={require('@/assets/profile.jpg')} >
-          <MaterialCommunityIcons name="account-outline" color={COLORS.neutral._400} size={60} />
+          <TouchableOpacity onPress={() => navigation.openDrawer()} style={styles.drawerIcon}>
+            <Icon name= {'reorder-three-outline'} size={35} color={'white'} />
+          </TouchableOpacity>
+          <View>
+            {
+              profileImage.length > 0 ? <TouchableOpacity onPress={() => setIsImageViewVisible(true)}>
+                  <Image source={{ uri: profileImage[0]?.url }} style={styles.profilePhoto} />
+                </TouchableOpacity>  :
+              <Image source={require('../../../assets/default-profile-picture.png')} style={styles.profilePhoto} />
+            }    
+            <TouchableOpacity style={styles.addPhotoButton} onPress={() => setShowPhotoAlert(true)}>
+              <Icon name="add-outline" size={25}  />  
+            </TouchableOpacity>  
+          </View> 
+          <Spacer height={10} />
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style = {styles.name}>{data?.fullName}</Text>
             <Spacer width={6} />
@@ -186,7 +234,6 @@ export default function ProfileScreen() {
           <Text style={styles.version}>version: {packageJson.version}</Text>
         </View>
         <Spacer height={40} />
-      </View>
     </Container>
     <PopupModal isVisible={isVisible}>
       <View style={{ width: '100%'}}>
@@ -215,7 +262,9 @@ export default function ProfileScreen() {
     </PopupModal>
     <UpdatePlacePopup isVisible={showPlaceAlert} id={data?.id} placeName={placeName} placeId={placeId} setPlaceName={setPlaceName} setPlaceId={setPlaceId} title="Your Place" paragraph1="Please choose your place" disable={() => {setShowPlaceAlert(false); getUsers()}} buttonTitle="Submit"/>
     <UpdateProfilePopup isVisible={showNameAlert} id={data?.id} value={updatedName} data={'fullName'} setUpdate={setUpdatedName} title="Edit Name" paragraph1="Please type your updated name" disable={() => {setShowNameAlert(false)}} buttonTitle="Submit" placeholder="Full Name"/>
+    <UploadPhotoPopup isVisible={showPhotoAlert} id={data?.id} setProfileImage={setProfileImage} disable={() => setShowPhotoAlert(false)} />
     <UpdateProfilePopup isVisible={showRoleAlert} id={data?.id} value={role} data={'role'} setUpdate={setRole} title="Edit Role" paragraph1="Please type your role" paragraph2="For Example: Counter, Cleaner....." disable={() => {setShowRoleAlert(false)}} buttonTitle="Submit" placeholder="Role"/>
+    <ImageViewModal index={0} visible={isImageViewVisible} images={profileImage} setIsVisible={setIsImageViewVisible} />
     </>
   );
 }
@@ -278,5 +327,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  errorMsg : { color: COLORS.danger, alignSelf: 'flex-start', fontSize: 12 }
+  errorMsg : { color: COLORS.danger, alignSelf: 'flex-start', fontSize: 12 },
+  drawerIcon: { position: 'absolute', top: 50, left: 20 },
+  profilePhoto: { width: 80, height: 80, borderRadius: 50 },
+  addPhotoButton: { backgroundColor: COLORS.white, borderRadius: 50, position: 'absolute', right: 0, bottom: 0 }
 });

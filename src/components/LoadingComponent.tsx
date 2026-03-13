@@ -12,13 +12,13 @@ const LoadingComponent: React.FC = () => {
 
 const styles = StyleSheet.create({
     container: {
-      flex: 1,
+      // flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
     },
     icon: {
-      width: '100%', 
-      height: 100
+      width: 200, 
+      height: 200
     }
 });
 

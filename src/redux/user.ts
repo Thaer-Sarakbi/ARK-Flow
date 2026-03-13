@@ -18,6 +18,7 @@ interface AddUser {
     userId: string,
     placeName: string, 
     placeId: number
+    role: string
   }
 
 const db = getFirestore();
@@ -80,8 +81,44 @@ export const usersApi = createApi({
       providesTags: ['Users'],
     }),
 
+    getUserRealtime: builder.query<any | null, { userId?: string; }>({
+      async queryFn() {
+        // Initial cache value
+        return { data: null };
+      },
+
+      async onCacheEntryAdded(
+        { userId },
+        { updateCachedData, cacheDataLoaded, cacheEntryRemoved }
+      ) {
+        console.log('user Id', userId)
+      if (!userId) return;
+
+      await cacheDataLoaded;
+
+      const userRef = firestore()
+        .collection("users")
+        .doc(userId)
+
+      const unsubscribe = userRef.onSnapshot((docSnap) => {
+      updateCachedData(() => {
+        if (!docSnap.exists) return null;
+
+        console.log(docSnap.data())
+        return {
+          id: docSnap.id,
+          ...docSnap.data(),
+        };
+       });
+      });
+
+       await cacheEntryRemoved;
+        unsubscribe();
+      },
+    }),
+
     addUser: builder.mutation<any, AddUser>({
-        async queryFn({ fullName, email, phoneNumber, placeName, placeId, password, userId }) {
+        async queryFn({ fullName, email, phoneNumber, placeName, placeId, role, password, userId }) {
           try {
             const res = await usersRef.doc(userId).set({
               fullName,
@@ -90,6 +127,7 @@ export const usersApi = createApi({
               phoneNumber,
               placeName, 
               placeId,
+              role,
               admin: false,
               creationDate: new Date(),
               verified: false
@@ -165,4 +203,4 @@ export const usersApi = createApi({
   }),
 })
 
-export const { useGetUsersRealtimeQuery, useGetUsersQuery, useLazyGetUsersQuery, useAddUserMutation, useDeleteUserMutation, useUserDataRealTimeQuery } = usersApi
+export const { useGetUsersRealtimeQuery, useGetUsersQuery, useLazyGetUsersQuery, useAddUserMutation, useDeleteUserMutation, useUserDataRealTimeQuery, useGetUserRealtimeQuery } = usersApi

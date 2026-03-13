@@ -25,8 +25,8 @@ interface AddUpdate {
   assignedById: string
   images: Asset[],
   userId: string | undefined,
-  userName?: string | undefined
-  taskTitle?: string | undefined
+  userName: string | undefined
+  taskTitle: string | undefined
   documents: DocumentPickerResponse[]
   uploadAll:(path: string) => any
   removeDocument:(url: string) => void

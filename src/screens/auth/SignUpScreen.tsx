@@ -36,13 +36,19 @@ export default function SignUpScreen() {
   .object({
       fullName: z.string({
         required_error: 'This field is required'
-      }).min(1, { message: 'This field is required' }),
+      }).min(1, { message: 'This field is required' })
+      .regex(/^[a-zA-Z0-9 ]+$/, {
+        message: "Only letters, numbers, and spaces are allowed",
+      }),
       email: z.string({
         required_error: 'This field is required'
       }).email({ message: 'Invalid email' }),
       phoneNumber: z .string()
       .min(1, { message: 'This field is required' }),
       place: z.coerce.number().positive(),
+      role: z.string({
+        required_error: 'This field is required'
+      }).min(1, { message: 'This field is required' }),
       password: z.string({
         required_error: 'This field is required'
       }).refine((val) => val.length > 0, { message: 'This field is required' }),
@@ -66,6 +72,7 @@ export default function SignUpScreen() {
         email: "",
         phoneNumber: "",
         place: 0,
+        role: "",
         password: "",
         confirmPassword: ""
       },
@@ -73,7 +80,7 @@ export default function SignUpScreen() {
       mode: 'onTouched',
     })
 
-    const { fullName, email, password, phoneNumber } = watch()
+    const { fullName, email, password, phoneNumber, role } = watch()
 
     const handleSubmitLogin = async () => {
       if(passwordStrength !== 'Strong'){
@@ -82,7 +89,7 @@ export default function SignUpScreen() {
 
       await createUserWithEmailAndPassword(auth, email, password).then((res) => {
         setMessage('User account created!');
-        addUser({ fullName, email, phoneNumber, placeName, placeId, password, userId: res.user.uid })
+        addUser({ fullName, email, phoneNumber, placeName, placeId, role, password, userId: res.user.uid })
         if(Platform.OS === 'android'){
           sendSignInLink(email)
         }
@@ -220,6 +227,26 @@ export default function SignUpScreen() {
           </>
         )}
       />
+      <Spacer height={20} />
+      <Text style={styles.textFooter}>Role</Text>
+        <Spacer height={6} />
+        <Controller
+          name="role"
+          control={control}
+          render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
+            <Input 
+              autoCapitalize="none"
+              label="Your role" 
+              borderColor={COLORS.neutral._300} 
+              inputColor={COLORS.title} 
+              labelColor={COLORS.neutral._400} 
+              onChangeText={onChange}
+              onBlur={onBlur}
+              value={value}
+              errorText={error?.message}
+            />
+          )}
+        />
         <Spacer height={20} />
         <Text style={styles.textFooter}>Password</Text>
         <Spacer height={6} />

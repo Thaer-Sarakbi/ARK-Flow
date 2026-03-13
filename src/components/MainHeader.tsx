@@ -11,6 +11,9 @@ const MainHeader = ({unreadCount}: { unreadCount: number }) => {
     return(
       <View style={styles.container}>
         <View style={styles.left}>
+          <TouchableOpacity onPress={() => (navigation as any).openDrawer()}>
+            <Icon name= {'reorder-three-outline'} size={35} color={'white'} />
+          </TouchableOpacity>
           <Text style={styles.title}>Tasks</Text>
         </View>
         <View style={styles.right}>

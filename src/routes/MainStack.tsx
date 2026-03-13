@@ -2,9 +2,11 @@ import notifee, { AndroidImportance } from '@notifee/react-native'
 import { getAuth } from '@react-native-firebase/auth'
 import firestore from '@react-native-firebase/firestore'
 import messaging from '@react-native-firebase/messaging'
+import { getStorage, ref } from '@react-native-firebase/storage'
 import { createStackNavigator } from "@react-navigation/stack"
 import { useEffect, useRef, useState } from "react"
 import { Linking, PermissionsAndroid, Platform } from 'react-native'
+import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type'
 import MapView from 'react-native-maps'
 import { requestNotifications } from 'react-native-permissions'
 import Loading from '../components/Loading'
@@ -12,6 +14,7 @@ import useCurrentLocation from '../hooks/useCurrentLocation'
 import ConfirmationPopup from '../Modals/ConfirmationPopup'
 import UpdateProfilePopup from '../Modals/UpdateNamePopup'
 import UpdatePlacePopup from '../Modals/UpdatePlacePopup'
+import UploadPhotoPopup from '../Modals/UploadPhotoPopup'
 import { useUserDataRealTimeQuery } from '../redux/user'
 import CheckInOut from "../screens/calendar/CheckInOut"
 import DayDetails from "../screens/calendar/DayDetails"
@@ -28,6 +31,7 @@ import BottomNavigator from "./BottomTabNavigator"
 import { MainStackParamsList } from './params'
 
 const auth = getAuth();
+const storage = getStorage();
 const Stack = createStackNavigator<MainStackParamsList>()
 
 const MainStack = () => { 
@@ -42,13 +46,26 @@ const MainStack = () => {
     const [showAlert, setShowAlert] = useState(false)
     const [showPlaceAlert, setShowPlaceAlert] = useState(false)
     const [showRoleAlert, setShowRoleAlert] = useState(false)
+    const [showPhotoAlert, setShowPhotoAlert] = useState(false)
+    const [profileImage, setProfileImage] = useState<IImageInfo[]>([])
     const [removedAccount, setRemovedAccount] = useState(false)
+    // console.log(profileImage)
    
+    const folderPath = `users/${data?.id}/profile/files`;
+
     useEffect(() => {
       if(data && Places.filter(place => place.label === data?.placeName).length < 1) {
         setRemovedAccount(true)
       }
     },[data])
+
+      // useEffect(() => {
+      //   const loadFiles = async () => {
+      //     loadAllFiles()
+      //   };
+    
+      //   loadFiles()
+      // },[])
 
     useEffect(() => {
       notifee.createChannel({
@@ -108,6 +125,9 @@ const MainStack = () => {
       getLocation();
       if(data?.id){
         checkPlace()
+      }
+      if(data?.id){
+        loadAllFiles()
       }
     },[data?.id])
 
@@ -212,6 +232,16 @@ const MainStack = () => {
       }
     }
 
+    async function loadAllFiles() {
+      const folderRef = ref(storage, folderPath);
+      const result = await folderRef.listAll();
+      if(result.items.length < 1){
+        setShowPhotoAlert(true)
+      }
+      const url = await result.items[0].getDownloadURL();
+      setProfileImage([{url}])
+    }
+
     if(isLoading) return <Loading visible />
     return(
       <>
@@ -276,6 +306,7 @@ const MainStack = () => {
       <ConfirmationPopup isVisible={removedAccount} title="Removed Account" paragraph1="Your account has been deleted from database" buttonTitle="Okay"/>
       <UpdatePlacePopup isVisible={showPlaceAlert} id={data?.id} placeName={placeName} placeId={placeId} setPlaceName={setPlaceName} setPlaceId={setPlaceId} title="Your Place" paragraph1="Please choose your place" disable={() => setShowPlaceAlert(false)} buttonTitle="Submit"/>
       <UpdateProfilePopup isVisible={showRoleAlert} enableCloseIcone={false} id={data?.id} value={role} data={'role'} setUpdate={setRole} title="Your Role" paragraph1="Please type your role" paragraph2="For Example: Counter, Cleaner....." disable={() => {setShowRoleAlert(false)}} buttonTitle="Submit" placeholder='Role'/>
+      <UploadPhotoPopup isVisible={showPhotoAlert} id={data?.id} setProfileImage={setProfileImage} disable={() => setShowPhotoAlert(false)} enableCloseIcone={false} />
       </>
     )
   }

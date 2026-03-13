@@ -326,7 +326,7 @@ const TaskDetails = ({ route }: TaskDetails) => {
         <Spacer height={10} />
       </Container>
       <BottomSheet visible={isVisible} onPress={() => setIsVisible(false)}>
-        <AddUpdate setIsVisible={setIsVisible} setUploadPopupVisible={setUploadPopupVisible} taskId={taskId} assignedToId={data?.assignedToId} assignedById={data?.assignedById} images={images} documents={documents} removeImage={removeImage} removeDocument={removeDocument} uploadAll={uploadAll} userId={user?.id} uploading={uploading} />
+        <AddUpdate setIsVisible={setIsVisible} setUploadPopupVisible={setUploadPopupVisible} taskId={taskId} assignedToId={data?.assignedToId} assignedById={data?.assignedById} images={images} documents={documents} removeImage={removeImage} removeDocument={removeDocument} uploadAll={uploadAll} userId={user?.id} uploading={uploading} taskTitle={data?.title} userName={user?.fullName} />
       </BottomSheet>
       <BottomSheet visible={uploadPopupVisible} onPress={() => setUploadPopupVisible(false)}>
       <View style={{ flexDirection: 'row' }}>

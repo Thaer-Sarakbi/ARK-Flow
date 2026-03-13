@@ -8,7 +8,7 @@ import { Provider } from 'react-redux';
 import ConfirmationPopup from './Modals/ConfirmationPopup';
 import { store } from './redux/store';
 import AuthStack from './routes/AuthStack';
-import MainStack from './routes/MainStack';
+import MainDrawer from './routes/DrawerNavigator';
 import { DeviceInformation } from './utils/Constants';
 
 const auth = getAuth();
@@ -57,7 +57,7 @@ export default function App() {
       <SafeAreaProvider>
         <NavigationContainer>
           <Provider store={store}>
-            {currentUser ? <MainStack /> : <AuthStack />}
+            {currentUser ? <MainDrawer /> : <AuthStack />}
           </Provider>
         </NavigationContainer>
       </SafeAreaProvider>

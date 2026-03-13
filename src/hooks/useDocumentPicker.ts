@@ -96,12 +96,12 @@ const useDocumentPicker = () => {
     setLeaveDocuments((prevDocs: [DocumentPickerResponse]) => prevDocs.filter((doc) => doc.uri !== uri));
   };
 
-    const handleSelectImage = async () => {
+    const handleSelectImage = async (limit = 0) => {
 
         await launchImageLibrary({
           mediaType: 'photo',
           presentationStyle: 'pageSheet',
-          selectionLimit: 0
+          selectionLimit: limit
         }, async (res) => {
           if (res.assets){
             setDocuments([])
@@ -173,7 +173,7 @@ const useDocumentPicker = () => {
       setImages(imageUrls)
     }
 
-    const removeImage = (uri: string) => {
+    const removeImage = (uri: string | undefined) => {
       setImages(prev => prev.filter(img => img.uri !== uri));
     };
 
