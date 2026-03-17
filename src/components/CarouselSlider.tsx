@@ -1,5 +1,6 @@
-import { useRef } from "react";
-import { Image, StyleSheet, useWindowDimensions } from "react-native";
+import { Image } from 'expo-image';
+import { useCallback, useRef } from "react";
+import { StyleSheet, useWindowDimensions } from "react-native";
 import { Extrapolation, interpolate, useSharedValue } from "react-native-reanimated";
 import Carousel, { Pagination, type ICarouselInstance } from 'react-native-reanimated-carousel';
 import { COLORS } from "../colors";
@@ -10,21 +11,21 @@ interface CarouselSliderProps {
   setIndex:(index: number) => void 
 }
 
-const renderItem = ({ item }: { item: string }) => {
-    return (
-      <Image
-        resizeMode='cover'
-        source={{ uri: item }}
-        style={styles.image}
-      />
-    )
-  }
-
 const CarouselSlider = ({ index, images, setIndex }: CarouselSliderProps) => {
       const { width } = useWindowDimensions();
       const ref = useRef<ICarouselInstance>(null);
       const scrollOffsetValue = useSharedValue<number>(0);
       const progress = useSharedValue<number>(0);
+
+      const renderItem = useCallback(({ item }: { item: string }) => {
+        return (
+          <Image
+            // resizeMode='cover'
+            source={{ uri: item }}
+            style={styles.image}
+          />
+        );
+      }, []);
 
       const onPressPagination = (index: number) => {
         ref.current?.scrollTo({

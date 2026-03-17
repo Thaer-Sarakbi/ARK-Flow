@@ -5,6 +5,7 @@ import { Alert } from "react-native";
 import RNFS from 'react-native-fs';
 import { Asset, launchCamera, launchImageLibrary } from "react-native-image-picker";
 import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";
+import { resizeImagesPromises } from "../utils/resizeImage";
 
 const MAX_FILE_SIZE = 3 * 1024 * 1024;
 const storage = getStorage();
@@ -105,7 +106,9 @@ const useDocumentPicker = () => {
         }, async (res) => {
           if (res.assets){
             setDocuments([])
-            setImages(res.assets)
+            const resizedImages = await resizeImagesPromises(res.assets as Asset[]);   
+            console.log(resizedImages)
+            setImages(resizedImages)
           };
         });
     }
@@ -118,7 +121,9 @@ const useDocumentPicker = () => {
       }, async (res) => {
         if (res.assets){
           setDocuments([])
-          setImages(res.assets)
+          const resizedImages = await resizeImagesPromises(res.assets as Asset[]);   
+          console.log(resizedImages)
+          setImages(resizedImages)
         };
       });
   }
@@ -170,7 +175,10 @@ const useDocumentPicker = () => {
         })
       )
 
-      setImages(imageUrls)
+      const resizedImages = await resizeImagesPromises(imageUrls as Asset[]);   
+      console.log(resizedImages)
+      setImages(resizedImages)
+      // setImages(imageUrls)
     }
 
     const removeImage = (uri: string | undefined) => {
