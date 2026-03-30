@@ -13,8 +13,8 @@ import useCurrentLocation from "../hooks/useCurrentLocation";
 import { useAddNotificationMutation } from "../redux/notifications";
 import { useAddUpdateMutation } from "../redux/updates";
 import ImagesList from "./ImagesList";
-import Input from "./Input";
 import Loading from "./Loading";
+import Input from "./atoms/Input";
 import Spacer from "./atoms/Spacer";
 import SubmitButton from "./buttons/SubmitButton";
 interface AddUpdate {

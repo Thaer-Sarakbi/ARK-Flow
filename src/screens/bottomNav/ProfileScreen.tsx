@@ -1,8 +1,8 @@
 import { COLORS } from '@/src/colors';
+import Input from '@/src/components/atoms/Input';
 import Spacer from '@/src/components/atoms/Spacer';
 import SubmitButton from '@/src/components/buttons/SubmitButton';
 import Container from '@/src/components/Container';
-import Input from '@/src/components/Input';
 import Loading from '@/src/components/Loading';
 import ErrorComponent from '@/src/components/molecule/ErrorComponent';
 import ProfileInfo from '@/src/components/ProfileInfo';

@@ -6,10 +6,10 @@ import { Dropdown } from 'react-native-element-dropdown';
 import { Asset } from 'react-native-image-picker';
 import { COLORS } from "../colors";
 import { shadow } from '../utils/shadows';
+import Input from './atoms/Input';
 import Spacer from "./atoms/Spacer";
 import SubmitButton from "./buttons/SubmitButton";
 import ImagesList from './ImagesList';
-import Input from "./Input";
 
 interface AttendanceCard {
   value: string,

@@ -1,8 +1,8 @@
 import { COLORS } from "@/src/colors";
+import Input from "@/src/components/atoms/Input";
 import Spacer from "@/src/components/atoms/Spacer";
 import SubmitButton from "@/src/components/buttons/SubmitButton";
 import Container from "@/src/components/Container";
-import Input from "@/src/components/Input";
 import ConfirmationPopup from "@/src/Modals/ConfirmationPopup";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { getAuth, sendPasswordResetEmail } from '@react-native-firebase/auth';

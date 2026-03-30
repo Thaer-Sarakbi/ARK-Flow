@@ -1,7 +1,7 @@
 import { COLORS } from '@/src/colors';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import ValidationIcon from '../ValidationIcon';
+import ValidationIcon from '../atoms/ValidationIcon';
 
 interface PasswordValidatorProps {
     password: string;

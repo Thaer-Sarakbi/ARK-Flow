@@ -1,7 +1,7 @@
 import { COLORS } from "@/src/colors";
+import Input from "@/src/components/atoms/Input";
 import Spacer from "@/src/components/atoms/Spacer";
 import SubmitButton from "@/src/components/buttons/SubmitButton";
-import Input from "@/src/components/Input";
 import ErrorPopup from "@/src/Modals/ErrorPopup";
 import { AuthStackParamsList } from "@/src/routes/AuthStack";
 import { zodResolver } from "@hookform/resolvers/zod";

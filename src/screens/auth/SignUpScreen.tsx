@@ -1,7 +1,7 @@
 import { COLORS } from "@/src/colors";
+import Input from "@/src/components/atoms/Input";
 import Spacer from "@/src/components/atoms/Spacer";
 import SubmitButton from "@/src/components/buttons/SubmitButton";
-import Input from "@/src/components/Input";
 import Loading from "@/src/components/Loading";
 import ErrorComponent from "@/src/components/molecule/ErrorComponent";
 import PasswordValidator from "@/src/components/molecule/PasswordValidator";

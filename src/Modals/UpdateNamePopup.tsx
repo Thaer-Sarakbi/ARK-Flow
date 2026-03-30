@@ -2,9 +2,9 @@ import Feather from '@expo/vector-icons/Feather';
 import firestore from '@react-native-firebase/firestore';
 import { StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { COLORS } from '../colors';
+import Input from '../components/atoms/Input';
 import Spacer from '../components/atoms/Spacer';
 import SubmitButton from '../components/buttons/SubmitButton';
-import Input from '../components/Input';
 import PopupModal from './PopupModal';
 
 /**
