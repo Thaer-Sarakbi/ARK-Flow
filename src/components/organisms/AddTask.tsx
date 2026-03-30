@@ -1,20 +1,20 @@
+import { COLORS } from "@/src/colors";
+import useDocumentPicker from "@/src/hooks/useDocumentPicker";
+import { useAddNotificationMutation } from "@/src/redux/notifications";
+import { useAddTaskMutation } from "@/src/redux/tasks";
+import { Places } from "@/src/utils/Constants";
+import { pushNotification } from "@/src/utils/PushNotificationService";
+import { User } from "@/src/utils/types";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { KeyboardAvoidingView, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Dropdown } from "react-native-element-dropdown";
 import { FlatList } from "react-native-gesture-handler";
-import { COLORS } from "../colors";
-import useDocumentPicker from "../hooks/useDocumentPicker";
-import { useAddNotificationMutation } from "../redux/notifications";
-import { useAddTaskMutation } from "../redux/tasks";
-import { Places } from "../utils/Constants";
-import { pushNotification } from "../utils/PushNotificationService";
-import { User } from "../utils/types";
-import Spacer from "./atoms/Spacer";
-import SubmitButton from "./buttons/SubmitButton";
-import ImagesList from "./ImagesList";
-import Input from "./Input";
+import ImagesList from "../ImagesList";
+import Input from "../atoms/Input";
+import Spacer from "../atoms/Spacer";
+import SubmitButton from "../buttons/SubmitButton";
 
 interface AddTask {
   user: User,

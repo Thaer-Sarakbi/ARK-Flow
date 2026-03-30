@@ -187,7 +187,7 @@ export default function CalendarScreen() {
   
   return (
     <>
-    <Container headerMiddle="Calendar">
+    <Container headerMiddle="Calendar" drawer>
        <Dropdown
           disable={!user?.admin ? true : false}
           style={[styles.dropdown, isFocus && { borderColor: COLORS.info }]}

@@ -1,8 +1,8 @@
+import { COLORS } from '@/src/colors';
 import Icon from '@expo/vector-icons/Ionicons';
 import React, { useEffect, useState } from 'react';
 import { AnimatableNumericValue, Animated, ColorValue, DimensionValue, Platform, StyleSheet, Text, TextInput, TextInputProps, TouchableOpacity, View, ViewStyle } from 'react-native';
-import { COLORS } from '../colors';
-import Spacer from './atoms/Spacer';
+import Spacer from './Spacer';
 
 
 /**

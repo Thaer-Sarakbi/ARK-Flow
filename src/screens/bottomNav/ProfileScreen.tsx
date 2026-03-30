@@ -5,6 +5,7 @@ import Container from '@/src/components/Container';
 import Input from '@/src/components/Input';
 import Loading from '@/src/components/Loading';
 import ErrorComponent from '@/src/components/molecule/ErrorComponent';
+import ProfileInfo from '@/src/components/ProfileInfo';
 import useShowPassword from '@/src/hooks/useShowPassword';
 import ImageViewModal from '@/src/Modals/ImageViewModal';
 import PopupModal from '@/src/Modals/PopupModal';
@@ -16,7 +17,6 @@ import { DrawerNavigation } from '@/src/routes/DrawerNavigator';
 import Feather from '@expo/vector-icons/Feather';
 import Icon from '@expo/vector-icons/Ionicons';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import notifee from '@notifee/react-native';
 import { getAuth, signOut } from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
@@ -27,7 +27,6 @@ import { useEffect, useState } from 'react';
 import { Image, ImageBackground, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from "react-native";
 import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type';
 import packageJson from '../../../package.json';
-import Separator from '../../components/atoms/Separator';
 
 const auth = getAuth();
 const storage = getStorage();
@@ -184,33 +183,7 @@ export default function ProfileScreen() {
           <Spacer height={15} />
           {
             fields.map(field => (
-              <View key={field.id}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <View>
-                    <Text style = {styles.title}>{field.title}</Text>
-                    <Text style = {styles.value}>{field.value}</Text>
-                  </View>
-              
-                {field.title === 'Password' && (<MaterialIcons 
-                  name={showPassword ? 'visibility-off' : 'visibility'} 
-                  size={25} 
-                  color={COLORS.neutral._500}
-                  style={{marginRight: 10}} 
-                  onPress={toggleShowPassword} 
-                 />)} 
-
-                {field.title === 'Role' && (
-                  <TouchableOpacity onPress={() => setShowRoleAlert(true)}>
-                    <Text style={{ textDecorationLine: 'underline', textDecorationColor: COLORS.info, color: COLORS.info, fontSize: 16 }}>Edit</Text>
-                  </TouchableOpacity>)} 
-
-                {field.title === 'Place' && (
-                  <TouchableOpacity onPress={() => setShowPlaceAlert(true)}>
-                    <Text style={{ textDecorationLine: 'underline', textDecorationColor: COLORS.info, color: COLORS.info, fontSize: 16 }}>change</Text>
-                  </TouchableOpacity>)} 
-                </View>
-                <Separator marginVertical={15} />
-             </View>
+              <ProfileInfo key={field.id} title={field.title} value={field.value} setShowRoleAlert={setShowRoleAlert} setShowPlaceAlert={setShowPlaceAlert} showPassword={showPassword} toggleShowPassword={toggleShowPassword} />
             ))
           }
           <Text style = {styles.mainTitle}>Document Provider</Text>

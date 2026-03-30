@@ -23,6 +23,8 @@ import ReportDetails from "../screens/calendar/ReportDetails"
 import ChatScreen from '../screens/mainHeader/ChatScreen'
 import NotificationsScreen from '../screens/mainHeader/NotificationsScreen'
 import SearchScreen from '../screens/mainHeader/SearchScreen'
+import PlaceDetails from '../screens/Staff/PlaceDetails'
+import UserDetails from '../screens/Staff/UserDetails'
 import TaskDetails from '../screens/task/TaskDetails'
 import UpdateDetails from '../screens/task/UpdateDetails'
 import { Places } from '../utils/Constants'
@@ -49,7 +51,6 @@ const MainStack = () => {
     const [showPhotoAlert, setShowPhotoAlert] = useState(false)
     const [profileImage, setProfileImage] = useState<IImageInfo[]>([])
     const [removedAccount, setRemovedAccount] = useState(false)
-    // console.log(profileImage)
    
     const folderPath = `users/${data?.id}/profile/files`;
 
@@ -58,14 +59,6 @@ const MainStack = () => {
         setRemovedAccount(true)
       }
     },[data])
-
-      // useEffect(() => {
-      //   const loadFiles = async () => {
-      //     loadAllFiles()
-      //   };
-    
-      //   loadFiles()
-      // },[])
 
     useEffect(() => {
       notifee.createChannel({
@@ -294,6 +287,16 @@ const MainStack = () => {
         <Stack.Screen 
           name="ChatScreen"
           component={ChatScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="PlaceDetails"
+          component={PlaceDetails}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen 
+          name="UserDetails"
+          component={UserDetails}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

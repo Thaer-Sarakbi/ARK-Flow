@@ -1,14 +1,14 @@
+import { COLORS } from '@/src/colors';
+import { MainStackParamsList } from '@/src/routes/params';
+import { shadow } from '@/src/utils/shadows';
 import Icon from '@expo/vector-icons/Ionicons';
 import { Timestamp } from '@react-native-firebase/firestore';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import moment from 'moment';
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { COLORS } from "../colors";
-import { MainStackParamsList } from '../routes/params';
-import { shadow } from "../utils/shadows";
-import Separator from './atoms/Separator';
-import Spacer from './atoms/Spacer';
+import Separator from '../atoms/Separator';
+import Spacer from '../atoms/Spacer';
 
 interface TaskCard {
     title: string,

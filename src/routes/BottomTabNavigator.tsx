@@ -5,7 +5,7 @@ import { COLORS } from '../colors';
 import AttendanceScreen from '../screens/bottomNav/AttendanceScreen';
 import CalendarScreen from '../screens/bottomNav/CalendarScreen';
 import HomeScreen from '../screens/bottomNav/HomeScreen';
-import ProfileScreen from '../screens/bottomNav/ProfileScreen';
+import Staff from '../screens/Staff/Staff';
 
 const Tab = createBottomTabNavigator<BottomNavigatorParamsList>();
 
@@ -13,7 +13,7 @@ export type BottomNavigatorParamsList = {
   Home: undefined,
   Attendance: undefined,
   Calendar: undefined,
-  Profile: undefined
+  Staff: undefined
 }
 
 const BottomNavigator = () => {
@@ -29,6 +29,17 @@ const BottomNavigator = () => {
             )
         }} 
         component={HomeScreen} 
+      />
+      <Tab.Screen 
+        name="Staff" 
+        options={{ 
+            headerShown: false, 
+            tabBarLabelStyle: { display: 'none'},
+            tabBarIcon: ({ focused, color, size }) => (
+              <AwesomeIcon name="users" size={26} color={focused ? COLORS.info : COLORS.neutral._500} />
+            )
+        }}
+        component={Staff} 
       />
       <Tab.Screen 
         name="Attendance" 
@@ -51,17 +62,6 @@ const BottomNavigator = () => {
             )
         }}
         component={CalendarScreen} 
-      />
-      <Tab.Screen 
-        name="Profile" 
-        options={{ 
-            headerShown: false, 
-            tabBarLabelStyle: { display: 'none'},
-            tabBarIcon: ({ focused, color, size }) => (
-               <Icon name="person-outline" size={30} color={focused ? COLORS.info : COLORS.neutral._500} />
-            )
-        }}
-        component={ProfileScreen} 
       />
     </Tab.Navigator>
   );

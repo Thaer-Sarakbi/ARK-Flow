@@ -1,15 +1,16 @@
+import { COLORS } from '@/src/colors';
 import Icon from '@expo/vector-icons/Ionicons';
 import { useNavigation } from "@react-navigation/native";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { COLORS } from "../colors";
 
 interface Header {
     allowBack?: boolean,
+    drawer?: boolean;
     headerMiddle?: string,
     rightHeader?: React.ReactNode;
 }
 
-export default function Header({ allowBack = false, headerMiddle, rightHeader }: Header) {
+export default function Header({ allowBack = false, headerMiddle, rightHeader, drawer = false }: Header) {
   const navigation = useNavigation();
   const navigationBack = () => {
     navigation.goBack()
@@ -19,9 +20,13 @@ export default function Header({ allowBack = false, headerMiddle, rightHeader }:
    <View style={styles.container}>
      {
         allowBack ? (
-            <TouchableOpacity onPress={navigationBack} style={{}}>
-              <Icon name={'arrow-back-outline'} size={24} color={COLORS.white} />
-           </TouchableOpacity>
+          <TouchableOpacity onPress={navigationBack} style={{}}>
+            <Icon name={'arrow-back-outline'} size={24} color={COLORS.white} />
+          </TouchableOpacity>
+        ) : drawer ? (
+          <TouchableOpacity onPress={() => (navigation as any).openDrawer()}>
+            <Icon name= {'reorder-three-outline'} size={35} color={'white'} />
+          </TouchableOpacity>
         ) : <View />
      }
      <Text style={styles.title}>{headerMiddle}</Text>

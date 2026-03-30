@@ -31,6 +31,7 @@ interface ContainerProps extends SafeAreaViewProps {
     EnableRight?: React.ReactNode;
     noHeader?: boolean;
     rightHeader?: React.ReactNode;
+    drawer?: boolean;
 }
 
 
@@ -44,11 +45,11 @@ interface ContainerProps extends SafeAreaViewProps {
  * @param {ColorValue} [param0.barBackgroundColor="transparent"]
  * @returns {*}
  */
-const Container = ({ children, style, headerMiddle, barStyle = "dark-content", barBackgroundColor = "transparent", scrollable = true,  allowBack = false, hasInput = false, backgroundColor = COLORS.white, edges, usingPaddingBottom = true, usingPaddingTop = true, headerBottomLine = false, barHidden = false, noPadding = false, noHeader = false , FooterComponent, rightHeader}: ContainerProps) => {
+const Container = ({ children, style, headerMiddle, barStyle = "dark-content", barBackgroundColor = "transparent", scrollable = true,  allowBack = false, hasInput = false, backgroundColor = COLORS.white, edges, usingPaddingBottom = true, usingPaddingTop = true, headerBottomLine = false, barHidden = false, noPadding = false, noHeader = false , FooterComponent, rightHeader, drawer = false}: ContainerProps) => {
     return (
         <SafeAreaView style={[style, styles.container, { backgroundColor }]} edges={edges}>
             <StatusBar translucent backgroundColor={barBackgroundColor} barStyle={barStyle} hidden={barHidden} />
-            {!noHeader && <Header allowBack={allowBack} headerMiddle={headerMiddle} rightHeader={rightHeader}/>}
+            {!noHeader && <Header allowBack={allowBack} headerMiddle={headerMiddle} rightHeader={rightHeader} drawer={drawer}/>}
             {hasInput ? (
                 <KeyboardAvoidingView style={[styles.wrapper,  (!usingPaddingBottom || FooterComponent) && {paddingBottom:0}, !usingPaddingTop && {paddingTop: 0}, { padding: noPadding ? 0 : 16 }]} enabled={hasInput} behavior={Platform.OS === 'ios' ? 'padding' : 'height'} keyboardVerticalOffset={Platform.OS === 'ios' ? statusBarHeight + 12 : 0} >
                     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollView}>

@@ -7,7 +7,11 @@ interface UserListItem {
   id: string
   name: string
   fcmToken: string
-  placeName?: string
+  placeName?: string;
+  role?: string;
+  admin?: boolean;
+  email?: string;
+  phone?: string;
 }
 
 interface AddUser {
@@ -67,7 +71,11 @@ export const usersApi = createApi({
               id: doc.id,
               name: data.fullName,
               fcmToken: data.fcmToken,
-               placeName: data.placeName ? data.placeName : 'Not Spesific'
+              placeName: data.placeName ? data.placeName : 'Not Spesific',
+              role: data.role,
+              admin: data.admin,
+              email: data.email,
+              phone: data.phoneNumber
             };
           });
     

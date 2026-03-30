@@ -37,7 +37,13 @@ export type MainStackParamsList = {
     assignedToId: string
     assignedById: string
   },
+  UserDetails:undefined,
   SearchScreen: undefined,
   NotificationsScreen: undefined,
-  ChatScreen: undefined
+  ChatScreen: undefined;
+  PlaceDetails: {
+    place: string; 
+    latitude: number | undefined; 
+    longitude: number | undefined;
+  }
 }

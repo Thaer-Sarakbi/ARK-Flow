@@ -305,7 +305,7 @@ export default function AttendanceScreen() {
 
   return (
     <>
-    <Container headerMiddle="Attendance" hasInput>
+    <Container headerMiddle="Attendance" hasInput drawer>
       <Loading visible={uploading ? true : false}/>
       <AttendanceCard value={checkInNote} shift={checkInShift} onChangeText={setCheckInNote} setShift={setCheckInShift} label='Your Note' title="Check In" caption="Notes" buttonText="Register" onPress={() => {
         getLocation()
