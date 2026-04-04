@@ -1,7 +1,7 @@
-import { COLORS } from "@/src/colors";
+import Container from "@/src/components/atoms/Container";
 import Spacer from "@/src/components/atoms/Spacer";
-import Container from "@/src/components/Container";
-import MapViewComponent from "@/src/components/molecule/MapViewComponent";
+import MapViewComponent from "@/src/components/molecules/MapViewComponent";
+import { COLORS } from "@/src/utils/colors";
 import moment from "moment";
 import { StyleSheet, Text, View } from "react-native";
 

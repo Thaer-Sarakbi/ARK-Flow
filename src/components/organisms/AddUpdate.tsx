@@ -1,3 +1,8 @@
+import useCurrentLocation from "@/src/hooks/useCurrentLocation";
+import ConfirmationPopup from "@/src/Modals/ConfirmationPopup";
+import { useAddNotificationMutation } from "@/src/redux/notifications";
+import { useAddUpdateMutation } from "@/src/redux/updates";
+import { COLORS } from "@/src/utils/colors";
 import Feather from "@expo/vector-icons/Feather";
 import { DocumentPickerResponse } from "@react-native-documents/picker";
 import moment from "moment";
@@ -7,16 +12,12 @@ import { FlatList, Image, KeyboardAvoidingView, Linking, Platform, ScrollView, S
 import { Asset } from "react-native-image-picker";
 import MapView from "react-native-maps";
 import uuid from 'react-native-uuid';
-import ConfirmationPopup from "../Modals/ConfirmationPopup";
-import { COLORS } from "../colors";
-import useCurrentLocation from "../hooks/useCurrentLocation";
-import { useAddNotificationMutation } from "../redux/notifications";
-import { useAddUpdateMutation } from "../redux/updates";
-import ImagesList from "./ImagesList";
-import Loading from "./Loading";
-import Input from "./atoms/Input";
-import Spacer from "./atoms/Spacer";
-import SubmitButton from "./buttons/SubmitButton";
+import Input from "../atoms/Input";
+import Loading from "../atoms/Loading";
+import Spacer from "../atoms/Spacer";
+import SubmitButton from "../atoms/SubmitButton";
+import ImagesList from "../molecules/ImagesList";
+
 interface AddUpdate {
   setIsVisible: (isVisible: boolean) => void,
   setUploadPopupVisible: (isVisible: boolean) => void,
@@ -260,7 +261,7 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
       paragraph1="Could't submit your Update"
       paragraph2="try again later"
       icon={<Image style={{ width: 50, height: 50 }} 
-      source={require('../../assets/icons/Cancel.png')} />} 
+      source={require('@/assets/icons/Cancel.png')} />} 
       onPressClose={() => setIsVisibleFailed(false)} 
       buttonTitle="Okay" 
       onPress={() => setIsVisibleFailed(false)} 

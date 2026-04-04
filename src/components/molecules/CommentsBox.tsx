@@ -1,8 +1,8 @@
-import { COLORS } from "@/src/colors";
+import { COLORS } from "@/src/utils/colors";
 import { Comment } from "@/src/utils/types";
 import { StyleSheet, Text, View } from "react-native";
-import AddComment from "../AddComment";
 import Spacer from "../atoms/Spacer";
+import AddComment from "../organisms/AddComment";
 
 interface CommentsBox { 
     comments: Comment[] | undefined, 

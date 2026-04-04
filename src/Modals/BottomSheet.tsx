@@ -3,8 +3,8 @@ import React, { useCallback, useEffect } from 'react';
 import { ColorValue, Dimensions, Keyboard, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { SlideInDown, SlideOutDown, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { COLORS } from '../colors';
 import Spacer from '../components/atoms/Spacer';
+import { COLORS } from '../utils/colors';
 
 const { height, width } = Dimensions.get('window');
 /**

@@ -1,8 +1,8 @@
-import { COLORS } from '@/src/colors';
+import { COLORS } from '@/src/utils/colors';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import Separator from './atoms/Separator';
+import Separator from './Separator';
 
 interface ProfileInfoInfo {
   title: string; 

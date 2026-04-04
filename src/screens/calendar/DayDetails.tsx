@@ -1,12 +1,12 @@
-import { COLORS } from "@/src/colors";
+import Container from "@/src/components/atoms/Container";
+import Loading from "@/src/components/atoms/Loading";
 import Separator from "@/src/components/atoms/Separator";
 import Spacer from "@/src/components/atoms/Spacer";
-import Container from "@/src/components/Container";
-import Loading from "@/src/components/Loading";
-import ErrorComponent from "@/src/components/molecule/ErrorComponent";
+import ErrorComponent from "@/src/components/molecules/ErrorComponent";
 import { useGetCheckInMorningRealtimeQuery, useGetCheckInNightRealtimeQuery, useGetCheckInRealtimeQuery, useGetCheckOutMorningRealtimeQuery, useGetCheckOutNightRealtimeQuery, useGetCheckOutRealtimeQuery, useGetLeaveRealtimeQuery, useGetReportRealtimeQuery, useGetUpdatesRealtimeQuery } from "@/src/redux/attendance";
 import { useUserDataRealTimeQuery } from "@/src/redux/user";
 import { MainStackParamsList } from "@/src/routes/params";
+import { COLORS } from "@/src/utils/colors";
 import Entypo from '@expo/vector-icons/Entypo';
 import { getAuth } from "@react-native-firebase/auth";
 import { useNavigation } from "@react-navigation/native";

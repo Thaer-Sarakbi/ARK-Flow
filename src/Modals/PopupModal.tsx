@@ -1,6 +1,6 @@
 import React from 'react';
 import { ColorValue, DimensionValue, KeyboardAvoidingView, Modal, Platform, StyleSheet, View, ViewProps } from 'react-native';
-import { COLORS } from '../colors';
+import { COLORS } from '../utils/colors';
 
 /**
  * Popup Modal

@@ -1,12 +1,12 @@
-import { COLORS } from "@/src/colors";
+import Container from "@/src/components/atoms/Container";
+import Loading from "@/src/components/atoms/Loading";
 import Spacer from "@/src/components/atoms/Spacer";
-import SubmitButton from "@/src/components/buttons/SubmitButton";
-import Container from "@/src/components/Container";
-import Loading from "@/src/components/Loading";
-import ErrorComponent from "@/src/components/molecule/ErrorComponent";
+import SubmitButton from "@/src/components/atoms/SubmitButton";
+import ErrorComponent from "@/src/components/molecules/ErrorComponent";
 import { useGetAttendanceRealtimeQuery, useGetDaysWorkingRealTimeQuery, useGetLeaveDaysRealTimeQuery, useGetUpdatesDaysRealTimeQuery } from "@/src/redux/attendance";
 import { useGetUsersRealtimeQuery, useUserDataRealTimeQuery } from "@/src/redux/user";
 import { MainStackParamsList } from "@/src/routes/params";
+import { COLORS } from "@/src/utils/colors";
 import { monthRange, PdfTemplate, Places } from "@/src/utils/Constants";
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { getAuth } from "@react-native-firebase/auth";

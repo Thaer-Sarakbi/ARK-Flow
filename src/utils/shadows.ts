@@ -1,5 +1,5 @@
 import { Platform } from "react-native";
-import { COLORS } from "../colors";
+import { COLORS } from "./colors";
 
 export const shadow = {
     cards: Platform.select({

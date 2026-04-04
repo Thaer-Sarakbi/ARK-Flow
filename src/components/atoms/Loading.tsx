@@ -1,8 +1,8 @@
 // LoadingScreen.tsx
+import { COLORS } from '@/src/utils/colors';
 import React from 'react';
 import { Modal, StyleSheet, View } from 'react-native';
-import { COLORS } from '../colors';
-import CircularProgress from './atoms/CircularProgress';
+import CircularProgress from './CircularProgress';
 
 interface LoadingScreenProps {
     visible: boolean;

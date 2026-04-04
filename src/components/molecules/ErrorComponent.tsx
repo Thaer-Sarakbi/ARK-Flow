@@ -1,4 +1,4 @@
-import { COLORS } from '@/src/colors';
+import { COLORS } from "@/src/utils/colors";
 import { Image, StyleSheet, Text, View } from "react-native";
 import Spacer from '../atoms/Spacer';
 

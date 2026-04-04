@@ -1,10 +1,10 @@
-import { COLORS } from '@/src/colors';
+import { COLORS } from '@/src/utils/colors';
 import Entypo from '@expo/vector-icons/Entypo';
 import React from 'react';
 import { StyleSheet, Text, TouchableHighlight, TouchableOpacity, View } from 'react-native';
-import Spacer from './atoms/Spacer';
+import LoadingComponent from '../atoms/LoadingComponent';
+import Spacer from '../atoms/Spacer';
 import CarouselSlider from './CarouselSlider';
-import LoadingComponent from './LoadingComponent';
 
 const TaskInfo = ({ title, value, sliderimages, setIsVisible, index, setIndex, loadingVisible, pressable = false, onPress }: any) => (
     <TouchableOpacity disabled={pressable ? false : true} style={[styles.container, { backgroundColor: pressable ? COLORS.neutral._300  :  COLORS.white }]} onPress={onPress}>

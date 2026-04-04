@@ -2,8 +2,8 @@ import Icon from '@expo/vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import React from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { COLORS } from '../colors';
-import { RootStackNavigationProp } from './TaskCard';
+import { COLORS } from '../../utils/colors';
+import { RootStackNavigationProp } from './Place';
 
 const MainHeader = ({unreadCount}: { unreadCount: number }) => {
     const navigation = useNavigation<RootStackNavigationProp>();

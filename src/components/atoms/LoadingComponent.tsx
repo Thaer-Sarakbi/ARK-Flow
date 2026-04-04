@@ -5,7 +5,7 @@ import { StyleSheet, View } from 'react-native';
 const LoadingComponent: React.FC = () => {
     return (
         <View style={styles.container}>
-          <LottieView source={require("../../assets/loading.json")} style={styles.icon} autoPlay loop />
+          <LottieView source={require("@/assets/loading.json")} style={styles.icon} autoPlay loop />
         </View>
     );
 };

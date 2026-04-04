@@ -1,9 +1,9 @@
+import { COLORS } from '@/src/utils/colors';
 import { Image } from 'expo-image';
 import { useCallback, useRef } from "react";
 import { StyleSheet, useWindowDimensions } from "react-native";
 import { Extrapolation, interpolate, useSharedValue } from "react-native-reanimated";
 import Carousel, { Pagination, type ICarouselInstance } from 'react-native-reanimated-carousel';
-import { COLORS } from "../colors";
 
 interface CarouselSliderProps { 
   index: number

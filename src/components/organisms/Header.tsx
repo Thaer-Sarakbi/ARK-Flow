@@ -1,4 +1,4 @@
-import { COLORS } from '@/src/colors';
+import { COLORS } from '@/src/utils/colors';
 import Icon from '@expo/vector-icons/Ionicons';
 import { useNavigation } from "@react-navigation/native";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";

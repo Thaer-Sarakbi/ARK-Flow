@@ -1,6 +1,6 @@
+import { COLORS } from "@/src/utils/colors";
 import { Image, ImageProps, StyleSheet, Text, TouchableOpacity } from "react-native";
-import { COLORS } from "../colors";
-import Spacer from "./atoms/Spacer";
+import Spacer from "../atoms/Spacer";
 
 const BoxUpload = ({ title, source, onPress }: { title: string, source: ImageProps, onPress:() => void }) => {
   return (

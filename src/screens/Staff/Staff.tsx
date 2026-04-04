@@ -1,8 +1,8 @@
+import Container from '@/src/components/atoms/Container';
+import Loading from '@/src/components/atoms/Loading';
 import Spacer from '@/src/components/atoms/Spacer';
-import Container from '@/src/components/Container';
-import Loading from '@/src/components/Loading';
-import ErrorComponent from '@/src/components/molecule/ErrorComponent';
-import Place from '@/src/components/Place';
+import ErrorComponent from '@/src/components/molecules/ErrorComponent';
+import Place from '@/src/components/organisms/Place';
 import { useGetUsersRealtimeQuery } from '@/src/redux/user';
 import { Places } from '@/src/utils/Constants';
 import React from 'react';

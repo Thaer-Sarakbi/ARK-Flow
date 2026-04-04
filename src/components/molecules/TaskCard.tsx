@@ -1,5 +1,5 @@
-import { COLORS } from '@/src/colors';
 import { MainStackParamsList } from '@/src/routes/params';
+import { COLORS } from '@/src/utils/colors';
 import { shadow } from '@/src/utils/shadows';
 import Icon from '@expo/vector-icons/Ionicons';
 import { Timestamp } from '@react-native-firebase/firestore';

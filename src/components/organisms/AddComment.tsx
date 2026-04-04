@@ -1,6 +1,6 @@
+import { COLORS } from "@/src/utils/colors";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Keyboard, StyleSheet, TextInput, TouchableOpacity, View } from "react-native";
-import { COLORS } from "../colors";
 
 interface AddComment { 
     comment: string, 

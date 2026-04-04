@@ -1,16 +1,15 @@
-import { COLORS } from '@/src/colors';
-import AddUpdate from '@/src/components/AddUpdate';
+import Container from '@/src/components/atoms/Container';
+import Loading from '@/src/components/atoms/Loading';
+import LoadingComponent from '@/src/components/atoms/LoadingComponent';
 import Separator from '@/src/components/atoms/Separator';
 import Spacer from '@/src/components/atoms/Spacer';
-import BoxUpload from '@/src/components/BoxUpload';
-import StatusButton from '@/src/components/buttons/StatusButton';
-import SubmitButton from '@/src/components/buttons/SubmitButton';
-import Container from '@/src/components/Container';
-import Loading from '@/src/components/Loading';
-import LoadingComponent from '@/src/components/LoadingComponent';
-import CommentsBox from '@/src/components/molecule/CommentsBox';
-import ErrorComponent from '@/src/components/molecule/ErrorComponent';
-import TaskInfo from '@/src/components/TaskInfo';
+import StatusButton from '@/src/components/atoms/StatusButton';
+import SubmitButton from '@/src/components/atoms/SubmitButton';
+import BoxUpload from '@/src/components/molecules/BoxUpload';
+import CommentsBox from '@/src/components/molecules/CommentsBox';
+import ErrorComponent from '@/src/components/molecules/ErrorComponent';
+import TaskInfo from '@/src/components/molecules/TaskInfo';
+import AddUpdate from '@/src/components/organisms/AddUpdate';
 import useCurrentLocation from '@/src/hooks/useCurrentLocation';
 import useDocumentPicker from '@/src/hooks/useDocumentPicker';
 import BottomSheet from '@/src/Modals/BottomSheet';
@@ -23,6 +22,7 @@ import { useAddTaskCommentMutation, useDeleteTaskMutation, useGetRealTaskComment
 import { useGetUpdatesRealtimeQuery } from '@/src/redux/updates';
 import { useUserDataRealTimeQuery } from '@/src/redux/user';
 import { MainStackParamsList } from '@/src/routes/params';
+import { COLORS } from '@/src/utils/colors';
 import { Update } from '@/src/utils/types';
 import Feather from '@expo/vector-icons/Feather';
 import { getAuth } from '@react-native-firebase/auth';
@@ -57,11 +57,7 @@ const ListButton = ({ status, onPress }: { status: string, onPress:() => void })
   </TouchableOpacity>
 )
 
-const TaskDetails = ({ route }: TaskDetails) => {
-    const taskId = route.params.taskId
-    const notificationId = route.params.notificationId
-    const notificationStatus = route.params.notificationStatus
-    const assignedToId = route.params?.assignedToId
+const TaskDetails = ({ route: { params: { taskId, notificationId, notificationStatus, assignedToId }}}: TaskDetails) => {
     const mapRef = useRef<MapView | null>(null);
     const [isVisibleConfirm, setIsVisibleConfirm] = useState(false)
     const [isVisible, setIsVisible] = useState(false)

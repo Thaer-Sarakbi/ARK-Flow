@@ -1,6 +1,6 @@
+import { COLORS } from '@/src/utils/colors';
 import Feather from '@expo/vector-icons/Feather';
 import { Image, StyleSheet, TouchableOpacity, View } from "react-native";
-import { COLORS } from "../colors";
 
 interface ImagesList {
     removeImage: (uri: string) => void, 

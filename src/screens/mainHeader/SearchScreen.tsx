@@ -1,4 +1,4 @@
-import Container from '@/src/components/Container';
+import Container from '@/src/components/atoms/Container';
 import { Text } from 'react-native';
 
 const SearchScreen = () => {

@@ -3,9 +3,9 @@ import firestore from '@react-native-firebase/firestore';
 import { useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
-import { COLORS } from '../colors';
 import Spacer from '../components/atoms/Spacer';
-import SubmitButton from '../components/buttons/SubmitButton';
+import SubmitButton from '../components/atoms/SubmitButton';
+import { COLORS } from '../utils/colors';
 import { Places } from '../utils/Constants';
 import PopupModal from './PopupModal';
 

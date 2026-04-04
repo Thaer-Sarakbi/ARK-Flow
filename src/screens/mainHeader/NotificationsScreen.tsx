@@ -1,8 +1,8 @@
+import Container from '@/src/components/atoms/Container';
+import Loading from '@/src/components/atoms/Loading';
 import Separator from '@/src/components/atoms/Separator';
-import Container from '@/src/components/Container';
-import Loading from '@/src/components/Loading';
-import ErrorComponent from '@/src/components/molecule/ErrorComponent';
-import Notification from '@/src/components/Notification';
+import ErrorComponent from '@/src/components/molecules/ErrorComponent';
+import Notification from '@/src/components/organisms/Notification';
 import { useGetNotificationsRealtimeQuery } from '@/src/redux/notifications';
 import { useUserDataRealTimeQuery } from '@/src/redux/user';
 import { getAuth } from '@react-native-firebase/auth';

@@ -1,11 +1,11 @@
 import AwesomeIcon from '@expo/vector-icons/FontAwesome5';
 import Icon from '@expo/vector-icons/Ionicons';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { COLORS } from '../colors';
 import AttendanceScreen from '../screens/bottomNav/AttendanceScreen';
 import CalendarScreen from '../screens/bottomNav/CalendarScreen';
 import HomeScreen from '../screens/bottomNav/HomeScreen';
 import Staff from '../screens/Staff/Staff';
+import { COLORS } from '../utils/colors';
 
 const Tab = createBottomTabNavigator<BottomNavigatorParamsList>();
 

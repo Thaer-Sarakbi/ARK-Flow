@@ -1,11 +1,11 @@
 import Feather from '@expo/vector-icons/Feather';
 import { useCallback, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import { COLORS } from '../colors';
+import LoadingComponent from '../components/atoms/LoadingComponent';
 import Spacer from '../components/atoms/Spacer';
-import SubmitButton from '../components/buttons/SubmitButton';
-import LoadingComponent from '../components/LoadingComponent';
+import SubmitButton from '../components/atoms/SubmitButton';
 import useDocumentPicker from '../hooks/useDocumentPicker';
+import { COLORS } from '../utils/colors';
 import PopupModal from './PopupModal';
 
 /**

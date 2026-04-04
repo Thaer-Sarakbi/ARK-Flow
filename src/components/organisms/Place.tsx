@@ -1,12 +1,12 @@
+import { MainStackParamsList } from '@/src/routes/params';
+import { COLORS } from '@/src/utils/colors';
+import { shadow } from '@/src/utils/shadows';
+import { User } from '@/src/utils/types';
 import { useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import React from 'react';
 import { Image, ImageSourcePropType, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import { COLORS } from '../colors';
-import { MainStackParamsList } from '../routes/params';
-import { shadow } from '../utils/shadows';
-import { User } from '../utils/types';
-import Spacer from './atoms/Spacer';
+import Spacer from '../atoms/Spacer';
 
 interface Place {
   label: string

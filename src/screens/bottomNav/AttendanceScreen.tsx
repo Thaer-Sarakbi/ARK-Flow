@@ -1,10 +1,9 @@
-import { COLORS } from "@/src/colors";
+import Container from "@/src/components/atoms/Container";
+import Loading from "@/src/components/atoms/Loading";
 import Spacer from "@/src/components/atoms/Spacer";
-import AttendanceCard from "@/src/components/AttendanceCard";
-import BoxUpload from "@/src/components/BoxUpload";
-import SubmitButton from "@/src/components/buttons/SubmitButton";
-import Container from "@/src/components/Container";
-import Loading from "@/src/components/Loading";
+import SubmitButton from "@/src/components/atoms/SubmitButton";
+import AttendanceCard from "@/src/components/molecules/AttendanceCard";
+import BoxUpload from "@/src/components/molecules/BoxUpload";
 import useCurrentLocation from "@/src/hooks/useCurrentLocation";
 import useDocumentPicker from "@/src/hooks/useDocumentPicker";
 import BottomSheet from "@/src/Modals/BottomSheet";
@@ -16,7 +15,7 @@ import { getAuth } from "@react-native-firebase/auth";
 import { getDistance } from 'geolib';
 import moment from "moment";
 import { useRef, useState } from "react";
-import { Image, Linking, StyleSheet, View } from "react-native";
+import { Image, Linking, View } from "react-native";
 import MapView from 'react-native-maps';
 
 const auth = getAuth();
@@ -483,42 +482,42 @@ export default function AttendanceScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  sheet: {
-    backgroundColor: COLORS.white,
-    left: 0,
-    right: 0,
-    position: "absolute",
-    bottom: 0,
-    paddingHorizontal: 24,
-    paddingTop: 24,
-    paddingBottom: 32,
-    borderTopRightRadius: 20,
-    borderTopLeftRadius: 20,
-    zIndex: 1,
-    shadowOffset: {
-      height: -2,
-      width: 0,
-    },
-    shadowOpacity: 0.05,
-    elevation: 10,
-    shadowColor: 'rgba(0, 0, 0, 1)',
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'transparent',
-    zIndex: 1,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  closeIcon: {
-    width: 20,
-    height: 20,
-  },
-  caption: {
-    color: COLORS.caption,
-    fontSize: 15
-  }
-})
+// const styles = StyleSheet.create({
+//   sheet: {
+//     backgroundColor: COLORS.white,
+//     left: 0,
+//     right: 0,
+//     position: "absolute",
+//     bottom: 0,
+//     paddingHorizontal: 24,
+//     paddingTop: 24,
+//     paddingBottom: 32,
+//     borderTopRightRadius: 20,
+//     borderTopLeftRadius: 20,
+//     zIndex: 1,
+//     shadowOffset: {
+//       height: -2,
+//       width: 0,
+//     },
+//     shadowOpacity: 0.05,
+//     elevation: 10,
+//     shadowColor: 'rgba(0, 0, 0, 1)',
+//   },
+//   backdrop: {
+//     ...StyleSheet.absoluteFillObject,
+//     backgroundColor: 'transparent',
+//     zIndex: 1,
+//   },
+//   header: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//   },
+//   closeIcon: {
+//     width: 20,
+//     height: 20,
+//   },
+//   caption: {
+//     color: COLORS.caption,
+//     fontSize: 15
+//   }
+// })

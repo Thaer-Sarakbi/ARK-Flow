@@ -1,4 +1,4 @@
-import { COLORS } from '@/src/colors';
+import { COLORS } from '@/src/utils/colors';
 import Icon from '@expo/vector-icons/Ionicons';
 import { StyleSheet, TouchableOpacity } from "react-native";
 

@@ -1,12 +1,12 @@
-import { COLORS } from "@/src/colors";
 import Input from "@/src/components/atoms/Input";
+import Loading from "@/src/components/atoms/Loading";
 import Spacer from "@/src/components/atoms/Spacer";
-import SubmitButton from "@/src/components/buttons/SubmitButton";
-import Loading from "@/src/components/Loading";
-import ErrorComponent from "@/src/components/molecule/ErrorComponent";
-import PasswordValidator from "@/src/components/molecule/PasswordValidator";
+import SubmitButton from "@/src/components/atoms/SubmitButton";
+import ErrorComponent from "@/src/components/molecules/ErrorComponent";
+import PasswordValidator from "@/src/components/molecules/PasswordValidator";
 import ErrorPopup from "@/src/Modals/ErrorPopup";
 import { useAddUserMutation } from "@/src/redux/user";
+import { COLORS } from "@/src/utils/colors";
 import { Places } from "@/src/utils/Constants";
 import { sendSignInLink } from "@/src/utils/sendEmailLink";
 import Ionicons from "@expo/vector-icons/Ionicons";

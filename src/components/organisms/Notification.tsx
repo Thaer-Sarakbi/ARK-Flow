@@ -1,9 +1,9 @@
+import { useUserDataRealTimeQuery } from "@/src/redux/user";
+import { COLORS } from "@/src/utils/colors";
+import { Notifications } from "@/src/utils/types";
 import { getAuth } from "@react-native-firebase/auth";
 import { useNavigation } from "@react-navigation/native";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
-import { COLORS } from "../colors";
-import { useUserDataRealTimeQuery } from "../redux/user";
-import { Notifications } from "../utils/types";
 
 const auth = getAuth();
 interface Props { 

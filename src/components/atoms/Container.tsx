@@ -1,7 +1,7 @@
+import { COLORS } from '@/src/utils/colors';
 import { ColorValue, Dimensions, KeyboardAvoidingView, Platform, ScrollView, StatusBar, StatusBarStyle, StyleSheet, View } from 'react-native';
 import { Edges, SafeAreaView, SafeAreaViewProps } from 'react-native-safe-area-context';
-import { COLORS } from '../colors';
-import Header from './organisms/Header';
+import Header from '../organisms/Header';
 // import Header from './atom/headers/Header';
 
 const { height } = Dimensions.get("window");

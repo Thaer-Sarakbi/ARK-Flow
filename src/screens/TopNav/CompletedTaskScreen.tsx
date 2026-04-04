@@ -1,7 +1,7 @@
+import Loading from "@/src/components/atoms/Loading";
 import Spacer from "@/src/components/atoms/Spacer";
-import Loading from "@/src/components/Loading";
-import ErrorComponent from "@/src/components/molecule/ErrorComponent";
-import TaskCard from "@/src/components/molecule/TaskCard";
+import ErrorComponent from "@/src/components/molecules/ErrorComponent";
+import TaskCard from "@/src/components/molecules/TaskCard";
 import { useGetTasksRealtimeQuery, useLazyGetTasksQuery } from "@/src/redux/tasks";
 import { useUserDataRealTimeQuery } from "@/src/redux/user";
 import { Task } from "@/src/utils/types";

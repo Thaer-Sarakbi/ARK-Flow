@@ -1,8 +1,8 @@
-import { COLORS } from '@/src/colors';
+import Container from '@/src/components/atoms/Container';
+import ProfileInfo from '@/src/components/atoms/ProfileInfo';
 import Spacer from '@/src/components/atoms/Spacer';
-import Container from '@/src/components/Container';
-import ProfileInfo from '@/src/components/ProfileInfo';
 import ImageViewModal from '@/src/Modals/ImageViewModal';
+import { COLORS } from '@/src/utils/colors';
 import React, { useMemo, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 

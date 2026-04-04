@@ -1,13 +1,13 @@
-import { COLORS } from '@/src/colors';
+import Container from '@/src/components/atoms/Container';
+import LoadingComponent from '@/src/components/atoms/LoadingComponent';
 import Spacer from '@/src/components/atoms/Spacer';
-import SubmitButton from '@/src/components/buttons/SubmitButton';
-import CarouselSlider from '@/src/components/CarouselSlider';
-import Container from '@/src/components/Container';
-import LoadingComponent from '@/src/components/LoadingComponent';
+import SubmitButton from '@/src/components/atoms/SubmitButton';
+import CarouselSlider from '@/src/components/molecules/CarouselSlider';
 import ConfirmationPopup from '@/src/Modals/ConfirmationPopup';
 import ErrorPopup from '@/src/Modals/ErrorPopup';
 import ImageViewModal from '@/src/Modals/ImageViewModal';
 import { useDeleteReportMutation } from '@/src/redux/attendance';
+import { COLORS } from '@/src/utils/colors';
 import { Report } from '@/src/utils/types';
 import Entypo from '@expo/vector-icons/Entypo';
 import Feather from '@expo/vector-icons/Feather';

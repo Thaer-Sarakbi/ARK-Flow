@@ -1,12 +1,11 @@
 import { getAuth } from '@react-native-firebase/auth';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import React, { useEffect, useMemo, useState } from 'react';
-import { COLORS } from '../colors';
-import AddTaskButton from '../components/buttons/AddTaskButton';
-import LoadingComponent from '../components/LoadingComponent';
-import MainHeader from '../components/MainHeader';
-import ErrorComponent from '../components/molecule/ErrorComponent';
+import AddTaskButton from '../components/atoms/AddTaskButton';
+import LoadingComponent from '../components/atoms/LoadingComponent';
+import ErrorComponent from '../components/molecules/ErrorComponent';
 import AddTask from '../components/organisms/AddTask';
+import MainHeader from '../components/organisms/MainHeader';
 import BottomSheet from '../Modals/BottomSheet';
 import { useGetNotificationsRealtimeQuery } from '../redux/notifications';
 import { useLazyGetTasksQuery } from '../redux/tasks';
@@ -15,6 +14,7 @@ import CompletedTaskScreen from '../screens/TopNav/CompletedTaskScreen';
 import InProgressTasksScreen from '../screens/TopNav/InProgressTasksScreen';
 import MyTasksScreen from '../screens/TopNav/MyTasksScreen';
 import NotStartedListScreen from '../screens/TopNav/NotStartedListScreen';
+import { COLORS } from '../utils/colors';
 
 const auth = getAuth();
 const Tab = createMaterialTopTabNavigator();

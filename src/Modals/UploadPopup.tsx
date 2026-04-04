@@ -1,7 +1,7 @@
 import { Image, ImageProps, StyleSheet, Text, TouchableOpacity, View } from "react-native"
-import { COLORS } from "../colors"
 import Spacer from "../components/atoms/Spacer"
 import useDocumentPicker from "../hooks/useDocumentPicker"
+import { COLORS } from "../utils/colors"
 import BottomSheet from "./BottomSheet"
 
 interface UploadPopup {

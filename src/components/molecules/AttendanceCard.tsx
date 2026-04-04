@@ -1,14 +1,14 @@
+import { COLORS } from '@/src/utils/colors';
+import { shadow } from '@/src/utils/shadows';
 import Feather from '@expo/vector-icons/Feather';
 import { DocumentPickerResponse } from '@react-native-documents/picker';
 import { useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Dropdown } from 'react-native-element-dropdown';
 import { Asset } from 'react-native-image-picker';
-import { COLORS } from "../colors";
-import { shadow } from '../utils/shadows';
-import Input from './atoms/Input';
-import Spacer from "./atoms/Spacer";
-import SubmitButton from "./buttons/SubmitButton";
+import Input from '../atoms/Input';
+import Spacer from '../atoms/Spacer';
+import SubmitButton from '../atoms/SubmitButton';
 import ImagesList from './ImagesList';
 
 interface AttendanceCard {

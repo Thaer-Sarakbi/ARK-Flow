@@ -1,13 +1,15 @@
+import { MainStackParamsList } from '@/src/routes/params';
+import { COLORS } from '@/src/utils/colors';
+import { shadow } from '@/src/utils/shadows';
 import Entypo from '@expo/vector-icons/Entypo';
 import { getStorage, ref } from '@react-native-firebase/storage';
 import { useNavigation } from '@react-navigation/native';
+import { StackNavigationProp } from '@react-navigation/stack';
 import React, { useEffect, useState } from 'react';
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type';
-import { COLORS } from '../colors';
-import { shadow } from '../utils/shadows';
-import Loading from './Loading';
-import Spacer from './atoms/Spacer';
+import Loading from '../atoms/Loading';
+import Spacer from '../atoms/Spacer';
 
 interface UserComponentProps {
   id: string, 
@@ -20,9 +22,10 @@ interface UserComponentProps {
 }
 
 const storage = getStorage();
+type RootStackNavigationProp = StackNavigationProp<MainStackParamsList, 'UserDetails'>;
 
 const User = ({ id, name, role, admin, place, email, phone }: UserComponentProps) => {
-    const navigation = useNavigation()
+    const navigation = useNavigation<RootStackNavigationProp>()
     const [loadingVisible, setIsLoadingVisible] = useState<boolean>(false);
     const [profileImage, setProfileImage] = useState<IImageInfo[]>([])
 

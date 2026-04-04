@@ -1,4 +1,4 @@
-import { COLORS } from "@/src/colors";
+import { COLORS } from "@/src/utils/colors";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
 interface SubmitButton {

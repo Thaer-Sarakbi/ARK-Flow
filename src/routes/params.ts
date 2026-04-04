@@ -37,7 +37,14 @@ export type MainStackParamsList = {
     assignedToId: string
     assignedById: string
   },
-  UserDetails:undefined,
+  UserDetails: {
+    image: string | undefined, 
+    name: string, 
+    role: string | undefined, 
+    place: string | undefined, 
+    email: string | undefined, 
+    phone: string | undefined
+  },
   SearchScreen: undefined,
   NotificationsScreen: undefined,
   ChatScreen: undefined;
