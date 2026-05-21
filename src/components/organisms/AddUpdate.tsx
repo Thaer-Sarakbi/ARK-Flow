@@ -2,9 +2,12 @@ import useCurrentLocation from "@/src/hooks/useCurrentLocation";
 import ConfirmationPopup from "@/src/Modals/ConfirmationPopup";
 import { useAddNotificationMutation } from "@/src/redux/notifications";
 import { useAddUpdateMutation } from "@/src/redux/updates";
+import { useUserDataRealTimeQuery } from "@/src/redux/user";
 import { COLORS } from "@/src/utils/colors";
+import { pushNotification } from "@/src/utils/PushNotificationService";
 import Feather from "@expo/vector-icons/Feather";
 import { DocumentPickerResponse } from "@react-native-documents/picker";
+import { getAuth } from "@react-native-firebase/auth";
 import moment from "moment";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -35,6 +38,8 @@ interface AddUpdate {
   uploading: boolean
 }
 
+const auth = getAuth();
+
 export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId, assignedToId, assignedById, images, documents, removeDocument, removeImage, uploadAll, userId, taskTitle, userName, uploading }: AddUpdate) {
   const mapRef = useRef<MapView | null>(null);
   const [isVisibleConfirm, setIsVisibleConfirm] = useState(false)
@@ -45,7 +50,10 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
   const [addUpdate, { isSuccess, isError }] = useAddUpdateMutation()
   const [addNotification, { isLoading: isLoadingAddNot, isError: isErrorAddNot }] = useAddNotificationMutation()
   const { currentLocation, error: locationError, openSettings, getLocation } = useCurrentLocation(mapRef as any)
+  // const { data: assignedToData } = useGetUserRealtimeQuery({ userId: assignedToId }, { skip: !assignedToId });
+  const { data: assignedByData, isLoading: isLoadingAssignedByData, isError: isErrorAssignedByData } = useUserDataRealTimeQuery(assignedById, { skip: !assignedById })
   // const [AddUpdateAttend, { isLoading: isLoadingAddUpdateAttend }] = useAddUpdateAttendMutation()
+  const { data: user, isLoading: isLoadingUserData, isError: isErrorUserData } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
 
   const date = moment().format("DD-MM-YYYY");
   const id = uuid.v4();
@@ -148,10 +156,12 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
     }
 
     console.log('Notification Added')
+
+     pushNotification(assignedByData?.fcmToken as string, assignedById, title, `${user?.fullName} added update`, 'UpdateDetails')   
   })
 
   //don't add any loading here
-  if(isLoading || uploading) return <Loading visible={true} />
+  if(isLoading || uploading || isLoadingAssignedByData || isLoadingUserData) return <Loading visible={true} />
   if(uploading) return <Loading visible={true} />
 
   return (

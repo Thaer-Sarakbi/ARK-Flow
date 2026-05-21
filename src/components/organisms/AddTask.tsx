@@ -93,7 +93,7 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
 
     console.log('Notification Added')
 
-    pushNotification(assignedToFcmToken, assignedToId, title, user.fullName, 'TaskDetails')
+    pushNotification(assignedToFcmToken, assignedToId, title, `You have assigned a new task by ${user?.fullName}`, 'TaskDetails')
   }
 
   const handleGallery = async () => {

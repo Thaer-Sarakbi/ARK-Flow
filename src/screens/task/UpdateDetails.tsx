@@ -15,7 +15,9 @@ import { useAddNotificationMutation, useUpdateNotificationStatusMutation } from 
 import { setLoading } from '@/src/redux/slices/uiSlice';
 import { useGetTaskQuery } from '@/src/redux/tasks';
 import { useAddUpdateCommentMutation, useDeleteUpdateMutation, useGetRealUpdateCommentsQuery, useGetUpdateQuery } from '@/src/redux/updates';
+import { useGetUserRealtimeQuery, useUserDataRealTimeQuery } from '@/src/redux/user';
 import { COLORS } from '@/src/utils/colors';
+import { pushNotification } from '@/src/utils/PushNotificationService';
 import Entypo from '@expo/vector-icons/Entypo';
 import Feather from '@expo/vector-icons/Feather';
 import { getAuth } from '@react-native-firebase/auth';
@@ -63,6 +65,8 @@ export default function UpdateDetails({ route }: UpdateDetails) {
   const { data: update, isLoading: isLoadingUpdate, isError: isErrorUpdate  } = useGetUpdateQuery({ userId: assignedToId, taskId, updateId }, { skip: skipQueries })
   const { data: task, isLoading: isLoadingTask, isError: isErrorTask } = useGetTaskQuery({ userId: assignedToId, taskId }, { skip: skipQueries })
   const {data} = useGetRealUpdateCommentsQuery({  userId: assignedToId, taskId, updateId }, { skip: skipQueries })
+  const { data: user, isLoading, isError: isErrorUserData } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
+  const { data: assignedToData } = useGetUserRealtimeQuery({ userId: assignedToId }, { skip: skipQueries });
   const [addComment, { isLoading: isLoadingAddComment }] = useAddUpdateCommentMutation()
   const  [updateNotificationStatus]= useUpdateNotificationStatusMutation()
   const [deleteUpdate] = useDeleteUpdateMutation()
@@ -200,6 +204,10 @@ export default function UpdateDetails({ route }: UpdateDetails) {
       }
 
       console.log('Notification Added');
+
+      if (user?.id !== assignedToId) {
+        pushNotification(assignedToData?.fcmToken, assignedToId, update.title, `${user?.fullName} commented on your update`, 'UpdateDetails')   
+      }
     }
 
     setComment('')

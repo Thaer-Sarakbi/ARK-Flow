@@ -1,4 +1,4 @@
-import firestore, { collection, getFirestore, onSnapshot, orderBy, query } from '@react-native-firebase/firestore';
+import { addDoc, collection, doc, getDocs, getFirestore, onSnapshot, orderBy, query, updateDoc } from '@react-native-firebase/firestore';
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 import { Notifications } from '../utils/types';
 
@@ -16,12 +16,19 @@ export const notificationsApi = createApi({
               return { data: [] }; // prevents invalid Firestore paths
             }
 
-            const docSnap = await firestore()
-            .collection("users")
-            .doc(userId)
-            .collection("notifications")
-            .orderBy("creationDate", "desc")
-            .get()
+            // const docSnap = await firestore()
+            // .collection("users")
+            // .doc(userId)
+            // .collection("notifications")
+            // .orderBy("creationDate", "desc")
+            // .get()
+
+            const notificationsRef = query(
+              collection(db, 'users', userId, 'notifications'),
+              orderBy('creationDate', 'desc')
+            );
+
+            const docSnap = await getDocs(notificationsRef);
           
             const notifications = docSnap.docs.map((doc: any) => ({
               id: doc.id,
@@ -82,22 +89,43 @@ export const notificationsApi = createApi({
     addNotification: builder.mutation<any, Notifications>({
         async queryFn({ userId, title, message, screenId, screenName, by, assignedToId, taskId, assignedById }) {
           try {
-            await firestore()
-                  .collection("users")
-                  .doc(userId)
-                  .collection("notifications")
-                  .add({
-                    readed: false,
-                    title,
-                    message, 
-                    screenId, 
-                    screenName,
-                    by,
-                    assignedToId,
-                    taskId,
-                    assignedById,
-                    creationDate: new Date(), 
-                  })
+            // await firestore()
+            //       .collection("users")
+            //       .doc(userId)
+            //       .collection("notifications")
+            //       .add({
+            //         readed: false,
+            //         title,
+            //         message, 
+            //         screenId, 
+            //         screenName,
+            //         by,
+            //         assignedToId,
+            //         taskId,
+            //         assignedById,
+            //         creationDate: new Date(), 
+            //       })
+
+            const notificationsRef = collection(
+              db,
+              'users',
+              userId  as any,
+              'notifications'
+            );
+  
+            await addDoc(notificationsRef, {
+              readed: false,
+              title,
+              message,
+              screenId,
+              screenName,
+              by,
+              assignedToId,
+              taskId,
+              assignedById,
+              creationDate: new Date(),
+            });
+
                return { data: true };
           } catch (err: any) {
             console.log(err)
@@ -114,16 +142,28 @@ export const notificationsApi = createApi({
     updateNotificationStatus: builder.mutation<any, {userId: string | undefined, notificationId: string}>({
         async queryFn({ userId, notificationId }) {
             try {
-              await firestore()
-                    .collection("users")
-                    .doc(userId)
-                    .collection("notifications")
-                    .doc(notificationId)
-                    .update({
-                      readed: true
-                    })       
+              // await firestore()
+              //       .collection("users")
+              //       .doc(userId)
+              //       .collection("notifications")
+              //       .doc(notificationId)
+              //       .update({
+              //         readed: true
+              //       })  
+
+              const notificationRef = doc(
+                db,
+                'users',
+                userId!,
+                'notifications',
+                notificationId
+              );
+    
+              await updateDoc(notificationRef, {
+                readed: true,
+              });
                     return { data: true };
-                  } catch (err: any) {
+              } catch (err: any) {
                     console.log(err)
                     return {
                       error: {

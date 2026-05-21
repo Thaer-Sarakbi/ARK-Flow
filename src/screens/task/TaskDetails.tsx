@@ -20,9 +20,10 @@ import ImageViewModal from '@/src/Modals/ImageViewModal';
 import { useAddNotificationMutation, useUpdateNotificationStatusMutation } from '@/src/redux/notifications';
 import { useAddTaskCommentMutation, useDeleteTaskMutation, useGetRealTaskCommentsQuery, useGetTaskRealtimeQuery, useUpdateTaskStatusMutation } from '@/src/redux/tasks';
 import { useGetUpdatesRealtimeQuery } from '@/src/redux/updates';
-import { useUserDataRealTimeQuery } from '@/src/redux/user';
+import { useGetUserRealtimeQuery, useUserDataRealTimeQuery } from '@/src/redux/user';
 import { MainStackParamsList } from '@/src/routes/params';
 import { COLORS } from '@/src/utils/colors';
+import { pushNotification } from '@/src/utils/PushNotificationService';
 import { Update } from '@/src/utils/types';
 import Feather from '@expo/vector-icons/Feather';
 import { getAuth } from '@react-native-firebase/auth';
@@ -82,6 +83,7 @@ const TaskDetails = ({ route: { params: { taskId, notificationId, notificationSt
     // Only run task + updates queries when user.id exists
     const skipQueries = !assignedToId || !taskId;
     const { data, isLoading: isLoadingTask, isError: isErrorTask } = useGetTaskRealtimeQuery({ userId: assignedToId, taskId }, { skip: skipQueries })
+    const { data: assignedToData } = useGetUserRealtimeQuery({ userId: assignedToId }, { skip: skipQueries });
     // const { data: assignedByData } = useGetUserRealtimeQuery({ userId: data?.assignedById }, { skip: data });
     const currentStatus = data?.status;
     const [selectedStatus, setSelectedStatus] = useState<string | null>(null);
@@ -209,6 +211,10 @@ const TaskDetails = ({ route: { params: { taskId, notificationId, notificationSt
           return;
         }
       console.log('Notification Added')
+
+      if (user?.id !== data.assignedToId) {
+        pushNotification(assignedToData?.fcmToken, assignedToId, data?.title, `${user?.fullName} commented on your task`, 'TaskDetails')   
+      }
     }
   }
 

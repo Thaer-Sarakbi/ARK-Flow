@@ -72,7 +72,7 @@ export interface User {
 export interface Notifications {
   id: string,
   title: string,
-  userId: string | undefined,
+  userId: string,
   message: string,
   readed: boolean,
   screenName: string,

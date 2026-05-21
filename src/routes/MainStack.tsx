@@ -106,14 +106,6 @@ const MainStack = () => {
     }, []);
 
     useEffect(() => {
-      setTimeout(() => {
-        if(data?.fcmToken === '' && auth.currentUser){
-          getFcmToken();
-        }
-      }, 2000);
-    },[data?.fcmToken])
-
-    useEffect(() => {
       requestNotificationPermission() ;
       getLocation();
       if(data?.id){
@@ -161,22 +153,6 @@ const MainStack = () => {
     checkInitialURL()
     Linking.addEventListener('url', handleDeepLink);
     }, [data]);
-
-    // Get the FCM token
-    async function getFcmToken() {
-      let fcmToken = await messaging().getToken().catch((e) => console.log(e));
-      console.log('fcmToken ', fcmToken)
-      if (fcmToken && data?.id) {
-        firestore()
-        .collection('users')
-        .doc(data?.id)
-        .update({ fcmToken }).then(() => {
-          console.log('updated')
-        }).catch((e) => {
-          console.log('error ', e)
-        });
-      }
-    }
 
     async function requestNotificationPermission() {
       if (Platform.OS === 'ios') {

@@ -137,7 +137,7 @@ export default function DayDetails({ route }: DayDetails) {
       <Text style={styles.title}>Task Updates</Text>
       {
         (updates?.length ?? 0) > 0 ? updates?.map((update: any) => (
-            <TouchableOpacity key={update.id} style={styles.updateComponent} onPress={() => navigation.navigate('UpdateDetails', { updateId: update.id, taskId: update.taskId, assignedToId: update.assignedToId, userName: user?.fullName, assignedBy: update.assignedBy, assignedById: update.assignedById, userId: user?.id })}>
+          <TouchableOpacity key={update.id} style={styles.updateComponent} onPress={() => navigation.navigate('UpdateDetails', { updateId: update.id, taskId: update.taskId, assignedToId: update.assignedToId, userName: user?.fullName, assignedBy: update.assignedBy, assignedById: update.assignedById, userId: user?.id ?? '' })}>
               <Text style={[styles.caption, { fontSize: 18, textAlign: 'left' }]}>{update.title}</Text>
               <Entypo name="chevron-small-right" size={24} color="black" />
             </TouchableOpacity>
