@@ -2,7 +2,7 @@ import AwesomeIcon from '@expo/vector-icons/FontAwesome5';
 import Icon from '@expo/vector-icons/Ionicons';
 import { getAuth } from '@react-native-firebase/auth';
 import { doc, getFirestore, updateDoc } from '@react-native-firebase/firestore';
-import messaging from '@react-native-firebase/messaging';
+import { getMessaging, getToken, onNotificationOpenedApp, onTokenRefresh } from '@react-native-firebase/messaging';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useEffect } from 'react';
 import Loading from '../components/atoms/Loading';
@@ -25,45 +25,90 @@ export type BottomNavigatorParamsList = {
 
 const auth = getAuth();
 const db = getFirestore();
+const messaging = getMessaging();
 
 const BottomNavigator = () => {
   const uid = auth.currentUser?.uid ?? null;
   const { data, isLoading, isError } = useUserDataRealTimeQuery(uid);
 
-  useEffect(() => { 
-    setTimeout(() => { 
-      if(!data?.fcmToken && auth.currentUser) { 
-        getFcmToken(); 
-      } 
-    }, 2000); 
-  },[data?.fcmToken, auth.currentUser])
+  useEffect(() => {
+    const unsubscribe = onNotificationOpenedApp(messaging, (remoteMessage) => {
+      console.log(
+        'Notification caused app to open from background state:',
+        remoteMessage.notification,
+      );
+      // Perform navigation or update UI based on remoteMessage.data
+    });
 
-  // Get the FCM token 
+    return () => {
+      unsubscribe();
+    };
+  },[])
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+  
+    const setupFcm = async () => {
+      if (!auth.currentUser || !uid) return;
+  
+      await getFcmToken();
+    };
+  
+    timeout = setTimeout(() => {
+      setupFcm();
+    }, 2000);
+  
+    // Listen for token refresh
+    const unsubscribe = onTokenRefresh(
+      messaging,
+      async (newToken) => {
+        console.log('New FCM Token:', newToken);
+  
+        await saveTokenToServer(newToken);
+      }
+    );
+  
+    return () => {
+      clearTimeout(timeout);
+      unsubscribe();
+    };
+  }, [uid]);
+  
+  
+  // Get the FCM token
   async function getFcmToken() {
-    let fcmToken = await messaging().getToken().catch((e) => console.log(e));
-    console.log('FCM Token:', fcmToken);
-
-    if (fcmToken !== data?.fcmToken) {
-      await updateDoc(
-        doc(db, 'users', uid as string),
-        { fcmToken }
-      ).then(() => {
-        console.log('FCM token updated successfully');
-      }).catch((e) => {
-        console.log('Error updating FCM token:', e);
-      });
+    try {
+      const fcmToken = await getToken(messaging);
+  
+      console.log('FCM Token:', fcmToken);
+  
+      if (!fcmToken) return;
+  
+      // Update only if changed
+      if (fcmToken !== data?.fcmToken) {
+        await saveTokenToServer(fcmToken);
+      }
+    } catch (e) {
+      console.log('Error getting FCM token:', e);
     }
-
-      // firestore()
-      // .collection('users')
-      // .doc(auth.currentUser?.uid)
-      // .update({ fcmToken }).then(() => {
-      //   console.log('updated')
-      // }).catch((e) => {
-      //   console.log('error ', e)
-      // });
-
-
+  }
+  
+  
+  async function saveTokenToServer(fcmToken: string) {
+    try {
+      if (!uid) return;
+  
+      await updateDoc(
+        doc(db, 'users', uid),
+        {
+          fcmToken,
+        }
+      );
+  
+      console.log('FCM token updated successfully');
+    } catch (e) {
+      console.log('Error updating FCM token:', e);
+    }
   }
 
   if(isLoading) return <Loading visible={true} />

@@ -7,9 +7,9 @@ export const sendNotification = onRequest(
   { region: 'asia-southeast1' },
     async (req, res): Promise<void> => {
     try{
-      const { fcmToken, targetUserId, title, body } = req.body;
+      const { fcmToken, targetUserId, title, body, screenName, screenId } = req.body;
 
-      if (!fcmToken || !targetUserId || !title || !body) {
+      if (!fcmToken || !targetUserId || !title || !body || !screenName || !screenId) {
         res.status(400).json({
           error: 'Missing required fields',
         });
@@ -21,6 +21,19 @@ export const sendNotification = onRequest(
           title,
           body,
         },
+        data: {
+          // All values MUST be strings
+          targetUserId: String(targetUserId),
+          screenName: String(screenName),
+          screenId: String(screenId),
+        },
+        // apns: {
+        //   payload: {
+        //     aps: {
+        //       contentAvailable: true,
+        //     },
+        //   },
+        // },
         android: {
           priority: 'high',
           notification: {
