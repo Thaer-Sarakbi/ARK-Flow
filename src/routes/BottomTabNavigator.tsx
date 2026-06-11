@@ -4,12 +4,14 @@ import { getAuth } from '@react-native-firebase/auth';
 import { doc, getFirestore, updateDoc } from '@react-native-firebase/firestore';
 import { getMessaging, getToken, onNotificationOpenedApp, onTokenRefresh } from '@react-native-firebase/messaging';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { useNavigation } from '@react-navigation/native';
 import { useEffect } from 'react';
+import branch from 'react-native-branch';
 import Loading from '../components/atoms/Loading';
 import ErrorComponent from '../components/molecules/ErrorComponent';
 import { useUserDataRealTimeQuery } from '../redux/user';
 import AttendanceScreen from '../screens/bottomNav/AttendanceScreen';
-import CalendarScreen from '../screens/bottomNav/CalendarScreen';
+import CalendarScreen, { RootStackNavigationProp } from '../screens/bottomNav/CalendarScreen';
 import HomeScreen from '../screens/bottomNav/HomeScreen';
 import Staff from '../screens/Staff/Staff';
 import { COLORS } from '../utils/colors';
@@ -28,8 +30,32 @@ const db = getFirestore();
 const messaging = getMessaging();
 
 const BottomNavigator = () => {
+  const navigation = useNavigation<RootStackNavigationProp>();
   const uid = auth.currentUser?.uid ?? null;
   const { data, isLoading, isError } = useUserDataRealTimeQuery(uid);
+
+  useEffect(() => {
+    // Handles link when app is already open (foreground)
+    const unsubscribe = branch.subscribe(({ error, params, uri }) => {
+      if (error) {
+        console.error('Branch error:', error);
+        return;
+      }
+    
+      if (!params?.['+clicked_branch_link']) return;
+    
+      const taskId = params.taskId as string | undefined;
+      const assignedToId = params.assignedToId as string | undefined;
+    
+      if (taskId && assignedToId) {
+        navigation.navigate('TaskDetails', { taskId, assignedToId });
+      }
+    });
+    
+    return () => {
+      unsubscribe();
+    };
+  }, [navigation]);
 
   useEffect(() => {
     const unsubscribe = onNotificationOpenedApp(messaging, (remoteMessage) => {

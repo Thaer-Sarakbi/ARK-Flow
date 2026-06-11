@@ -39,14 +39,18 @@
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" /> 
         <data android:scheme="https" android:host="flawless-helper-317308.firebaseapp.com" />
-    </intent-filter>
+        <data android:scheme="https" android:host="zxcom.app.link" />
+        <data android:scheme="https" android:host="zxcom-alternate.app.link" />
+      </intent-filter>
     </activity>
+
+    <meta-data android:name="io.branch.sdk.BranchKey" android:value="key_live_nDpT270lHEgRfCQpoZDsnmhdzxfN0i02" />
   </application>
-  + <queries>
-+   <intent>
-+     <action android:name="android.intent.action.VIEW" />
-+     <!-- If you don't know the MIME type in advance, set "mimeType" to "*/*". -->
-+     <data android:mimeType="application/pdf" />
-+   </intent>
-+ </queries>
+  <queries>
+   <intent>
+     <action android:name="android.intent.action.VIEW" />
+     <!-- If you don't know the MIME type in advance, set "mimeType" to "*/*". -->
+     <data android:mimeType="application/pdf" />
+   </intent>
+ </queries>
 </manifest>

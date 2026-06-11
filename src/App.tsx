@@ -9,6 +9,7 @@ import ConfirmationPopup from './Modals/ConfirmationPopup';
 import { store } from './redux/store';
 import AuthStack from './routes/AuthStack';
 import MainDrawer from './routes/DrawerNavigator';
+import linking from './routes/Linking';
 import { DeviceInformation } from './utils/Constants';
 
 const auth = getAuth();
@@ -55,7 +56,7 @@ export default function App() {
   return (
     <>
       <SafeAreaProvider>
-        <NavigationContainer>
+        <NavigationContainer linking={linking}>
           <Provider store={store}>
             {currentUser ? <MainDrawer /> : <AuthStack />}
           </Provider>

@@ -11,7 +11,21 @@ import com.facebook.react.defaults.DefaultReactActivityDelegate
 
 import expo.modules.ReactActivityDelegateWrapper
 
+import io.branch.rnbranch.*
+import android.content.Intent
+
 class MainActivity : ReactActivity() {
+  override fun onStart() {
+      super.onStart()
+      RNBranchModule.initSession(getIntent().getData(), this)
+  }
+
+  override fun onNewIntent(intent: Intent?) {
+    super.onNewIntent(intent)
+    setIntent(intent)
+    RNBranchModule.reInitSession(this)
+  }
+
   override fun onCreate(savedInstanceState: Bundle?) {
     // Set the theme to AppTheme BEFORE onCreate to support
     // coloring the background, status bar, and navigation bar.
