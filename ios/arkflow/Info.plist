@@ -19,16 +19,19 @@
 	<key>CFBundlePackageType</key>
 	<string>$(PRODUCT_BUNDLE_PACKAGE_TYPE)</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.0.2</string>
+	<string>3.0.3</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.ark.deglory.arkflow</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>arkflow</string>
-				<string>com.ark.deglory.arkflow</string>
 			</array>
 		</dict>
 	</array>
@@ -94,5 +97,15 @@
 	<string>Automatic</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>branch_key</key>
+	<dict>
+		<key>live</key>
+		<string>key_live_nDpT270lHEgRfCQpoZDsnmhdzxfN0i02</string>
+	</dict>
+	<key>branch_universal_link_domains</key>
+	<array>
+		<string>zxcom.app.link</string>
+		<string>zxcom-alternate.app.link</string>
+	</array>
 </dict>
 </plist>
