@@ -1,5 +1,5 @@
-import Geolocation from '@react-native-community/geolocation';
-import React, { useCallback, useState } from "react";
+import * as Location from 'expo-location';
+import React, { useCallback, useEffect, useState } from "react";
 import { Linking, Platform } from "react-native";
 import MapView, { Region } from "react-native-maps";
 import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";
@@ -24,39 +24,33 @@ export default function useCurrentLocation(mapRef: React.RefObject<MapView>) {
   };
 
   const getLocation = useCallback(async () => {
-    setLoading(true);
-    setError("");
+    try {
+      setLoading(true);
+      setError("");
 
-    const ok = await requestPermission();
-    if (!ok) {
-      setError("Location permission denied.");
+      const ok = await requestPermission();
+
+      if (!ok) {
+        setError("Location permission denied.");
+        return;
+      }
+
+      const info = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.BestForNavigation,
+      });
+
+      setCurrentLocation(info.coords);
+    } catch (e) {
+      setError("Failed to get location");
+      console.log(e);
+    } finally {
       setLoading(false);
-      return null;
     }
-
-    if (currentLocation) return;
-    Geolocation.getCurrentPosition(info => {
-      const { latitude, longitude } = info.coords;
-      const newRegion = {
-        latitude,
-        longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      };
-      if (!currentLocation?.latitude) {
-        setCurrentLocation(newRegion)
-        setLocation(newRegion)
-        if (mapRef.current) {
-          mapRef.current.animateToRegion(newRegion, 2000);
-          // setLocation(newRegion)
-        }
-      }
-    }, (err) => {
-      if(err.code === 2){
-        setError("Please enable location in your phone")
-      }
-    })
   }, []);
+
+  useEffect(() => {
+    getLocation();
+  }, [getLocation]);
 
   const openSettings = () => {
     if (Platform.OS === 'ios') {

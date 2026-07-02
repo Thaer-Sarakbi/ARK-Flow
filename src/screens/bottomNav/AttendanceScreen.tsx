@@ -58,7 +58,6 @@ export default function AttendanceScreen() {
   const { documents, leaveDocuments, images, uploading, leaveImages, handleDocumentSelection, handleLeaveDocumentSelection, handleSelectImage, handleSelectCamera, handleSelectLeaveImage, handleSelectLeaveCamera, removeDocument, removeLeaveDocument, removeImage, removeLeaveImage, uploadAll, uploadLeaveAll } = useDocumentPicker()
   const date = moment().format("DD-MM-YYYY");
 
-
   function isUserInsideArea(userLat: number, userLng: number): boolean {
 
     const TARGET_LOCATION: any = {
@@ -66,7 +65,7 @@ export default function AttendanceScreen() {
       longitude: Places.find(place => place.value === data?.placeId)?.longitude,
     }
 
-    const RADIUS_METERS = 300
+    const RADIUS_METERS = 250
     
     if (!TARGET_LOCATION.latitude || !TARGET_LOCATION.longitude) return true;
 

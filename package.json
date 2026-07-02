@@ -1,7 +1,7 @@
 {
   "name": "ark-flow",
   "main": "index.ts",
-  "version": "3.0.3",
+  "version": "3.0.6",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -17,7 +17,6 @@
     "@expo/vector-icons": "^15.0.3",
     "@hookform/resolvers": "^5.2.2",
     "@notifee/react-native": "^9.1.8",
-    "@react-native-community/geolocation": "^3.4.0",
     "@react-native-documents/picker": "^11.0.0",
     "@react-native-firebase/analytics": "^23.5.0",
     "@react-native-firebase/app": "^23.5.0",
@@ -46,6 +45,7 @@
     "expo-image": "~3.0.10",
     "expo-image-manipulator": "~14.0.8",
     "expo-linking": "~8.0.8",
+    "expo-location": "~19.0.8",
     "expo-notifications": "^0.32.14",
     "expo-splash-screen": "~31.0.10",
     "expo-status-bar": "~3.0.8",
