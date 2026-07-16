@@ -1,5 +1,5 @@
 import * as Location from 'expo-location';
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Linking, Platform } from "react-native";
 import MapView, { Region } from "react-native-maps";
 import { check, PERMISSIONS, request, RESULTS } from "react-native-permissions";

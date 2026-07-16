@@ -13,6 +13,7 @@ export enum DeviceInformation {
 }
 
 export const Places = [
+  {value: 39, label: 'All'},
   {value: 2, label: 'AMPANG H2'},
   {value: 3, label: 'AMPANG TESCO'},
   {value: 4, label: 'BUKIT BERU'},
@@ -41,7 +42,7 @@ export const Places = [
   {value: 28, label: 'NEW RAWANG'}, 
   {value: 29, label: 'SUBANG', latitude: 3.1519610, longitude: 101.5525850, image: require('@/assets/images/places/subang.jpg') },
   {value: 30, label: 'SG BESI H2', latitude: 3.0356466, longitude: 101.7052028, image: '' },
-  {value: 31, label: 'SERANDAH', latitude: 3.4612539, longitude: 101.6566075, image: require('@/assets/images/places/serandah.jpeg')},
+  {value: 31, label: 'SERANDAH', image: require('@/assets/images/places/serandah.jpeg')},
   {value: 32, label: 'PUCHONG', image: ''},
   {value: 33, label: 'ARK RAWANG', latitude: 3.3176836, longitude: 101.5320457, image: require('@/assets/images/places/arkRawang.jpeg') },
   {value: 34, label: 'BANTING', image: ''},
@@ -49,7 +50,7 @@ export const Places = [
   {value: 36, label: 'Avani sepang goldcost', image: require('@/assets/images/places/avani.webp')},
   {value: 37, label: 'Ampang 3 tower Office', latitude: 3.1623508, longitude: 101.7415717, image: require('@/assets/images/places/3towers.jpg') },
   {value: 38, label: 'Batu Caves Office', latitude: 3.2325874, longitude: 101.6752059 },
-  {value: 1, label: 'Not Spesific', image: require('@/assets/images/places/notSpesific.jpeg')},
+  {value: 1, label: 'Not Spesific', image: require('@/assets/images/places/notSpesific.jpeg')}
 ]
 
 export const PdfTemplate = (rowsMorning: any, rowsNight: any, name: string | undefined, month: string) => (

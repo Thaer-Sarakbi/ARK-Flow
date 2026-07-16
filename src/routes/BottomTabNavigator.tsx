@@ -13,6 +13,7 @@ import { useUserDataRealTimeQuery } from '../redux/user';
 import AttendanceScreen from '../screens/bottomNav/AttendanceScreen';
 import CalendarScreen, { RootStackNavigationProp } from '../screens/bottomNav/CalendarScreen';
 import HomeScreen from '../screens/bottomNav/HomeScreen';
+import DailySales from '../screens/sales/DailySales';
 import Staff from '../screens/Staff/Staff';
 import { COLORS } from '../utils/colors';
 
@@ -22,7 +23,8 @@ export type BottomNavigatorParamsList = {
   Home: undefined,
   Attendance: undefined,
   Calendar: undefined,
-  Staff: undefined
+  Staff: undefined,
+  DailySales: undefined
 }
 
 const auth = getAuth();
@@ -154,17 +156,6 @@ const BottomNavigator = () => {
         component={HomeScreen} 
       />
       <Tab.Screen 
-        name="Staff" 
-        options={{ 
-            headerShown: false, 
-            tabBarLabelStyle: { display: 'none'},
-            tabBarIcon: ({ focused, color, size }) => (
-              <AwesomeIcon name="users" size={26} color={focused ? COLORS.info : COLORS.neutral._500} />
-            )
-        }}
-        component={Staff} 
-      />
-      <Tab.Screen 
         name="Attendance" 
         options={{ 
             headerShown: false, 
@@ -176,6 +167,17 @@ const BottomNavigator = () => {
         component={AttendanceScreen} 
       />
       <Tab.Screen 
+        name="DailySales" 
+        options={{ 
+            headerShown: false, 
+            tabBarLabelStyle: { display: 'none'},
+            tabBarIcon: ({ focused, color, size }) => (
+               <Icon name="cash-outline" size={30} color={focused ? COLORS.info : COLORS.neutral._500} />
+            )
+        }}
+        component={DailySales} 
+      />
+      <Tab.Screen 
         name="Calendar" 
         options={{ 
             headerShown: false, 
@@ -185,6 +187,17 @@ const BottomNavigator = () => {
             )
         }}
         component={CalendarScreen} 
+      />
+      <Tab.Screen 
+        name="Staff" 
+        options={{ 
+            headerShown: false, 
+            tabBarLabelStyle: { display: 'none'},
+            tabBarIcon: ({ focused, color, size }) => (
+              <AwesomeIcon name="users" size={26} color={focused ? COLORS.info : COLORS.neutral._500} />
+            )
+        }}
+        component={Staff} 
       />
     </Tab.Navigator>
   );

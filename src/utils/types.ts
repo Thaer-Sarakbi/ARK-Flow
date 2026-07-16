@@ -83,3 +83,14 @@ export interface Notifications {
   taskId: string
   assignedById: string
 }
+
+export interface Sale {
+  before: string, 
+  totalSales: string, 
+  totalExpenses: string, 
+  banking: string, 
+  after: string, 
+  date: string
+  place: string | undefined
+  by: string | undefined
+}
