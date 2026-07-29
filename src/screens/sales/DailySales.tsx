@@ -102,7 +102,6 @@ export default function DailySales() {
     <Container headerMiddle="Daily Sales" scrollable={false} drawer>
       <ScrollView>
       <Dropdown
-         disable
           style={[styles.dropdown, isFocus && { borderColor: COLORS.info }]}
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}

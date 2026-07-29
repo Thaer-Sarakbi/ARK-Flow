@@ -27,11 +27,12 @@ interface AttendanceCard {
   removeImage?:(uri: string) => void,
   onChangeText:(text: string) => void;
   setShift?:((shift: 'Morning' | 'Night') => void) | any;
+  loading?: boolean
 }
 
 const shifts = [{value: 1, label: 'Morning'}, {value: 2, label: 'Night'}];
 
-export default function AttendanceCard({ value, title, caption, buttonText, label, docsList, imagesList, uploadButton = false, shift, onPress, onPressUploadButton, onChangeText, removeDoc, removeImage, setShift }: AttendanceCard) {
+export default function AttendanceCard({ value, title, caption, buttonText, label, docsList, imagesList, uploadButton = false, shift, onPress, onPressUploadButton, onChangeText, removeDoc, removeImage, setShift, loading }: AttendanceCard) {
   const [shiftId, setShiftId] = useState<number | undefined>(1);
   const [isFocus, setIsFocus] = useState(false);
 
@@ -102,7 +103,7 @@ export default function AttendanceCard({ value, title, caption, buttonText, labe
           <Spacer height={6} />
         </>
       )}
-     <SubmitButton text={buttonText} onPress={onPress}/>
+     <SubmitButton text={buttonText} onPress={onPress} loading={loading} disabled={loading === true ? true : false}/>
    </View>
   );
 }

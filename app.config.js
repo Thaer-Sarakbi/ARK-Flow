@@ -10,5 +10,11 @@ export default {
           projectId: "015ecd17-4c51-44fd-b463-b79a66945fa6",
         },
       },
+      android: {
+        package: "com.arkdeglory.arkflow"
+      },
+      ios: {
+        bundleIdentifier: "com.ark.deglory.arkflow"
+      },
     }
   };

@@ -12,16 +12,15 @@ import { useAddCheckInMorningMutation, useAddCheckInNightMutation, useAddCheckOu
 import { useUserDataRealTimeQuery } from "@/src/redux/user";
 import { Places } from "@/src/utils/Constants";
 import { getAuth } from "@react-native-firebase/auth";
+import { useIsFocused } from '@react-navigation/native';
 import { getDistance } from 'geolib';
 import moment from "moment";
-import { useRef, useState } from "react";
-import { Image, Linking, View } from "react-native";
-import MapView from 'react-native-maps';
+import { useEffect, useRef, useState } from "react";
+import { AppState, Image, Linking, View } from "react-native";
 
 const auth = getAuth();
 
 export default function AttendanceScreen() {
-  const mapRef = useRef<MapView | null>(null);
 
   const [showAlert, setShowAlert] = useState(false)
   const [showLocationAndroid, setShowLocationAndroid] = useState(false)
@@ -44,9 +43,10 @@ export default function AttendanceScreen() {
   const [checkInShift, setCheckInShift] = useState<'Morning' | 'Night'>("Morning")
   const [checkOutNote, setCheckOutNote] = useState("")
   const [checkOutShift, setCheckOutShift] = useState<'Morning' | 'Night'>("Morning")
+  const [register, serRegister] = useState("")
   const [report, setReport] = useState("")
   const [leaveText, setLeaveText] = useState("")
-  const { location, currentLocation, loading, error, openSettings, getLocation } = useCurrentLocation(mapRef as any)
+  const { loading, error, openSettings, getLocation } = useCurrentLocation()
   const [addCheckInMorning] = useAddCheckInMorningMutation();
   const [addCheckInNight] = useAddCheckInNightMutation()
   const [addCheckOutMorning] = useAddCheckOutMorningMutation();
@@ -57,6 +57,46 @@ export default function AttendanceScreen() {
   const [addLeave] =   useAddLeaveMutation()
   const { documents, leaveDocuments, images, uploading, leaveImages, handleDocumentSelection, handleLeaveDocumentSelection, handleSelectImage, handleSelectCamera, handleSelectLeaveImage, handleSelectLeaveCamera, removeDocument, removeLeaveDocument, removeImage, removeLeaveImage, uploadAll, uploadLeaveAll } = useDocumentPicker()
   const date = moment().format("DD-MM-YYYY");
+
+  const appState = useRef(AppState.currentState);
+  const isReloading = useRef(false);
+  
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", async (nextAppState) => {
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active" &&
+        !isReloading.current
+      ) {
+        isReloading.current = true;
+  
+        try {
+          await triggerReloadLogic();
+        } finally {
+          // Wait a little before allowing another reload
+          setTimeout(() => {
+            isReloading.current = false;
+          }, 1000);
+        }
+      }
+  
+      appState.current = nextAppState;
+    });
+  
+    return () => subscription.remove();
+  }, []);
+
+  const triggerReloadLogic = () => {
+    getLocation()
+  };
+  
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (isFocused) {
+      triggerReloadLogic();
+    }
+  }, [isFocused]);
 
   function isUserInsideArea(userLat: number, userLng: number): boolean {
 
@@ -78,27 +118,28 @@ export default function AttendanceScreen() {
   }
 
   const submitCheckIn = async () => {
-    getLocation()
+    serRegister("checkIn")
     setIsVisibleConfirmCheckIn(false)
+    const coords = await getLocation()
+
     if(error === 'Location permission denied.'){
       setShowAlert(true)
       return;
     }
 
-    console.log(error)
     if(error === 'Please enable location in your phone'){
       setShowLocationAndroid(true)
       return;
     }
 
-    if (!data?.id || !currentLocation?.latitude || !currentLocation?.longitude) {
+    if (!data?.id || !coords?.latitude || !coords?.longitude) {
       console.log("Missing location or userId");
-      return setIsVisibleCheckInFailed(true);
+      return setShowAlert(true);
     }
   
     const inside = isUserInsideArea(
-      currentLocation?.latitude,
-      currentLocation?.longitude
+      coords?.latitude,
+      coords?.longitude
     )
 
     if(!inside) {
@@ -110,8 +151,8 @@ export default function AttendanceScreen() {
       const result = await addCheckInMorning({
         userId: data.id,
         date,
-        latitude: currentLocation?.latitude,
-        longitude: currentLocation?.longitude,
+        latitude: coords?.latitude,
+        longitude: coords?.longitude,
         note: checkInNote,
       });
 
@@ -124,8 +165,8 @@ export default function AttendanceScreen() {
       const result = await addCheckInNight({
         userId: data.id,
         date,
-        latitude: currentLocation?.latitude,
-        longitude: currentLocation?.longitude,
+        latitude: coords?.latitude,
+        longitude: coords?.longitude,
         note: checkInNote
       });
 
@@ -142,8 +183,9 @@ export default function AttendanceScreen() {
   }
 
   const submitCheckOut = async () => {
-    getLocation()
+    serRegister("checkOut")
     setIsVisibleConfirmCheckOut(false)
+    const coords = await getLocation()
 
     if(error === 'Location permission denied.'){
       setShowAlert(true)
@@ -155,14 +197,14 @@ export default function AttendanceScreen() {
       return;
     }
 
-    if (!data?.id || !currentLocation?.latitude || !currentLocation?.longitude) {
+    if (!data?.id || !coords?.latitude || !coords?.longitude) {
       console.log("Missing location or userId");
       return setShowAlert(true);
     }
   
     const inside = isUserInsideArea(
-      currentLocation?.latitude,
-      currentLocation?.longitude
+      coords?.latitude,
+      coords?.longitude
     )
 
     if(!inside) {
@@ -174,8 +216,8 @@ export default function AttendanceScreen() {
       const result = await addCheckOutMorning({
         userId: data.id,
         date,
-        latitude: currentLocation?.latitude,
-        longitude: currentLocation?.longitude,
+        latitude: coords?.latitude,
+        longitude: coords?.longitude,
         note: checkOutNote,
       });
     
@@ -188,8 +230,8 @@ export default function AttendanceScreen() {
       const result = await addCheckOutNight({
         userId: data.id,
         date,
-        latitude: currentLocation?.latitude,
-        longitude: currentLocation?.longitude,
+        latitude: coords?.latitude,
+        longitude: coords?.longitude,
         note: checkOutNote,
       });
     
@@ -301,17 +343,15 @@ export default function AttendanceScreen() {
     }).catch((e) => console.log(e))
   };
 
-  return (
+  return ( 
     <>
     <Container headerMiddle="Attendance" hasInput drawer>
       <Loading visible={uploading ? true : false}/>
-      <AttendanceCard value={checkInNote} shift={checkInShift} onChangeText={setCheckInNote} setShift={setCheckInShift} label='Your Note' title="Check In" caption="Notes" buttonText="Register" onPress={() => {
-        getLocation()
+      <AttendanceCard loading={register === "checkIn" ? loading : false} value={checkInNote} shift={checkInShift} onChangeText={setCheckInNote} setShift={setCheckInShift} label='Your Note' title="Check In" caption="Notes" buttonText="Register" onPress={() => {
         setIsVisibleConfirmCheckIn(true)
       }} />
       <Spacer height={18}/>
-      <AttendanceCard value={checkOutNote} shift={checkOutShift} onChangeText={setCheckOutNote} setShift={setCheckOutShift} label="Your Note" title="Check Out" caption="Notes" buttonText="Register" onPress={() => {
-        getLocation()
+      <AttendanceCard loading={register === "checkOut" ? loading : false} value={checkOutNote} shift={checkOutShift} onChangeText={setCheckOutNote} setShift={setCheckOutShift} label="Your Note" title="Check Out" caption="Notes" buttonText="Register" onPress={() => {
         setIsVisibleConfirmCheckOut(true)
       }} />
       <Spacer height={18}/>
@@ -480,43 +520,3 @@ export default function AttendanceScreen() {
     </>
   );
 }
-
-// const styles = StyleSheet.create({
-//   sheet: {
-//     backgroundColor: COLORS.white,
-//     left: 0,
-//     right: 0,
-//     position: "absolute",
-//     bottom: 0,
-//     paddingHorizontal: 24,
-//     paddingTop: 24,
-//     paddingBottom: 32,
-//     borderTopRightRadius: 20,
-//     borderTopLeftRadius: 20,
-//     zIndex: 1,
-//     shadowOffset: {
-//       height: -2,
-//       width: 0,
-//     },
-//     shadowOpacity: 0.05,
-//     elevation: 10,
-//     shadowColor: 'rgba(0, 0, 0, 1)',
-//   },
-//   backdrop: {
-//     ...StyleSheet.absoluteFillObject,
-//     backgroundColor: 'transparent',
-//     zIndex: 1,
-//   },
-//   header: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//   },
-//   closeIcon: {
-//     width: 20,
-//     height: 20,
-//   },
-//   caption: {
-//     color: COLORS.caption,
-//     fontSize: 15
-//   }
-// })
