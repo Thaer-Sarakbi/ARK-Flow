@@ -7,7 +7,7 @@ export const salesApi = createApi({
   baseQuery: fakeBaseQuery(),
   endpoints: (builder) => ({
     addSales: builder.mutation<any, Sale>({
-      async queryFn({ before, totalSales, totalExpenses, banking, after, date, place, by }) {
+      async queryFn({ totalSales, totalExpenses, banking, date, place, by, emptyRooms, onlineBooking }) {
         try {
           await firestore()
                 .collection("sales")
@@ -15,11 +15,11 @@ export const salesApi = createApi({
                 .collection(place as string)
                 .doc("today")
                 .set({
-                  before,
                   totalSales,
                   totalExpenses,
                   banking,
-                  after,
+                  emptyRooms, 
+                  onlineBooking,
                   by
                 })
              return { data: true };

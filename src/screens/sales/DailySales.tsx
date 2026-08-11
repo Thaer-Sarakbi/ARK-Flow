@@ -38,9 +38,6 @@ export default function DailySales() {
   }, [user?.id]); 
 
   const schema = z.object({
-    before: z.string()
-      .min(1, "This field is required")
-      .regex(/^\d+(\.\d+)?$/, "Must be a valid number or decimal"), 
     totalSales: z.string()
       .min(1, "This field is required")
       .regex(/^\d+(\.\d+)?$/, "Must be a valid number or decimal"), 
@@ -50,7 +47,10 @@ export default function DailySales() {
     banking: z.string()
       .min(1, "This field is required")
       .regex(/^\d+(\.\d+)?$/, "Must be a valid number or decimal"), 
-    after: z.string()
+    emptyRooms: z.string()
+      .min(1, "This field is required")
+      .regex(/^\d+(\.\d+)?$/, "Must be a valid number or decimal"), 
+    onlineBooking: z.string()
       .min(1, "This field is required")
       .regex(/^\d+(\.\d+)?$/, "Must be a valid number or decimal"), 
   });
@@ -62,17 +62,17 @@ export default function DailySales() {
     formState: { errors, isValid }
   } = useForm({
     defaultValues: {
-      before: '',
       totalSales: '',
       totalExpenses: '',
       banking: '',
-      after: '',
+      emptyRooms: '',
+      onlineBooking: '',
     },
     resolver: zodResolver(schema),
     mode: 'onTouched',
   })
 
-  const handleSubmitSales = async (data: { before: string; totalSales: string; totalExpenses: string; banking: string; after: string; }) => {
+  const handleSubmitSales = async (data: { totalSales: string; totalExpenses: string; banking: string; emptyRooms: string; onlineBooking: string }) => {
     if (!place) {
       setIsVisibleSalesFailed(true);
       return;
@@ -128,26 +128,6 @@ export default function DailySales() {
           )}
         />
         <Spacer height={20} />
-        <Text style={styles.textLabel}>C/F Before</Text>
-        <Spacer height={6} />
-          <Controller
-            name="before"
-            control={control}
-            render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
-              <Input 
-                label="RM" 
-                keyboardType='decimal-pad'
-                borderColor={COLORS.neutral._300} 
-                inputColor={COLORS.title} 
-                labelColor={COLORS.neutral._400} 
-                onChangeText={onChange}
-                onBlur={onBlur}
-                value={value}
-                errorText={error?.message}
-              />
-            )}
-          />
-        <Spacer height={16} />
         <Text style={styles.textLabel}>Total Sales</Text>
         <Spacer height={6} />
         <Controller
@@ -208,15 +188,15 @@ export default function DailySales() {
               />
             )}
           />
-          <Spacer height={16} />
-        <Text style={styles.textLabel}>C/F After</Text>
+        <Spacer height={16} />
+        <Text style={styles.textLabel}>Total Empty Rooms</Text>
         <Spacer height={6} />
         <Controller
-            name="after"
+            name="emptyRooms"
             control={control}
             render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
               <Input
-                label='RM' 
+                label='' 
                 keyboardType='decimal-pad'
                 borderColor={COLORS.neutral._300} 
                 inputColor={COLORS.title} 
@@ -228,6 +208,27 @@ export default function DailySales() {
               />
             )}
           />
+        <Spacer height={16} />
+        <Text style={styles.textLabel}>Total Number Of Online Booking</Text>
+        <Spacer height={6} />
+          <Controller
+            name="onlineBooking"
+            control={control}
+            render={({ field: { onChange, value, onBlur }, fieldState: { error } }) => (
+              <Input 
+                label="" 
+                keyboardType='decimal-pad'
+                borderColor={COLORS.neutral._300} 
+                inputColor={COLORS.title} 
+                labelColor={COLORS.neutral._400} 
+                onChangeText={onChange}
+                onBlur={onBlur}
+                value={value}
+                errorText={error?.message}
+              />
+            )}
+          />
+        <Spacer height={16} />
         <Spacer height={20} />
         <SubmitButton disabled={isAdding} text={isAdding ? "Submitting..." : "Submit"} onPress={handleSubmit(handleSubmitSales)}/>
         <Spacer height={50} />

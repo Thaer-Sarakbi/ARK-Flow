@@ -4,10 +4,9 @@ import firestore from '@react-native-firebase/firestore'
 import messaging from '@react-native-firebase/messaging'
 import { getStorage, ref } from '@react-native-firebase/storage'
 import { createStackNavigator } from "@react-navigation/stack"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { Linking, PermissionsAndroid, Platform } from 'react-native'
 import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type'
-import MapView from 'react-native-maps'
 import { requestNotifications } from 'react-native-permissions'
 import Loading from '../components/atoms/Loading'
 import useCurrentLocation from '../hooks/useCurrentLocation'
@@ -37,9 +36,7 @@ const storage = getStorage();
 const Stack = createStackNavigator<MainStackParamsList>()
 
 const MainStack = () => { 
-    // const { data, loading } = useUserData();
-    const mapRef = useRef<MapView | null>(null);
-    const { getLocation } = useCurrentLocation(mapRef as any)
+    const { getLocation } = useCurrentLocation()
     const { data, isLoading, isError } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
     const [placeName, setPlaceName] = useState<string | undefined>('')
     const [role, setRole] = useState<string | undefined>('')

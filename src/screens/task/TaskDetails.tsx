@@ -31,10 +31,9 @@ import { getStorage, ref } from '@react-native-firebase/storage';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { StackNavigationProp } from '@react-navigation/stack';
 import moment from 'moment';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { Image, Keyboard, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { IImageInfo } from 'react-native-image-zoom-viewer/built/image-viewer.type';
-import MapView from 'react-native-maps';
 import Timeline from 'react-native-timeline-flatlist';
 
 interface TaskDetails {
@@ -59,7 +58,6 @@ const ListButton = ({ status, onPress }: { status: string, onPress:() => void })
 )
 
 const TaskDetails = ({ route: { params: { taskId, notificationId, notificationStatus, assignedToId }}}: TaskDetails) => {
-    const mapRef = useRef<MapView | null>(null);
     const [isVisibleConfirm, setIsVisibleConfirm] = useState(false)
     const [isVisible, setIsVisible] = useState(false)
     const [isVisibleStatus, setIsVisibleStatus] = useState(false)
@@ -93,7 +91,7 @@ const TaskDetails = ({ route: { params: { taskId, notificationId, notificationSt
     const  [updateNotificationStatus]= useUpdateNotificationStatusMutation()
     const [deleteTask] = useDeleteTaskMutation()
     const [addNotification, { isLoading: isLoadingAddNot, isError: isErrorAddNot }] = useAddNotificationMutation()
-    const { currentLocation, error: locationError, openSettings, getLocation } = useCurrentLocation(mapRef as any)
+    const { getLocation } = useCurrentLocation()
     const editUpdates = updatesData
     ?.map((update: Update) => {
       const time = moment(update.creationDate.seconds * 1000).format("MMM Do[\n]h:mm a");

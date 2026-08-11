@@ -9,11 +9,10 @@ import Feather from "@expo/vector-icons/Feather";
 import { DocumentPickerResponse } from "@react-native-documents/picker";
 import { getAuth } from "@react-native-firebase/auth";
 import moment from "moment";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { FlatList, Image, KeyboardAvoidingView, Linking, Platform, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { Asset } from "react-native-image-picker";
-import MapView from "react-native-maps";
 import uuid from 'react-native-uuid';
 import Input from "../atoms/Input";
 import Loading from "../atoms/Loading";
@@ -41,7 +40,6 @@ interface AddUpdate {
 const auth = getAuth();
 
 export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId, assignedToId, assignedById, images, documents, removeDocument, removeImage, uploadAll, userId, taskTitle, userName, uploading }: AddUpdate) {
-  const mapRef = useRef<MapView | null>(null);
   const [isVisibleConfirm, setIsVisibleConfirm] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [showAlert, setShowAlert] = useState(false)
@@ -49,7 +47,7 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
   const [showLocationAndroid, setShowLocationAndroid] = useState(false)
   const [addUpdate, { isSuccess, isError }] = useAddUpdateMutation()
   const [addNotification, { isLoading: isLoadingAddNot, isError: isErrorAddNot }] = useAddNotificationMutation()
-  const { currentLocation, error: locationError, openSettings, getLocation } = useCurrentLocation(mapRef as any)
+  const { loading, error: locationError, openSettings, getLocation } = useCurrentLocation()
   // const { data: assignedToData } = useGetUserRealtimeQuery({ userId: assignedToId }, { skip: !assignedToId });
   const { data: assignedByData, isLoading: isLoadingAssignedByData, isError: isErrorAssignedByData } = useUserDataRealTimeQuery(assignedById, { skip: !assignedById })
   // const [AddUpdateAttend, { isLoading: isLoadingAddUpdateAttend }] = useAddUpdateAttendMutation()
@@ -86,7 +84,7 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
       return;
     }
 
-    await getLocation()
+    const coords = await getLocation()
     if(locationError === 'Location permission denied.'){
         setIsVisibleConfirm(false);
         setShowAlert(true)
@@ -101,7 +99,7 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
         return;
       }
   
-      if (!currentLocation?.latitude || !currentLocation?.longitude) {
+      if (!coords?.latitude || !coords?.longitude) {
         console.log("Missing location");
       }
 
@@ -112,8 +110,8 @@ export default function AddUpdate({ setIsVisible, setUploadPopupVisible, taskId,
       taskId, 
       title, 
       description, 
-      latitude: currentLocation?.latitude,
-      longitude: currentLocation?.longitude,
+      latitude: coords?.latitude,
+      longitude: coords?.longitude,
       date, 
       userId
     } as any)

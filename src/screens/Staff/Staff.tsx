@@ -17,11 +17,11 @@ const Staff = () => {
     return (
       <Container headerMiddle="Staff" scrollable={false} drawer>
         <FlatList 
-          data={Places}
+          data={Places.filter(place => place.label !== 'All')}
           keyExtractor={(item, index) => item.value.toString() ?? index.toString()}
           numColumns={2}
           renderItem={({ item, index }) => {
-            const isLast = index === Places.length - 1;
+            const isLast = index === Places.length - 2;
             if(isLast){
               return(
                 <>
