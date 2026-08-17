@@ -6,7 +6,7 @@ import Place from '@/src/components/organisms/Place';
 import { useGetUsersRealtimeQuery } from '@/src/redux/user';
 import { Places } from '@/src/utils/Constants';
 import React from 'react';
-import { FlatList, View } from 'react-native';
+import { FlatList } from 'react-native';
 
 const Staff = () => {
     const { data: listOfUsers, isLoading: isLoadingUsers, isError }= useGetUsersRealtimeQuery()
@@ -17,26 +17,26 @@ const Staff = () => {
     return (
       <Container headerMiddle="Staff" scrollable={false} drawer>
         <FlatList 
-          data={Places.filter(place => place.label !== 'All')}
+          data={Places.slice(1)}
           keyExtractor={(item, index) => item.value.toString() ?? index.toString()}
           numColumns={2}
           renderItem={({ item, index }) => {
             const isLast = index === Places.length - 2;
-            if(isLast){
-              return(
-                <>
-                  <Place label={item.label} image={item.image} users={listOfUsers} latitude={item.latitude} longitude={item.longitude} />
-                  <View style={{ flex: 1, marginHorizontal: 8 }} />
-                </>
-               )
-            } else {
-                return(
-                  <Place label={item.label} image={item.image} users={listOfUsers} latitude={item.latitude} longitude={item.longitude} />
-                )
-            }
-            // return(
-            //   <Place label={item.label} image={item.image} users={listOfUsers} latitude={item.latitude} longitude={item.longitude} />
-            // )
+            // if(isLast){
+            //   return(
+            //     <>
+            //       <Place label={item.label} image={item.image} users={listOfUsers} latitude={item.latitude} longitude={item.longitude} />
+            //       <View style={{ flex: 1, marginHorizontal: 8 }} />
+            //     </>
+            //    )
+            // } else {
+            //     return(
+            //       <Place label={item.label} image={item.image} users={listOfUsers} latitude={item.latitude} longitude={item.longitude} />
+            //     )
+            // }
+            return(
+              <Place label={item.label} image={item.image} users={listOfUsers} latitude={item.latitude} longitude={item.longitude} />
+            )
           }}
         />
         <Spacer height={40} />

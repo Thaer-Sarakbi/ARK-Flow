@@ -106,7 +106,7 @@ export default function DailySales() {
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}
           iconStyle={styles.iconStyle}
-          data={Places}
+          data={Places.slice(1)}
           maxHeight={300}
           labelField="label"
           valueField="value"

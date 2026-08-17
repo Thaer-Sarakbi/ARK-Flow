@@ -226,7 +226,7 @@ export default function AddTask({ listOfUsers, setIsVisible, user }: AddTask) {
             selectedTextStyle={styles.selectedTextStyle}
             inputSearchStyle={styles.inputSearchStyle}
             iconStyle={styles.iconStyle}
-            data={Places}
+            data={Places.slice(1)}
             search
             maxHeight={250}
             labelField="label"

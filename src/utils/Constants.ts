@@ -40,7 +40,6 @@ export const Places = [
   {value: 24, label: 'KDH 2', latitude: 3.1510098, longitude: 101.5757008, image: require('@/assets/images/places/kdh2.jpeg')},
   {value: 26, label: 'MELAWATHI H2', latitude: 3.2105542, longitude: 101.7470980, image: require('@/assets/images/places/melawatiH2.jpeg')},
   {value: 27, label: 'NEW KAJANG', latitude: 2.9964944, longitude: 101.8154774, image: require('@/assets/images/places/newRawang.jpeg')},
-  {value: 28, label: 'NEW RAWANG'}, 
   {value: 29, label: 'SUBANG', latitude: 3.1519610, longitude: 101.5525850, image: require('@/assets/images/places/subang.jpg') },
   {value: 30, label: 'SG BESI H2', latitude: 3.0356466, longitude: 101.7052028, image: '' },
   {value: 31, label: 'SERANDAH', image: require('@/assets/images/places/serandah.jpeg')},

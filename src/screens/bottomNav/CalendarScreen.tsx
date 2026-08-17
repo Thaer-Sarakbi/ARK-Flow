@@ -143,11 +143,15 @@ export default function CalendarScreen() {
     const mapById = new Map(attendanceList?.map((item: any) => [item.id, item])) as any;
 
     const rowsMorning = days.map(day => {
-     const currentDay = day.split('-').reverse().join("-")
+    const currentDay = day.split('-').reverse().join("-")
+    const [toDay] = currentDay.split('-');
+    const date = new Date(year, month - 1, Number(toDay));
+    const weekday = date.toLocaleDateString('en-US', { weekday: 'short' });
+
      return(
       `
       <tr>
-        <td>${currentDay}</td>
+        <td>${currentDay} - <strong>${weekday}</strong></td>
         <td>${mapById.get(currentDay)?.checkInMorning ? moment(new Date(mapById.get(currentDay)?.checkInMorning.seconds * 1000)).format('hh:mm a') : '-' }</td>
         <td class="note">${mapById.get(currentDay)?.checkInNoteMorning ? mapById.get(currentDay)?.checkInNoteMorning : '-'}</td>
         <td>${mapById.get(currentDay)?.checkOutMorning ? moment(new Date(mapById.get(currentDay)?.checkOutMorning?.seconds * 1000)).format('hh:mm a') : '-'}</td>
@@ -194,7 +198,7 @@ export default function CalendarScreen() {
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}
           iconStyle={styles.iconStyle}
-          data={Places}
+          data={Places.slice(1)}
           search
           maxHeight={300}
           labelField="label"

@@ -199,7 +199,7 @@ export default function SignUpScreen() {
                   selectedTextStyle={styles.selectedTextStyle}
                   inputSearchStyle={styles.inputSearchStyle}
                   iconStyle={styles.iconStyle}
-                  data={Places}
+                  data={Places.slice(1)}
                   search
                   maxHeight={250}
                   labelField="label"

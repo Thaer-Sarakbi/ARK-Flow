@@ -68,7 +68,7 @@ const UpdatePlacePopup = ({isVisible = false, id, placeId, placeName, setPlaceNa
           selectedTextStyle={styles.selectedTextStyle}
           inputSearchStyle={styles.inputSearchStyle}
           iconStyle={styles.iconStyle}
-          data={Places}
+          data={Places.slice(1)}
           search
           maxHeight={300}
           labelField="label"
