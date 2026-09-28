@@ -105,7 +105,7 @@ export default function AttendanceScreen() {
       longitude: Places.find(place => place.value === data?.placeId)?.longitude,
     }
 
-    const RADIUS_METERS = 250
+    const RADIUS_METERS = 150
     
     if (!TARGET_LOCATION.latitude || !TARGET_LOCATION.longitude) return true;
 
