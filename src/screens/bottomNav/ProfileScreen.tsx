@@ -49,10 +49,12 @@ export default function ProfileScreen() {
   const [showNameAlert, setShowNameAlert] = useState(false)
   const [showRoleAlert, setShowRoleAlert] = useState(false)
   const [showPhotoAlert, setShowPhotoAlert] = useState(false)
+  const [showSalaryAlert, setShowSalaryAlert] = useState(false)
   const [placeName, setPlaceName] = useState<string | undefined>('')
   const [role, setRole] = useState<string | undefined>('')
   const [placeId, setPlaceId] = useState<number | undefined>()
   const [updatedName, setUpdatedName] = useState<string | undefined>('')
+  const [updatedSalary, setUpdatedSalary] = useState<number | undefined>()
   const [profileImage, setProfileImage] = useState<IImageInfo[]>([])
   const [isImageViewVisible, setIsImageViewVisible] = useState<boolean>(false);
   const [loadingVisible, setIsLoadingVisible] = useState<boolean>(false);
@@ -70,7 +72,8 @@ export default function ProfileScreen() {
     {id: 2, title: 'Mobile Number', value: data?.phoneNumber},
     {id: 3, title: 'Password', value: showPassword ? data?.password : '*******'},
     {id: 4, title: 'Role', value: data?.role},
-    {id: 5, title: 'Place', value: placeName}
+    {id: 5, title: 'Salary', value: data?.salary},
+    {id: 6, title: 'Place', value: placeName}
   ]
 
   useEffect(() => {
@@ -78,6 +81,7 @@ export default function ProfileScreen() {
     setPlaceId(data?.placeId)
     setUpdatedName(data?.fullName)
     setRole(data?.role)
+    setUpdatedSalary(data?.salary)
   },[data, showNameAlert, showRoleAlert])
 
   useEffect(() => {
@@ -183,7 +187,7 @@ export default function ProfileScreen() {
           <Spacer height={15} />
           {
             fields.map(field => (
-              <ProfileInfo key={field.id} title={field.title} value={field.value} setShowRoleAlert={setShowRoleAlert} setShowPlaceAlert={setShowPlaceAlert} showPassword={showPassword} toggleShowPassword={toggleShowPassword} />
+              <ProfileInfo key={field.id} title={field.title} value={field.value} setShowRoleAlert={setShowRoleAlert} setShowPlaceAlert={setShowPlaceAlert} showPassword={showPassword} toggleShowPassword={toggleShowPassword} setShowSalaryAlert={setShowSalaryAlert}/>
             ))
           }
           <Text style = {styles.mainTitle}>Document Provider</Text>
@@ -237,6 +241,7 @@ export default function ProfileScreen() {
     <UpdateProfilePopup isVisible={showNameAlert} id={data?.id} value={updatedName} data={'fullName'} setUpdate={setUpdatedName} title="Edit Name" paragraph1="Please type your updated name" disable={() => {setShowNameAlert(false)}} buttonTitle="Submit" placeholder="Full Name"/>
     <UploadPhotoPopup isVisible={showPhotoAlert} id={data?.id} setProfileImage={setProfileImage} disable={() => setShowPhotoAlert(false)} />
     <UpdateProfilePopup isVisible={showRoleAlert} id={data?.id} value={role} data={'role'} setUpdate={setRole} title="Edit Role" paragraph1="Please type your role" paragraph2="For Example: Counter, Cleaner....." disable={() => {setShowRoleAlert(false)}} buttonTitle="Submit" placeholder="Role"/>
+    <UpdateProfilePopup isVisible={showSalaryAlert} id={data?.id} value={updatedSalary} data={'salary'} setUpdate={setUpdatedSalary} title="Edit Salary" paragraph1="Please type your updated salary" disable={() => {setShowSalaryAlert(false)}} buttonTitle="Submit" placeholder="Salary"/>
     <ImageViewModal index={0} visible={isImageViewVisible} images={profileImage} setIsVisible={setIsImageViewVisible} />
     </>
   );

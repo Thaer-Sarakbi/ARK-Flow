@@ -14,7 +14,7 @@ export enum DeviceInformation {
 
 export const Places = [
   {value: 39, label: 'All'},
-  {value: 2, label: 'AMPANG H2', latitude: 3.16205274, longitude: 101.6495880, image: require('@/assets/images/places/ampangH2.webp')},
+  {value: 2, label: 'AMPANG H2', latitude: 3.158353275, longitude: 101.749998200, image: require('@/assets/images/places/ampangH2.webp')},
   {value: 3, label: 'AMPANG TESCO', image: require('@/assets/images/places/tesco.webp')},
   {value: 4, label: 'BUKIT BERU', image: require('@/assets/images/places/beru.webp')},
   {value: 5, label: 'CAMERON', image: require('@/assets/images/places/cameron.webp')},

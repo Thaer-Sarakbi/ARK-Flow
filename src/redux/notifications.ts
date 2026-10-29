@@ -16,13 +16,6 @@ export const notificationsApi = createApi({
               return { data: [] }; // prevents invalid Firestore paths
             }
 
-            // const docSnap = await firestore()
-            // .collection("users")
-            // .doc(userId)
-            // .collection("notifications")
-            // .orderBy("creationDate", "desc")
-            // .get()
-
             const notificationsRef = query(
               collection(db, 'users', userId, 'notifications'),
               orderBy('creationDate', 'desc')
@@ -89,23 +82,6 @@ export const notificationsApi = createApi({
     addNotification: builder.mutation<any, Notifications>({
         async queryFn({ userId, title, message, screenId, screenName, by, assignedToId, taskId, assignedById }) {
           try {
-            // await firestore()
-            //       .collection("users")
-            //       .doc(userId)
-            //       .collection("notifications")
-            //       .add({
-            //         readed: false,
-            //         title,
-            //         message, 
-            //         screenId, 
-            //         screenName,
-            //         by,
-            //         assignedToId,
-            //         taskId,
-            //         assignedById,
-            //         creationDate: new Date(), 
-            //       })
-
             const notificationsRef = collection(
               db,
               'users',
@@ -139,18 +115,43 @@ export const notificationsApi = createApi({
             },
         }),
 
+        addAdvanceNotification: builder.mutation<any, Notifications>({
+          async queryFn({ userId, requestedById, advanceId, screenName, screenId, title, message }) {
+            try {
+              const notificationsRef = collection(
+                db,
+                'users',
+                userId  as any,
+                'notifications'
+              );
+    
+              await addDoc(notificationsRef, {
+                readed: false,
+                requestedById, 
+                advanceId, 
+                screenName, 
+                screenId, 
+                title, 
+                message,
+                creationDate: new Date(),
+              });
+  
+                 return { data: true };
+            } catch (err: any) {
+              console.log(err)
+                return {
+                  error: {
+                    status: err.code || "UNKNOWN",
+                    message: err.message || "Unexpected Firestore error",
+                  },
+                  };
+                }
+              },
+          }),
+
     updateNotificationStatus: builder.mutation<any, {userId: string | undefined, notificationId: string}>({
         async queryFn({ userId, notificationId }) {
             try {
-              // await firestore()
-              //       .collection("users")
-              //       .doc(userId)
-              //       .collection("notifications")
-              //       .doc(notificationId)
-              //       .update({
-              //         readed: true
-              //       })  
-
               const notificationRef = doc(
                 db,
                 'users',
@@ -180,6 +181,7 @@ export const notificationsApi = createApi({
 export const {
   useGetNotificationsQuery,
   useAddNotificationMutation,
+  useAddAdvanceNotificationMutation,
   useGetNotificationsRealtimeQuery,
   useUpdateNotificationStatusMutation
 } = notificationsApi;

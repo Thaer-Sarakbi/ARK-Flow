@@ -40,10 +40,12 @@ const MainStack = () => {
     const { data, isLoading, isError } = useUserDataRealTimeQuery(auth.currentUser?.uid ?? null)
     const [placeName, setPlaceName] = useState<string | undefined>('')
     const [role, setRole] = useState<string | undefined>('')
+    const [salary, setSalary] = useState<string | undefined>('')
     const [placeId, setPlaceId] = useState<number | undefined>()
     const [isVisible, setIsvisible] = useState(false)
     const [showAlert, setShowAlert] = useState(false)
     const [showPlaceAlert, setShowPlaceAlert] = useState(false)
+    const [showSalaryAlert, setShowSalaryAlert] = useState(false)
     const [showRoleAlert, setShowRoleAlert] = useState(false)
     const [showPhotoAlert, setShowPhotoAlert] = useState(false)
     const [profileImage, setProfileImage] = useState<IImageInfo[]>([])
@@ -188,6 +190,10 @@ const MainStack = () => {
       if(!result.data()?.role){
         setShowRoleAlert(true)
       }
+
+      if(!result.data()?.salary){
+        setShowSalaryAlert(true)
+      }
     }
 
     const openSettings = () => {
@@ -281,7 +287,8 @@ const MainStack = () => {
       }} onPressClose={() => setShowAlert(false)} buttonTitle="Enable"/>
       <ConfirmationPopup isVisible={removedAccount} title="Removed Account" paragraph1="Your account has been deleted from database" buttonTitle="Okay"/>
       <UpdatePlacePopup isVisible={showPlaceAlert} id={data?.id} placeName={placeName} placeId={placeId} setPlaceName={setPlaceName} setPlaceId={setPlaceId} title="Your Place" paragraph1="Please choose your place" disable={() => setShowPlaceAlert(false)} buttonTitle="Submit"/>
-      <UpdateProfilePopup isVisible={showRoleAlert} enableCloseIcone={false} id={data?.id} value={role} data={'role'} setUpdate={setRole} title="Your Role" paragraph1="Please type your role" paragraph2="For Example: Counter, Cleaner....." disable={() => {setShowRoleAlert(false)}} buttonTitle="Submit" placeholder='Role'/>
+      <UpdateProfilePopup isVisible={showSalaryAlert} id={data?.id} data={'salary'} value={salary} setUpdate={setSalary} title="Your Salary" paragraph1="Please submit your salary" disable={() => setShowSalaryAlert(false)} buttonTitle="Submit" home={true} placeholder='Salary'/>
+      <UpdateProfilePopup isVisible={showRoleAlert} enableCloseIcone={false} id={data?.id} value={role} data={'role'} setUpdate={setRole} title="Your Role" paragraph1="Please type your role" paragraph2="For Example: Counter, Cleaner....." disable={() => {setShowRoleAlert(false)}} buttonTitle="Submit" placeholder='Role' home={true}/>
       <UploadPhotoPopup isVisible={showPhotoAlert} id={data?.id} setProfileImage={setProfileImage} disable={() => setShowPhotoAlert(false)} enableCloseIcone={false} />
       </>
     )

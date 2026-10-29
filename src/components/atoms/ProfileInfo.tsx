@@ -6,14 +6,15 @@ import Separator from './Separator';
 
 interface ProfileInfoInfo {
   title: string; 
-  value: string | null | undefined;
+  value: number | string | null | undefined;
   showPassword?: boolean; 
   toggleShowPassword?:() => void; 
   setShowRoleAlert?:(bool: boolean) => void; 
-  setShowPlaceAlert?:(bool: boolean) => void
+  setShowPlaceAlert?:(bool: boolean) => void;
+  setShowSalaryAlert?:(bool: boolean) => void
 }
 
-const ProfileInfo = ({ title, value, showPassword, toggleShowPassword, setShowRoleAlert, setShowPlaceAlert }: ProfileInfoInfo) => {
+const ProfileInfo = ({ title, value, showPassword, toggleShowPassword, setShowRoleAlert, setShowPlaceAlert , setShowSalaryAlert}: ProfileInfoInfo) => {
     return (
       <View>
         <View style={styles.container}>
@@ -38,6 +39,11 @@ const ProfileInfo = ({ title, value, showPassword, toggleShowPassword, setShowRo
         {(title === 'Place' && setShowPlaceAlert) && (
           <TouchableOpacity onPress={() => setShowPlaceAlert(true)}>
             <Text style={styles.text}>change</Text>
+          </TouchableOpacity>)} 
+
+        {(title === 'Salary' && setShowSalaryAlert) && (
+          <TouchableOpacity onPress={() => setShowSalaryAlert(true)}>
+            <Text style={styles.text}>edit</Text>
           </TouchableOpacity>)} 
         </View>
         <Separator marginVertical={15} />

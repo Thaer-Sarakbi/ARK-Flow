@@ -19,6 +19,19 @@ export interface Task {
     assignedById: string
 }
 
+export interface Advance {
+  id: string;
+  description: string,
+  requestedBy: string;
+  requestedById: string; 
+  amount: string
+  location: string
+  status: string
+  title: string
+  creationDate: Timestamp
+  statusId: number
+}
+
 export type Update = {
     event: string,
     id: string,
@@ -67,6 +80,9 @@ export interface User {
   placeName: string,
   placeId: number
   role: string
+  salaryAdvance: number
+  salary: number;
+  advancesReviewer: boolean
 }
 
 export interface Notifications {
@@ -82,6 +98,8 @@ export interface Notifications {
   assignedToId: string
   taskId: string
   assignedById: string
+  advanceId: string
+  requestedById: string
 }
 
 export interface Sale {

@@ -1,4 +1,5 @@
 import { configureStore } from '@reduxjs/toolkit'
+import { advancesApi } from './advances'
 import { attendanceApi } from './attendance'
 import { notificationsApi } from './notifications'
 import { salesApi } from './sales'
@@ -15,6 +16,7 @@ export const store = configureStore({
     [updatesApi.reducerPath]: updatesApi.reducer,
     [notificationsApi.reducerPath]: notificationsApi.reducer,
     [salesApi.reducerPath]: salesApi.reducer,
+    [advancesApi.reducerPath]: advancesApi.reducer,
     ui: uiSlice.reducer
   },
   middleware: (getDefaultMiddleware) =>
@@ -27,4 +29,5 @@ export const store = configureStore({
       .concat(updatesApi.middleware)
       .concat(notificationsApi.middleware)
       .concat(salesApi.middleware)
+      .concat(advancesApi.middleware)
 })
